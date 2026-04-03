@@ -1,14 +1,22 @@
 import React, { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAuthStore } from "../src/store/authStore";
+import { trackPageView } from "../src/api/analytics";
 
 export default function RootLayout() {
   const loadToken = useAuthStore((s) => s.loadToken);
+  const pathname = usePathname();
 
   useEffect(() => {
     loadToken();
   }, []);
+
+  useEffect(() => {
+    if (pathname) {
+      trackPageView(pathname);
+    }
+  }, [pathname]);
 
   return (
     <>

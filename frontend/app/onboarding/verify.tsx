@@ -10,6 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
+import { trackEvent } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
 export default function VerifyScreen() {
@@ -26,8 +27,10 @@ export default function VerifyScreen() {
       const data = res.data;
 
       if (data.is_new_user) {
+        trackEvent("phone_verified_new_user");
         router.push({ pathname: "/onboarding/profile", params: { phone } });
       } else {
+        trackEvent("login_success");
         await setToken(data.token!);
         setUser(data.user!);
         if (data.user!.profile_completed) {

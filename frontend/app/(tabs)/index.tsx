@@ -8,6 +8,7 @@ import {
   Text,
 } from "react-native";
 import { feedApi, interestApi } from "../../src/api";
+import { trackEvent } from "../../src/api/analytics";
 import { FeedCard } from "../../src/components/FeedCard";
 import { COLORS } from "../../src/constants/config";
 import type { Post } from "../../src/types";
@@ -57,6 +58,7 @@ export default function HomeScreen() {
   const handleInterest = async (userId: number) => {
     try {
       await interestApi.create(userId);
+      trackEvent("send_interest", { target_user_id: userId });
     } catch {
       // already sent or blocked
     }

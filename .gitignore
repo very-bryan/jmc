@@ -29,3 +29,5 @@ Thumbs.db
 # Credentials (keep encrypted versions)
 backend/config/credentials/*.key
 backend/config/master.key
+
+.verycloud/
