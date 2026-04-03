@@ -1,0 +1,39 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">공지사항</h1>
+      <p class="text-sm text-muted-foreground">앱 내 공지 관리</p>
+    </div>
+    <%= link_to new_admin_announcement_path, class: "shadcn-btn shadcn-btn-primary" do %>
+      <i data-lucide="plus" class="w-4 h-4 mr-1.5"></i>새 공지 작성
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>제목</th><th>대상</th><th>기간</th><th>상태</th><th>작성자</th><th></th>
+      </tr></thead>
+      <tbody>
+        <% @announcements.each do |ann| %>
+          <tr>
+            <td class="font-medium"><%= ann.title %></td>
+            <td class="text-muted-foreground"><%= { "all_users" => "전체", "male_only" => "남성", "female_only" => "여성" }[ann.target_audience] %></td>
+            <td class="text-muted-foreground"><%= ann.starts_at&.strftime("%m/%d") || "-" %> ~ <%= ann.ends_at&.strftime("%m/%d") || "-" %></td>
+            <td><span class="shadcn-badge border <%= ann.active? ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-neutral-100 text-neutral-600 border-neutral-200' %>"><%= ann.active? ? '활성' : '비활성' %></span></td>
+            <td class="text-muted-foreground"><%= ann.admin_user.name %></td>
+            <td class="text-right">
+              <div class="flex gap-1 justify-end">
+                <%= link_to edit_admin_announcement_path(ann), class: "shadcn-btn shadcn-btn-ghost h-7 w-7 p-0" do %><i data-lucide="pencil" class="w-3.5 h-3.5"></i><% end %>
+                <%= button_to admin_announcement_path(ann), method: :delete, class: "shadcn-btn shadcn-btn-ghost h-7 w-7 p-0 text-destructive", data: { confirm: "정말 삭제하시겠습니까?" } do %><i data-lucide="trash-2" class="w-3.5 h-3.5"></i><% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @announcements.empty? %>
+      <div class="text-center py-16"><i data-lucide="megaphone" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i><p class="text-sm text-muted-foreground">공지사항이 없습니다</p></div>
+    <% end %>
+  </div>
+</div>

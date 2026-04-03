@@ -1,0 +1,59 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">신고 관리</h1>
+    <p class="text-sm text-muted-foreground">신고 접수 및 처리 현황</p>
+  </div>
+
+  <div class="flex gap-1 bg-muted rounded-lg p-1 w-fit">
+    <% [["pending", "미처리"], ["processing", "처리 중"], ["done", "완료"], ["repeat", "반복 신고"]].each do |key, label| %>
+      <%= link_to label, admin_reports_path(tab: key),
+          class: "px-3 py-1.5 text-sm font-medium rounded-md transition #{@tab == key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}" %>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card p-4">
+    <%= form_tag admin_reports_path, method: :get, class: "flex gap-3 items-end" do %>
+      <input type="hidden" name="tab" value="<%= @tab %>">
+      <div>
+        <label class="text-xs font-medium text-muted-foreground mb-1.5 block">신고 유형</label>
+        <select name="report_type" class="shadcn-input">
+          <option value="">전체</option>
+          <% Report.report_types.keys.each do |t| %><option value="<%= t %>" <%= "selected" if params[:report_type] == t %>><%= report_type_label(t) %></option><% end %>
+        </select>
+      </div>
+      <button type="submit" class="shadcn-btn shadcn-btn-primary"><i data-lucide="search" class="w-4 h-4 mr-1.5"></i>검색</button>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>ID</th><th>유형</th><th>신고자</th><th>피신고자</th><th>사유</th><th>상태</th><th>일시</th><th></th>
+      </tr></thead>
+      <tbody>
+        <% @reports.each do |report| %>
+          <tr>
+            <td class="text-muted-foreground">#<%= report.id %></td>
+            <td><%= report_type_label(report.report_type) %></td>
+            <td class="text-muted-foreground"><%= report.reporter.nickname %></td>
+            <td class="font-medium"><%= link_to report.reported.nickname, admin_user_path(report.reported), class: "hover:underline" %></td>
+            <td class="text-muted-foreground max-w-xs truncate"><%= report.reason %></td>
+            <td><%= report_status_badge(report.status) %></td>
+            <td class="text-muted-foreground"><%= report.created_at.strftime("%m/%d %H:%M") %></td>
+            <td class="text-right">
+              <%= link_to admin_report_path(report), class: "shadcn-btn shadcn-btn-ghost h-8 px-2" do %>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @reports.empty? %>
+      <div class="text-center py-16">
+        <i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i>
+        <p class="text-sm text-muted-foreground">신고가 없습니다</p>
+      </div>
+    <% end %>
+  </div>
+</div>

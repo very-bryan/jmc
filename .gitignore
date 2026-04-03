@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Expo
+frontend/.expo/
+frontend/dist/
+
+# Rails
+backend/tmp/
+backend/log/
+backend/storage/
+backend/.bundle/
+backend/vendor/bundle/
+
+# Environment
+.env
+.env.*
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Credentials (keep encrypted versions)
+backend/config/credentials/*.key
+backend/config/master.key

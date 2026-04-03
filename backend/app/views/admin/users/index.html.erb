@@ -1,0 +1,79 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">회원 관리</h1>
+      <p class="text-sm text-muted-foreground">총 <%= number_with_delimiter(User.count) %>명</p>
+    </div>
+  </div>
+
+  <div class="shadcn-card p-4">
+    <%= form_tag admin_users_path, method: :get, class: "flex flex-wrap gap-3 items-end" do %>
+      <div>
+        <label class="text-xs font-medium text-muted-foreground mb-1.5 block">검색</label>
+        <input type="text" name="q" value="<%= params[:q] %>" placeholder="닉네임, 전화번호" class="shadcn-input w-48">
+      </div>
+      <div>
+        <label class="text-xs font-medium text-muted-foreground mb-1.5 block">성별</label>
+        <select name="gender" class="shadcn-input">
+          <option value="">전체</option>
+          <option value="male" <%= "selected" if params[:gender] == "male" %>>남성</option>
+          <option value="female" <%= "selected" if params[:gender] == "female" %>>여성</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-medium text-muted-foreground mb-1.5 block">상태</label>
+        <select name="status" class="shadcn-input">
+          <option value="">전체</option>
+          <% User.statuses.keys.each do |s| %><option value="<%= s %>" <%= "selected" if params[:status] == s %>><%= s.humanize %></option><% end %>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-medium text-muted-foreground mb-1.5 block">인증</label>
+        <select name="verification_level" class="shadcn-input">
+          <option value="">전체</option>
+          <% User.verification_levels.keys.each do |v| %><option value="<%= v %>" <%= "selected" if params[:verification_level] == v %>><%= v.humanize %></option><% end %>
+        </select>
+      </div>
+      <button type="submit" class="shadcn-btn shadcn-btn-primary"><i data-lucide="search" class="w-4 h-4 mr-1.5"></i>검색</button>
+      <% if params.to_unsafe_h.except("controller", "action").any? %>
+        <%= link_to "초기화", admin_users_path, class: "shadcn-btn shadcn-btn-ghost text-muted-foreground" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>ID</th><th>닉네임</th><th>성별/나이</th><th>지역</th><th>인증</th><th>상태</th><th>가입일</th><th>신고</th><th></th>
+      </tr></thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td class="text-muted-foreground"><%= user.id %></td>
+            <td class="font-medium"><%= user.nickname %></td>
+            <td class="text-muted-foreground"><%= user.gender == "male" ? "남" : "여" %> / <%= user.age %>세</td>
+            <td class="text-muted-foreground"><%= user.region %></td>
+            <td><%= verification_badge(user.verification_level) %></td>
+            <td><%= status_badge(user.status) %></td>
+            <td class="text-muted-foreground"><%= user.created_at.strftime("%Y-%m-%d") %></td>
+            <td class="text-muted-foreground"><%= user.reports_received.count %></td>
+            <td class="text-right">
+              <%= link_to admin_user_path(user), class: "shadcn-btn shadcn-btn-ghost h-8 px-2" do %>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @users.total_pages > 1 %>
+    <div class="flex justify-center gap-1">
+      <% (1..@users.total_pages).each do |page| %>
+        <%= link_to page, admin_users_path(params.permit!.merge(page: page)),
+            class: "shadcn-btn h-8 w-8 p-0 #{page == @users.current_page ? 'shadcn-btn-primary' : 'shadcn-btn-outline'}" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

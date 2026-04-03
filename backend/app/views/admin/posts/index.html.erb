@@ -1,0 +1,48 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">콘텐츠 관리</h1>
+    <p class="text-sm text-muted-foreground">게시글 검수 및 관리</p>
+  </div>
+
+  <div class="flex gap-1 bg-muted rounded-lg p-1 w-fit">
+    <% [["all", "전체 게시글"], ["reported", "신고된 게시글"]].each do |key, label| %>
+      <%= link_to label, admin_posts_path(tab: key),
+          class: "px-3 py-1.5 text-sm font-medium rounded-md transition #{@tab == key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}" %>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>ID</th><th>작성자</th><th>내용</th><th>이미지</th><th>상태</th><th>작성일</th><th></th>
+      </tr></thead>
+      <tbody>
+        <% @posts.each do |post| %>
+          <tr>
+            <td class="text-muted-foreground">#<%= post.id %></td>
+            <td><%= link_to post.user.nickname, admin_user_path(post.user), class: "font-medium hover:underline" %></td>
+            <td class="text-muted-foreground max-w-md truncate"><%= post.content %></td>
+            <td class="text-muted-foreground"><%= post.post_images.count %>장</td>
+            <td><span class="shadcn-badge border <%= post.post_published? ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-neutral-100 text-neutral-600 border-neutral-200' %>"><%= post.status %></span></td>
+            <td class="text-muted-foreground"><%= post.created_at.strftime("%m/%d %H:%M") %></td>
+            <td class="text-right">
+              <% if post.post_published? %>
+                <div class="flex gap-1 justify-end">
+                  <%= button_to hide_admin_post_path(post), method: :post, class: "shadcn-btn shadcn-btn-outline h-7 px-2 text-xs" do %>
+                    <i data-lucide="eye-off" class="w-3 h-3 mr-1"></i>비공개
+                  <% end %>
+                  <%= button_to remove_admin_post_path(post), method: :post, class: "shadcn-btn shadcn-btn-destructive h-7 px-2 text-xs", data: { confirm: "정말 삭제하시겠습니까?" } do %>
+                    <i data-lucide="trash-2" class="w-3 h-3 mr-1"></i>삭제
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @posts.empty? %>
+      <div class="text-center py-16"><i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i><p class="text-sm text-muted-foreground">게시글이 없습니다</p></div>
+    <% end %>
+  </div>
+</div>

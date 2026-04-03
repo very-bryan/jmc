@@ -1,0 +1,102 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-2">
+    <%= link_to admin_reports_path, class: "shadcn-btn shadcn-btn-ghost h-8 w-8 p-0" do %><i data-lucide="arrow-left" class="w-4 h-4"></i><% end %>
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">신고 #<%= @report.id %></h1>
+      <p class="text-sm text-muted-foreground"><%= report_type_label(@report.report_type) %></p>
+    </div>
+    <div class="ml-2"><%= report_status_badge(@report.status) %></div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-4">
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">신고 정보</h2>
+        <div class="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+          <div><span class="text-muted-foreground">신고일</span><div class="font-medium mt-0.5"><%= @report.created_at.strftime("%Y-%m-%d %H:%M") %></div></div>
+          <div><span class="text-muted-foreground">유형</span><div class="font-medium mt-0.5"><%= report_type_label(@report.report_type) %></div></div>
+          <div><span class="text-muted-foreground">신고자</span><div class="font-medium mt-0.5"><%= link_to @report.reporter.nickname, admin_user_path(@report.reporter), class: "hover:underline" %></div></div>
+          <div><span class="text-muted-foreground">피신고자</span><div class="font-medium mt-0.5"><%= link_to @report.reported.nickname, admin_user_path(@report.reported), class: "hover:underline" %> <span class="text-xs text-destructive">(누적 <%= @report_count %>건)</span></div></div>
+        </div>
+        <div class="mt-4 pt-4 border-t">
+          <span class="text-muted-foreground text-sm">신고 사유</span>
+          <p class="mt-1.5 text-sm bg-muted rounded-md p-3"><%= @report.reason %></p>
+        </div>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">신고 대상</h2>
+        <p class="text-xs text-muted-foreground mb-2"><%= @report.reportable_type %> #<%= @report.reportable_id %></p>
+        <% if @report.reportable_type == "Post" && @report.reportable %>
+          <div class="bg-muted rounded-md p-3"><p class="text-sm"><%= @report.reportable.content %></p></div>
+        <% elsif @report.reportable_type == "Message" && @report.reportable %>
+          <div class="rounded-md border border-amber-200 bg-amber-50 p-3">
+            <div class="flex items-center gap-1.5 mb-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i><span class="text-xs text-amber-700 font-medium">DM 열람 - 신고 처리 목적 한정, 열람 이력 자동 기록</span></div>
+            <p class="text-sm"><%= @report.reportable.content %></p>
+          </div>
+        <% else %>
+          <p class="text-sm text-muted-foreground">사용자 프로필 신고</p>
+        <% end %>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">피신고자 제재 이력</h2>
+        <% if @past_sanctions.any? %>
+          <div class="divide-y">
+            <% @past_sanctions.each do |s| %>
+              <div class="py-2.5 first:pt-0 last:pb-0 text-sm flex items-start justify-between">
+                <div>
+                  <span class="font-medium"><%= sanction_type_label(s.sanction_type) %></span>
+                  <span class="shadcn-badge border ml-1 <%= s.active? ? 'bg-red-50 text-red-700 border-red-200' : 'bg-neutral-100 text-neutral-500 border-neutral-200' %>"><%= s.active? ? '활성' : '종료' %></span>
+                  <p class="text-xs text-muted-foreground mt-0.5"><%= s.reason %></p>
+                </div>
+                <span class="text-xs text-muted-foreground flex-shrink-0 ml-4"><%= s.created_at.strftime("%Y-%m-%d") %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-muted-foreground">제재 이력이 없습니다</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <% if @report.report_submitted? %>
+        <div class="shadcn-card p-5">
+          <h3 class="text-sm font-medium mb-3">반려</h3>
+          <%= form_tag dismiss_admin_report_path(@report), method: :post, class: "space-y-3" do %>
+            <textarea name="reason" placeholder="반려 사유" rows="2" required class="shadcn-input w-full h-auto resize-none"></textarea>
+            <button type="submit" class="shadcn-btn shadcn-btn-outline w-full">반려 처리</button>
+          <% end %>
+        </div>
+
+        <div class="shadcn-card p-5 border-destructive/30">
+          <h3 class="text-sm font-medium text-destructive mb-3">제재 처리</h3>
+          <%= form_tag process_report_admin_report_path(@report), method: :post, class: "space-y-3" do %>
+            <div>
+              <label class="text-xs font-medium text-muted-foreground mb-1.5 block">제재 유형</label>
+              <select name="sanction_type" class="shadcn-input w-full">
+                <option value="">제재 없이 처리</option>
+                <option value="warning">경고</option>
+                <option value="feature_restriction">기능 제한</option>
+                <option value="temporary_suspension">일시 정지</option>
+                <option value="permanent_suspension">영구 정지</option>
+              </select>
+            </div>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="delete_content" value="1" class="rounded border-input">콘텐츠 삭제</label>
+            <div>
+              <label class="text-xs font-medium text-muted-foreground mb-1.5 block">처리 사유 (필수)</label>
+              <textarea name="process_reason" required rows="3" class="shadcn-input w-full h-auto resize-none"></textarea>
+            </div>
+            <button type="submit" class="shadcn-btn shadcn-btn-destructive w-full">처리 완료</button>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="shadcn-card p-5 text-center">
+          <i data-lucide="check-circle-2" class="w-8 h-8 text-muted-foreground/40 mx-auto mb-2"></i>
+          <p class="text-sm text-muted-foreground">이미 처리된 신고입니다</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

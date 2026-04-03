@@ -1,0 +1,36 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">관계 상태 관리</h1>
+    <p class="text-sm text-muted-foreground">연애/졸업 현황 및 이상 패턴 모니터링</p>
+  </div>
+
+  <div class="flex gap-1 bg-muted rounded-lg p-1 w-fit">
+    <% [["dating", "연애 중"], ["graduated", "졸업"], ["anomaly", "이상 패턴"]].each do |key, label| %>
+      <%= link_to label, admin_relationships_path(tab: key),
+          class: "px-3 py-1.5 text-sm font-medium rounded-md transition #{@tab == key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}" %>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>ID</th><th>회원 A</th><th>회원 B</th><th>유형</th><th>상태</th><th>확인일</th>
+      </tr></thead>
+      <tbody>
+        <% @relationships.each do |rel| %>
+          <tr>
+            <td class="text-muted-foreground">#<%= rel.id %></td>
+            <td><%= link_to rel.initiator.nickname, admin_user_path(rel.initiator), class: "font-medium hover:underline" %></td>
+            <td><%= link_to rel.partner.nickname, admin_user_path(rel.partner), class: "font-medium hover:underline" %></td>
+            <td><span class="shadcn-badge border <%= rel.graduated? ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-rose-50 text-rose-700 border-rose-200' %>"><%= rel.graduated? ? '졸업' : '연애' %></span></td>
+            <td class="text-muted-foreground"><%= rel.status %></td>
+            <td class="text-muted-foreground"><%= rel.confirmed_at&.strftime("%Y-%m-%d") || "-" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @relationships.empty? %>
+      <div class="text-center py-16"><i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i><p class="text-sm text-muted-foreground">해당하는 관계가 없습니다</p></div>
+    <% end %>
+  </div>
+</div>

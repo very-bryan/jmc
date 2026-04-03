@@ -1,0 +1,123 @@
+<div class="p-6 space-y-8">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">통계 / 분석</h1>
+    <p class="text-sm text-muted-foreground">서비스 운영 지표 분석</p>
+  </div>
+
+  <!-- 가입/인증 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="user-plus" class="w-4 h-4"></i>가입 / 인증</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @signup_stats[:total] %></div><div class="stat-label">전체 가입</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @signup_stats[:phone_verified] %></div><div class="stat-label">본인확인 완료</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @signup_stats[:selfie_verified] %></div><div class="stat-label">셀피 인증</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @signup_stats[:profile_completed] %></div><div class="stat-label">프로필 완성</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @signup_stats[:verification_rate] %>%</div><div class="stat-label">인증 완료율</div></div>
+    </div>
+  </section>
+
+  <!-- 분포 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4"></i>분포</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="shadcn-card p-5">
+        <h3 class="text-sm font-medium mb-3">성별</h3>
+        <% @gender_stats.each do |gender, count| %>
+          <div class="flex justify-between py-1.5 text-sm">
+            <span class="text-muted-foreground"><%= gender == "male" ? "남성" : gender == "female" ? "여성" : "기타" %></span>
+            <span class="font-medium tabular-nums"><%= count %>명</span>
+          </div>
+        <% end %>
+      </div>
+      <div class="shadcn-card p-5">
+        <h3 class="text-sm font-medium mb-3">나이대</h3>
+        <% @age_stats.sort.each do |range, count| %>
+          <div class="flex justify-between py-1.5 text-sm">
+            <span class="text-muted-foreground"><%= range %>세</span>
+            <span class="font-medium tabular-nums"><%= count %>명</span>
+          </div>
+        <% end %>
+      </div>
+      <div class="shadcn-card p-5">
+        <h3 class="text-sm font-medium mb-3">지역 (상위 10)</h3>
+        <% @region_stats.each do |region, count| %>
+          <div class="flex justify-between py-1.5 text-sm">
+            <span class="text-muted-foreground"><%= region %></span>
+            <span class="font-medium tabular-nums"><%= count %>명</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- 활동 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="activity" class="w-4 h-4"></i>활동</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:total_posts] %></div><div class="stat-label">전체 게시글</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:posts_today] %></div><div class="stat-label">오늘 게시글</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:total_interests] %></div><div class="stat-label">전체 관심</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:mutual_rate] %>%</div><div class="stat-label">상호 관심률</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:total_messages] %></div><div class="stat-label">전체 메시지</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @activity_stats[:messages_today] %></div><div class="stat-label">오늘 메시지</div></div>
+    </div>
+  </section>
+
+  <!-- 매칭/관계 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="heart" class="w-4 h-4"></i>매칭 / 관계</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @matching_stats[:total_matches] %></div><div class="stat-label">전체 매칭</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @matching_stats[:active_matches] %></div><div class="stat-label">활성 매칭</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @matching_stats[:total_conversations] %></div><div class="stat-label">대화 수</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @matching_stats[:relationships_dating] %></div><div class="stat-label">연애 중</div></div>
+      <div class="shadcn-card stat-card"><div class="stat-value"><%= @matching_stats[:relationships_graduated] %></div><div class="stat-label">졸업</div></div>
+    </div>
+  </section>
+
+  <!-- 안전 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="shield" class="w-4 h-4"></i>안전</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="shadcn-card stat-card"><div class="stat-value"><%= @safety_stats[:total_reports] %></div><div class="stat-label">전체 신고</div></div>
+        <div class="shadcn-card stat-card"><div class="stat-value"><%= @safety_stats[:pending_reports] %></div><div class="stat-label">미처리 신고</div></div>
+        <div class="shadcn-card stat-card"><div class="stat-value"><%= @safety_stats[:processing_rate] %>%</div><div class="stat-label">처리율</div></div>
+        <div class="shadcn-card stat-card"><div class="stat-value"><%= @safety_stats[:active_sanctions] %></div><div class="stat-label">활성 제재</div></div>
+      </div>
+      <div class="shadcn-card p-5">
+        <h3 class="text-sm font-medium mb-3">신고 유형별</h3>
+        <% @report_type_stats.each do |type, count| %>
+          <div class="flex justify-between py-1.5 text-sm">
+            <span class="text-muted-foreground"><%= report_type_label(type) %></span>
+            <span class="font-medium tabular-nums"><%= count %>건</span>
+          </div>
+        <% end %>
+        <% if @report_type_stats.empty? %><p class="text-sm text-muted-foreground">데이터 없음</p><% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- 일별 가입 추이 -->
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4"></i>일별 가입 추이 (최근 30일)</h2>
+    <div class="shadcn-card p-5">
+      <% if @daily_signups.any? %>
+        <div class="flex items-end gap-0.5 h-32">
+          <% max_val = [@daily_signups.map(&:last).max, 1].max %>
+          <% @daily_signups.each do |date, count| %>
+            <div class="flex-1 flex flex-col items-center group" title="<%= date %>: <%= count %>명">
+              <div class="w-full bg-foreground/80 group-hover:bg-foreground rounded-sm transition" style="height: <%= [count.to_f / max_val * 100, 2].max.round %>%"></div>
+            </div>
+          <% end %>
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-muted-foreground">
+          <span><%= @daily_signups.first&.first %></span>
+          <span><%= @daily_signups.last&.first %></span>
+        </div>
+      <% else %>
+        <div class="text-center py-8"><p class="text-sm text-muted-foreground">데이터가 없습니다</p></div>
+      <% end %>
+    </div>
+  </section>
+</div>

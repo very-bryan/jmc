@@ -1,0 +1,137 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-2">
+    <%= link_to admin_users_path, class: "shadcn-btn shadcn-btn-ghost h-8 w-8 p-0" do %>
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+    <% end %>
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight"><%= @user.nickname %></h1>
+      <p class="text-sm text-muted-foreground">회원 #<%= @user.id %></p>
+    </div>
+    <div class="ml-2 flex gap-1.5"><%= verification_badge(@user.verification_level) %><%= status_badge(@user.status) %></div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-4">
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">기본 정보</h2>
+        <div class="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+          <div><span class="text-muted-foreground">전화번호</span><div class="font-medium mt-0.5"><%= @user.phone.gsub(/(\d{3})(\d{4})(\d{4})/, '\1-****-\3') %></div></div>
+          <div><span class="text-muted-foreground">성별</span><div class="font-medium mt-0.5"><%= @user.gender == "male" ? "남성" : "여성" %></div></div>
+          <div><span class="text-muted-foreground">나이</span><div class="font-medium mt-0.5"><%= @user.age %>세 (<%= @user.birth_year %>)</div></div>
+          <div><span class="text-muted-foreground">지역</span><div class="font-medium mt-0.5"><%= @user.region %></div></div>
+          <div><span class="text-muted-foreground">직업군</span><div class="font-medium mt-0.5"><%= @user.occupation %></div></div>
+          <div><span class="text-muted-foreground">결혼 희망</span><div class="font-medium mt-0.5"><%= @user.desired_marriage_timing %></div></div>
+          <div class="col-span-2"><span class="text-muted-foreground">가입일</span><div class="font-medium mt-0.5"><%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></div></div>
+        </div>
+        <% if @user.bio.present? %>
+          <div class="mt-4 pt-4 border-t"><span class="text-muted-foreground text-sm">소개</span><p class="text-sm mt-1"><%= @user.bio %></p></div>
+        <% end %>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">인증 상태</h2>
+        <div class="flex flex-wrap gap-4">
+          <% [[@user.phone_verified?, "phone", "본인확인"], [@user.selfie_verified?, "scan-face", "셀피 인증"], [@user.profile_completed?, "user-check", "프로필 완성"]].each do |verified, icon, label| %>
+            <div class="flex items-center gap-2 text-sm">
+              <i data-lucide="<%= verified ? 'check-circle-2' : 'circle' %>" class="w-4 h-4 <%= verified ? 'text-emerald-500' : 'text-neutral-300' %>"></i>
+              <span class="<%= verified ? 'text-foreground' : 'text-muted-foreground' %>"><%= label %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">최근 게시글</h2>
+        <% if @posts.any? %>
+          <div class="divide-y">
+            <% @posts.each do |post| %>
+              <div class="py-3 first:pt-0 last:pb-0">
+                <p class="text-sm"><%= post.content %></p>
+                <div class="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                  <span><%= post.created_at.strftime("%m/%d %H:%M") %></span>
+                  <% if post.mood_tag.present? %><span>#<%= post.mood_tag %></span><% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-muted-foreground">게시글이 없습니다</p>
+        <% end %>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">신고 받은 내역 (<%= @reports_received.count %>건)</h2>
+        <% if @reports_received.any? %>
+          <table class="shadcn-table">
+            <thead><tr class="border-b"><th>유형</th><th>신고자</th><th>사유</th><th>상태</th><th>일시</th></tr></thead>
+            <tbody>
+              <% @reports_received.each do |r| %>
+                <tr><td><%= report_type_label(r.report_type) %></td><td><%= r.reporter.nickname %></td><td class="text-muted-foreground max-w-xs truncate"><%= r.reason %></td><td><%= report_status_badge(r.status) %></td><td class="text-muted-foreground"><%= r.created_at.strftime("%m/%d") %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-sm text-muted-foreground">신고 내역이 없습니다</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">제재 실행</h2>
+        <% if @user.suspended? %>
+          <%= form_tag unsuspend_admin_user_path(@user), method: :post do %>
+            <button type="submit" class="shadcn-btn shadcn-btn-outline w-full mb-4 text-emerald-700 border-emerald-200 hover:bg-emerald-50">
+              <i data-lucide="shield-off" class="w-4 h-4 mr-1.5"></i>정지 해제
+            </button>
+          <% end %>
+          <div class="border-b mb-4"></div>
+        <% end %>
+        <%= form_tag sanction_admin_user_path(@user), method: :post, class: "space-y-3" do %>
+          <div>
+            <label class="text-xs font-medium text-muted-foreground mb-1.5 block">제재 유형</label>
+            <select name="sanction_type" required class="shadcn-input w-full">
+              <option value="warning">경고</option>
+              <option value="feature_restriction">기능 제한</option>
+              <option value="reauth_required">인증 재요청</option>
+              <option value="temporary_suspension">일시 정지</option>
+              <option value="permanent_suspension">영구 정지</option>
+              <option value="forced_dormant">강제 휴면</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-muted-foreground mb-1.5 block">사유 (필수)</label>
+            <textarea name="reason" required rows="3" class="shadcn-input w-full h-auto resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-muted-foreground mb-1.5 block">종료일 (일시 정지 시)</label>
+            <input type="datetime-local" name="ends_at" class="shadcn-input w-full">
+          </div>
+          <button type="submit" class="shadcn-btn shadcn-btn-destructive w-full">
+            <i data-lucide="shield-alert" class="w-4 h-4 mr-1.5"></i>제재 적용
+          </button>
+        <% end %>
+      </div>
+
+      <div class="shadcn-card p-5">
+        <h2 class="text-sm font-medium mb-4">제재 이력</h2>
+        <% if @sanctions.any? %>
+          <div class="divide-y">
+            <% @sanctions.each do |s| %>
+              <div class="py-3 first:pt-0 last:pb-0">
+                <div class="flex justify-between items-start">
+                  <span class="text-sm font-medium"><%= sanction_type_label(s.sanction_type) %></span>
+                  <% if s.active? %><span class="shadcn-badge border bg-red-50 text-red-700 border-red-200">활성</span><% end %>
+                </div>
+                <p class="text-xs text-muted-foreground mt-1"><%= s.reason %></p>
+                <p class="text-xs text-muted-foreground mt-1"><%= s.admin_user.name %> &middot; <%= s.created_at.strftime("%m/%d") %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-muted-foreground">제재 이력이 없습니다</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

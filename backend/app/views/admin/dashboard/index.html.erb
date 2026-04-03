@@ -1,0 +1,81 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">대시보드</h1>
+    <p class="text-sm text-muted-foreground">서비스 운영 현황을 한눈에 확인하세요.</p>
+  </div>
+
+  <% if @pending_reports > 0 || @pending_verifications > 0 %>
+    <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+      <div>
+        <h3 class="text-sm font-medium text-amber-900">처리 대기 항목</h3>
+        <div class="flex gap-4 mt-1 text-sm text-amber-700">
+          <% if @pending_reports > 0 %><span>미처리 신고 <strong><%= @pending_reports %>건</strong></span><% end %>
+          <% if @pending_verifications > 0 %><span>인증 검수 대기 <strong><%= @pending_verifications %>건</strong></span><% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3">오늘</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "신규 가입", value: @stats[:today][:new_users] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "신규 매칭", value: @stats[:today][:new_matches] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "연애 시작", value: @stats[:today][:new_relationships] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "졸업", value: @stats[:today][:graduations] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "신고 접수", value: @stats[:today][:pending_reports] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "제재 처리", value: @stats[:today][:sanctions_today] } %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="shadcn-card p-5">
+      <h3 class="text-sm font-medium text-muted-foreground mb-3">이번 주</h3>
+      <div class="flex justify-between">
+        <div><div class="text-2xl font-semibold tracking-tight"><%= @stats[:this_week][:new_users] %></div><div class="text-xs text-muted-foreground">신규 가입</div></div>
+        <div><div class="text-2xl font-semibold tracking-tight"><%= @stats[:this_week][:new_matches] %></div><div class="text-xs text-muted-foreground">신규 매칭</div></div>
+      </div>
+    </div>
+    <div class="shadcn-card p-5">
+      <h3 class="text-sm font-medium text-muted-foreground mb-3">이번 달</h3>
+      <div class="flex justify-between">
+        <div><div class="text-2xl font-semibold tracking-tight"><%= @stats[:this_month][:new_users] %></div><div class="text-xs text-muted-foreground">신규 가입</div></div>
+        <div><div class="text-2xl font-semibold tracking-tight"><%= @stats[:this_month][:new_matches] %></div><div class="text-xs text-muted-foreground">신규 매칭</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3">전체 현황</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "전체 회원", value: @stats[:totals][:total_users] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "활성 회원", value: @stats[:totals][:active_users] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "인증 회원", value: @stats[:totals][:verified_users] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "게시글", value: @stats[:totals][:total_posts] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "매칭 수", value: @stats[:totals][:total_matches] } %>
+      <%= render partial: "admin/dashboard/stat_card", locals: { label: "대화 수", value: @stats[:totals][:total_conversations] } %>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3">최근 관리자 활동</h2>
+    <div class="shadcn-card overflow-hidden">
+      <table class="shadcn-table">
+        <thead><tr class="border-b bg-muted/50">
+          <th>관리자</th><th>액션</th><th>대상</th><th>시간</th>
+        </tr></thead>
+        <tbody>
+          <% @recent_logs.each do |log| %>
+            <tr>
+              <td class="font-medium"><%= log.admin_user.name %></td>
+              <td class="text-muted-foreground"><%= log.action %></td>
+              <td class="text-muted-foreground"><%= [log.target_type, log.target_id].compact.join('#') %></td>
+              <td class="text-muted-foreground"><%= time_ago_short(log.created_at) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
