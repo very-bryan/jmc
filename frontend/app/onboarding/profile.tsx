@@ -33,10 +33,11 @@ const MARRIAGE_TIMINGS = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { phone, invite_code, payment_token } = useLocalSearchParams<{
+  const { phone, invite_code, payment_token, is_seed } = useLocalSearchParams<{
     phone: string;
     invite_code?: string;
     payment_token?: string;
+    is_seed?: string;
   }>();
   const { setToken, setUser, user } = useAuthStore();
 
@@ -75,6 +76,7 @@ export default function ProfileScreen() {
         },
         invite_code: invite_code || undefined,
         payment_token: payment_token || undefined,
+        is_seed: is_seed === "true" ? true : undefined,
       });
 
       await setToken(res.data.token);

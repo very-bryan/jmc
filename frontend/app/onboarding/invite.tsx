@@ -101,6 +101,20 @@ export default function InviteScreen() {
         <Text style={styles.payBtnText}>10,000원 결제하고 가입</Text>
         <Text style={styles.payBtnSub}>초대코드가 없어도 가입할 수 있어요</Text>
       </TouchableOpacity>
+
+      {__DEV__ && (
+        <TouchableOpacity
+          style={[styles.payBtn, { marginTop: 12, borderColor: "#ddd" }]}
+          onPress={() => {
+            router.push({
+              pathname: "/onboarding/profile",
+              params: { phone, is_seed: "true" },
+            });
+          }}
+        >
+          <Text style={[styles.payBtnText, { color: "#999" }]}>[테스트] 시드 유저로 가입</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

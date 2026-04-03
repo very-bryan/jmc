@@ -29,7 +29,8 @@ export default function PhoneScreen() {
       trackEvent(EVENTS.PHONE_VERIFY_REQUEST);
       router.push({ pathname: "/onboarding/verify", params: { phone } });
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.error || "인증코드 발송에 실패했습니다");
+      const msg = err.response?.data?.error || err.message || "인증코드 발송에 실패했습니다";
+      Alert.alert("오류", `${msg} (${err.response?.status || "network"})`);
     } finally {
       setLoading(false);
     }

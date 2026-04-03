@@ -1,13 +1,4 @@
-import { Platform } from "react-native";
-
-const DEV_API_URL = Platform.select({
-  android: "http://10.0.2.2:3000",
-  default: "http://localhost:3000",
-});
-
-export const API_BASE_URL = __DEV__
-  ? DEV_API_URL
-  : "https://api.jmc.example.com";
+export const API_BASE_URL = "https://jmc-backend.verycloud.io";
 
 export const API_URL = `${API_BASE_URL}/api/v1`;
 
