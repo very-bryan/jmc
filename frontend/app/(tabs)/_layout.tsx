@@ -97,7 +97,7 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabIconWrap: { alignItems: "center", gap: 3 },
   tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary },
-  headerLogo: { width: 120, height: 32 },
+  headerLogo: { width: 220, height: 59, marginTop: 8 },
   plusWrap: {
     width: 36, height: 36, borderRadius: 12,
     backgroundColor: COLORS.surface,

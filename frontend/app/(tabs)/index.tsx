@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.primary,
     marginRight: 8,
-    backgroundColor: COLORS.coralLight,
+    backgroundColor: COLORS.accentLight,
   },
   chipActive: {
     borderColor: COLORS.primary,
