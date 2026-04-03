@@ -37,10 +37,10 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>진지한 만남 추구</Text>
+        <Text style={styles.title}>진만추</Text>
         <Text style={styles.subtitle}>검증된 진지한 만남</Text>
         <Text style={styles.description}>
-          실명·신원 검증을 기반으로{"\n"}
+          실명 · 신원 검증을 기반으로{"\n"}
           결혼 의향이 있는 사람들이{"\n"}
           진지한 관계를 만드는 곳
         </Text>
@@ -69,7 +69,6 @@ export default function SplashScreen() {
                   router.replace("/(tabs)");
                 }
               } else if (result.error) {
-                // 카카오 키 미설정 시 전화번호 가입으로 안내
                 router.push("/onboarding/intro");
               }
             } catch {
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 36,
+    fontSize: 42,
     fontWeight: "800",
     color: COLORS.primary,
     fontStyle: "italic",
@@ -139,20 +138,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-  startButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  startButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
   loginButton: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
     borderWidth: 1,
     borderColor: COLORS.border,

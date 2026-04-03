@@ -3,11 +3,12 @@ export const API_BASE_URL = "https://jmc-backend.verycloud.io";
 export const API_URL = `${API_BASE_URL}/api/v1`;
 
 export const COLORS = {
-  primary: "#FF6B6B",
-  primaryLight: "#FFE0E0",
-  primaryDark: "#E85555",
+  primary: "#FF5A5F",
+  primaryLight: "#FFE8E9",
+  primaryDark: "#E5484D",
+  primaryGradientEnd: "#ff7575",
   background: "#FFFFFF",
-  surface: "#F5F5F8",
+  surface: "#f4f7f9",
   surfaceCard: "#FFFFFF",
   text: "#1A1A2E",
   textSecondary: "#6B7280",
@@ -17,7 +18,7 @@ export const COLORS = {
   success: "#10B981",
   warning: "#F59E0B",
   error: "#EF4444",
-  coral: "#FF6B6B",
+  coral: "#FF5A5F",
   coralLight: "#FFF0F0",
   gray50: "#F9FAFB",
   gray100: "#F3F4F6",

@@ -8,13 +8,46 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 import { conversationApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 import type { Message } from "../../src/types";
+
+// Dummy messages for testing when chat is empty
+const DUMMY_MESSAGES: Message[] = [
+  {
+    id: 9001,
+    sender_id: 0,
+    content: "안녕하세요! 프로필 보고 관심이 갔어요 :)",
+    message_type: "text",
+    is_mine: false,
+    read: true,
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+  {
+    id: 9002,
+    sender_id: -1,
+    content: "감사합니다! 저도 프로필 인상 깊게 봤어요",
+    message_type: "text",
+    is_mine: true,
+    read: true,
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: 9003,
+    sender_id: 0,
+    content: "주말에 혹시 시간 되시면 커피 한잔 어떠세요?",
+    message_type: "text",
+    is_mine: false,
+    read: true,
+    created_at: new Date(Date.now() - 1800000).toISOString(),
+  },
+];
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,6 +55,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [useDummy, setUseDummy] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const trackedMilestones = useRef<Set<string>>(new Set());
 
@@ -35,7 +69,6 @@ export default function ChatScreen() {
   const checkMilestones = (msgs: Message[]) => {
     if (!user) return;
 
-    // 내가 보낸 메시지 수 (턴 계산)
     const myMessages = msgs.filter((m) => m.sender_id === user.id);
     const otherMessages = msgs.filter((m) => m.sender_id !== user.id);
     const turns = Math.min(myMessages.length, otherMessages.length);
@@ -49,7 +82,6 @@ export default function ChatScreen() {
       trackEvent(EVENTS.DM_10_TURNS, { conversation_id: Number(id), total_messages: msgs.length });
     }
 
-    // 2일 이상 이어진 대화 체크
     if (msgs.length >= 2 && !trackedMilestones.current.has("multiday")) {
       const first = new Date(msgs[0].created_at);
       const last = new Date(msgs[msgs.length - 1].created_at);
@@ -65,10 +97,15 @@ export default function ChatScreen() {
     try {
       const res = await conversationApi.messages(Number(id));
       const reversed = res.data.messages.reverse();
-      setMessages(reversed);
-      checkMilestones(reversed);
+      if (reversed.length === 0) {
+        setUseDummy(true);
+      } else {
+        setUseDummy(false);
+        setMessages(reversed);
+        checkMilestones(reversed);
+      }
     } catch {
-      // ignore
+      setUseDummy(true);
     }
   };
 
@@ -95,6 +132,13 @@ export default function ChatScreen() {
     }
   };
 
+  const displayMessages = useDummy ? DUMMY_MESSAGES : messages;
+
+  const isMine = (msg: Message) => {
+    if (useDummy) return msg.sender_id === -1;
+    return msg.sender_id === user?.id;
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -103,21 +147,31 @@ export default function ChatScreen() {
     >
       <FlatList
         ref={flatListRef}
-        data={messages}
+        data={displayMessages}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
-          const isMine = item.sender_id === user?.id;
+          const mine = isMine(item);
           return (
-            <View style={[styles.bubble, isMine ? styles.mine : styles.theirs]}>
-              <Text style={[styles.bubbleText, isMine && styles.mineText]}>
-                {item.content}
-              </Text>
-              <Text style={[styles.time, isMine && styles.mineTime]}>
-                {new Date(item.created_at).toLocaleTimeString("ko-KR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
+            <View style={[styles.msgRow, mine && styles.msgRowMine]}>
+              {!mine && (
+                <Image
+                  source={{ uri: "https://i.pravatar.cc/150?img=3" }}
+                  style={styles.msgAvatar}
+                />
+              )}
+              <View>
+                <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
+                  <Text style={[styles.bubbleText, mine && styles.mineText]}>
+                    {item.content}
+                  </Text>
+                </View>
+                <Text style={[styles.time, mine && styles.timeMine]}>
+                  {new Date(item.created_at).toLocaleTimeString("ko-KR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </Text>
+              </View>
             </View>
           );
         }}
@@ -130,8 +184,12 @@ export default function ChatScreen() {
       {/* Progress bar accent */}
       <View style={styles.progressBar} />
       <View style={styles.inputRow}>
-        <TouchableOpacity style={styles.attachBtn}><Text style={styles.attachIcon}>＋</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.attachBtn}><Text style={styles.attachIcon}>🖼</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.attachBtn}>
+          <MaterialIcons name="add-circle-outline" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.attachBtn}>
+          <MaterialIcons name="image" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
         <View style={styles.inputWrap}>
           <TextInput
             style={styles.input}
@@ -148,7 +206,7 @@ export default function ChatScreen() {
           onPress={sendMessage}
           disabled={loading || !input.trim()}
         >
-          <Text style={styles.sendIcon}>🎤</Text>
+          <MaterialIcons name={input.trim() ? "send" : "mic"} size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -158,12 +216,26 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF9FE" },
   list: { padding: 14, paddingBottom: 4 },
+  msgRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginBottom: 12,
+  },
+  msgRowMine: {
+    flexDirection: "row-reverse",
+  },
+  msgAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 8,
+    backgroundColor: COLORS.surface,
+  },
   bubble: {
-    maxWidth: "78%",
+    maxWidth: 260,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
-    marginBottom: 10,
   },
   mine: {
     alignSelf: "flex-end",
@@ -172,13 +244,27 @@ const styles = StyleSheet.create({
   },
   theirs: {
     alignSelf: "flex-start",
-    backgroundColor: "#F0EFF5",
+    backgroundColor: "#fff",
     borderBottomLeftRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   bubbleText: { fontSize: 15, color: COLORS.text, lineHeight: 22 },
   mineText: { color: "#fff" },
-  time: { fontSize: 10, color: COLORS.textLight, marginTop: 4 },
-  mineTime: { color: "rgba(255,255,255,0.6)" },
+  time: {
+    fontSize: 10,
+    color: COLORS.textLight,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  timeMine: {
+    textAlign: "right",
+    marginRight: 4,
+    marginLeft: 0,
+  },
   inputRow: {
     flexDirection: "row",
     padding: 10,
@@ -203,11 +289,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  attachIcon: { fontSize: 16 },
+  attachIcon: { fontSize: 16, color: COLORS.textSecondary },
   inputWrap: {
     flex: 1,
     borderRadius: 20,
-    backgroundColor: "#F5F5F8",
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 14,
   },
   input: {
@@ -224,7 +310,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  sendIcon: { fontSize: 18 },
+  sendIcon: { fontSize: 18, color: "#fff", fontWeight: "700" },
   sendBtnDisabled: { backgroundColor: COLORS.textLight },
-  sendText: { color: "#fff", fontSize: 14, fontWeight: "600" },
 });

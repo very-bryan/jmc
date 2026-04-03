@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 import { VerificationBadge } from "./VerificationBadge";
 import { COLORS } from "../constants/config";
 import type { Post } from "../types";
@@ -22,6 +23,15 @@ interface Props {
 export function FeedCard({ post, onInterest }: Props) {
   const router = useRouter();
 
+  const avatarUri =
+    post.user.profile_image_url ||
+    `https://i.pravatar.cc/150?img=${(post.user.id % 10) + 1}`;
+
+  const postImageUri =
+    post.images.length > 0
+      ? post.images[0].url
+      : `https://picsum.photos/400/400?random=${post.id}`;
+
   return (
     <View style={styles.card}>
       {/* Header */}
@@ -29,55 +39,57 @@ export function FeedCard({ post, onInterest }: Props) {
         style={styles.header}
         onPress={() => router.push(`/profile/${post.user.id}` as any)}
       >
-        <View style={styles.avatar}>
-          {post.user.profile_image_url ? (
-            <Image source={{ uri: post.user.profile_image_url }} style={styles.avatarImage} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>
-                {post.user.nickname?.charAt(0) || "?"}
-              </Text>
-            </View>
-          )}
-          {post.user.verification_level !== "basic" && (
-            <View style={styles.verifiedDot} />
-          )}
+        {/* Avatar with gradient ring */}
+        <View style={styles.avatarRing}>
+          <View style={styles.avatarInner}>
+            <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+          </View>
         </View>
         <View style={styles.userInfo}>
           <View style={styles.nameRow}>
             <Text style={styles.nickname}>{post.user.nickname}</Text>
+            {post.user.verification_level !== "basic" && (
+              <View style={styles.verifiedBadge} />
+            )}
             <VerificationBadge level={post.user.verification_level} />
           </View>
           <Text style={styles.meta}>
             {post.user.region} · {post.user.age}세
           </Text>
         </View>
-        <Text style={styles.moreBtn}>···</Text>
+        <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
       </TouchableOpacity>
 
-      {/* Image */}
-      {post.images.length > 0 && (
-        <Image
-          source={{ uri: post.images[0].url }}
-          style={styles.postImage}
-          resizeMode="cover"
-        />
-      )}
+      {/* Square Image */}
+      <Image
+        source={{ uri: postImageUri }}
+        style={styles.postImage}
+        resizeMode="cover"
+      />
 
       {/* Actions */}
       <View style={styles.actionsRow}>
         <View style={styles.leftActions}>
-          <Text style={styles.actionIcon}>♥</Text>
-          <Text style={styles.actionIcon}>💬</Text>
-          <Text style={styles.actionIcon}>➤</Text>
+          <TouchableOpacity>
+            <MaterialIcons name="favorite-border" size={26} color={COLORS.text} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <MaterialIcons name="chat-bubble-outline" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <MaterialIcons name="send" size={24} color={COLORS.text} />
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.connectBtn} onPress={onInterest}>
           <Text style={styles.connectText}>Connect</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
+      {/* Likes */}
       <View style={styles.content}>
+        <Text style={styles.likesText}>
+          {Math.floor(Math.random() * 50 + 5)} likes
+        </Text>
         <Text style={styles.contentText}>
           <Text style={styles.contentNickname}>{post.user.nickname}</Text>
           {"  "}{post.content}
@@ -113,33 +125,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: "hidden",
-    position: "relative",
-  },
-  avatarImage: { width: 40, height: 40 },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
+  avatarRing: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
+    padding: 2,
   },
-  avatarText: { fontSize: 16, fontWeight: "700", color: COLORS.textSecondary },
-  verifiedDot: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: COLORS.primary,
-    borderWidth: 2,
-    borderColor: COLORS.background,
+  avatarInner: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: COLORS.surface,
+  },
+  avatarImage: { width: 36, height: 36 },
+  verifiedBadge: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.badgeBlue,
+    marginLeft: -2,
   },
   userInfo: { marginLeft: 10, flex: 1 },
   nameRow: { flexDirection: "row", alignItems: "center", gap: 5 },
@@ -155,17 +164,28 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   leftActions: { flexDirection: "row", gap: 16 },
-  actionIcon: { fontSize: 22 },
+  actionIcon: { fontSize: 22, color: COLORS.text },
   connectBtn: {
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 18,
-    paddingVertical: 7,
-    borderRadius: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   connectText: { color: "#fff", fontSize: 13, fontWeight: "700" },
-  content: { paddingHorizontal: 14, paddingBottom: 12 },
+  content: { paddingHorizontal: 14, paddingBottom: 14 },
+  likesText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: COLORS.text,
+    marginBottom: 4,
+  },
   contentNickname: { fontWeight: "700", fontSize: 13, color: COLORS.text },
   contentText: { fontSize: 13, color: COLORS.text, lineHeight: 19 },
   moodTag: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
-  timeAgo: { fontSize: 11, color: COLORS.textLight, marginTop: 4, textTransform: "uppercase" },
+  timeAgo: {
+    fontSize: 11,
+    color: COLORS.textLight,
+    marginTop: 4,
+    textTransform: "uppercase",
+  },
 });

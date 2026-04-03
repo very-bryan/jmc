@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 12,
   },
   postBtnDisabled: { backgroundColor: COLORS.textLight },
   postBtnText: { color: "#fff", fontSize: 14, fontWeight: "600" },

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { conversationApi } from "../../src/api";
@@ -67,11 +68,10 @@ export default function MessagesScreen() {
             style={styles.card}
             onPress={() => router.push(`/chat/${item.id}` as any)}
           >
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {item.user.nickname?.charAt(0) || "?"}
-              </Text>
-            </View>
+            <Image
+              source={{ uri: `https://i.pravatar.cc/150?img=${(item.user.id ?? item.id) % 10 + 1}` }}
+              style={styles.avatar}
+            />
             <View style={styles.info}>
               <View style={styles.topRow}>
                 <Text style={styles.nickname}>{item.user.nickname}</Text>
@@ -120,10 +120,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: COLORS.surface,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  avatarText: { fontSize: 20, fontWeight: "600", color: COLORS.textSecondary },
   info: { flex: 1, marginLeft: 12 },
   topRow: {
     flexDirection: "row",

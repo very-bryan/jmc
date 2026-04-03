@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { interestApi } from "../../src/api";
@@ -77,11 +78,10 @@ export default function ExploreScreen() {
               style={styles.card}
               onPress={() => router.push(`/profile/${item.user.id}` as any)}
             >
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {item.user.nickname?.charAt(0) || "?"}
-                </Text>
-              </View>
+              <Image
+                source={{ uri: `https://i.pravatar.cc/150?img=${(item.user.id % 10) + 1}` }}
+                style={styles.avatar}
+              />
               <View style={styles.info}>
                 <View style={styles.nameRow}>
                   <Text style={styles.nickname}>{item.user.nickname}</Text>
@@ -149,10 +149,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: COLORS.surface,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  avatarText: { fontSize: 20, fontWeight: "600", color: COLORS.textSecondary },
   info: { flex: 1, marginLeft: 12 },
   nameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   nickname: { fontSize: 15, fontWeight: "600", color: COLORS.text },
@@ -161,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   acceptText: { color: "#fff", fontSize: 13, fontWeight: "600" },
   empty: { alignItems: "center", padding: 40 },

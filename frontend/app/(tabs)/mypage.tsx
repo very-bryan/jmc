@@ -8,8 +8,10 @@ import {
   Alert,
   Switch,
   Share,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
 import { inviteCodeApi } from "../../src/api";
 import client from "../../src/api/client";
@@ -55,149 +57,111 @@ export default function MypageScreen() {
 
   if (!user) return null;
 
+  const avatarUri =
+    user.profile_image_url ||
+    `https://i.pravatar.cc/150?img=${(user.id ?? 1) % 10 + 1}`;
+
   return (
     <ScrollView style={styles.container}>
+      {/* Profile Section */}
       <View style={styles.profileSection}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user.nickname?.charAt(0) || "?"}
-          </Text>
+        <View style={styles.avatarWrap}>
+          <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+          <View style={styles.profileBadge}>
+            <MaterialIcons name="verified" size={14} color="#fff" />
+          </View>
         </View>
         <View style={styles.nameRow}>
           <Text style={styles.nickname}>{user.nickname}</Text>
           <VerificationBadge level={user.verification_level} size="medium" />
         </View>
-        <Text style={styles.meta}>
-          {user.age}세 · {user.region} · {user.occupation}
-        </Text>
-        {user.bio && <Text style={styles.bio}>{user.bio}</Text>}
+        <Text style={styles.premiumText}>Premium Member since 2023</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>인증 상태</Text>
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>본인확인</Text>
-          <Text style={[styles.rowValue, user.phone_verified && styles.verified]}>
-            {user.phone_verified ? "완료" : "미완료"}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>셀피 인증</Text>
-          <Text style={[styles.rowValue, user.selfie_verified && styles.verified]}>
-            {user.selfie_verified ? "완료" : "미완료"}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>프로필 완성</Text>
-          <Text style={[styles.rowValue, user.profile_completed && styles.verified]}>
-            {user.profile_completed ? "완료" : "미완료"}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>직장 인증</Text>
-          {(user as any).company_verified ? (
-            <View style={styles.verifiedRow}>
-              <Text style={[styles.rowValue, styles.verified]}>{(user as any).company_name || "인증됨"}</Text>
-              <Switch
-                value={(user as any).show_company}
-                onValueChange={async (v) => {
-                  await client.put("/auth/visibility", { show_company: v });
-                  fetchMe();
-                }}
-                trackColor={{ true: COLORS.primary }}
-              />
-            </View>
-          ) : (
-            <TouchableOpacity onPress={() => router.push("/onboarding/email-verify" as any)}>
-              <Text style={[styles.rowValue, { color: COLORS.primary }]}>인증하기</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>학교 인증</Text>
-          {(user as any).university_verified ? (
-            <View style={styles.verifiedRow}>
-              <Text style={[styles.rowValue, styles.verified]}>{(user as any).university_name || "인증됨"}</Text>
-              <Switch
-                value={(user as any).show_university}
-                onValueChange={async (v) => {
-                  await client.put("/auth/visibility", { show_university: v });
-                  fetchMe();
-                }}
-                trackColor={{ true: COLORS.primary }}
-              />
-            </View>
-          ) : (
-            <TouchableOpacity onPress={() => router.push("/onboarding/email-verify" as any)}>
-              <Text style={[styles.rowValue, { color: COLORS.primary }]}>인증하기</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {inviteCodes.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>초대코드</Text>
-          <Text style={styles.inviteDesc}>
-            친구를 초대하면 무료로 가입할 수 있어요
-          </Text>
-          {inviteCodes.map((c) => (
-            <View key={c.id} style={styles.codeRow}>
-              <View style={styles.codeInfo}>
-                <Text style={[styles.codeText, c.status !== "available" && styles.codeUsed]}>
-                  {c.code}
-                </Text>
-                {c.status === "used" && c.used_by && (
-                  <Text style={styles.codeUsedBy}>
-                    {c.used_by.nickname}님이 사용
-                  </Text>
-                )}
-              </View>
-              {c.status === "available" ? (
-                <TouchableOpacity
-                  style={styles.shareBtn}
-                  onPress={() => handleShare(c.code)}
-                >
-                  <Text style={styles.shareBtnText}>공유</Text>
-                </TouchableOpacity>
-              ) : (
-                <Text style={styles.usedBadge}>사용됨</Text>
-              )}
-            </View>
-          ))}
-        </View>
-      )}
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>설정</Text>
-        <MenuItem label="프로필 편집" onPress={() => {}} />
-        <MenuItem label="관심 조건 수정" onPress={() => {}} />
-        <MenuItem label="차단 목록" onPress={() => {}} />
-        <MenuItem label="신고 내역" onPress={() => {}} />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>관계</Text>
-        <MenuItem label="연애 중 설정" onPress={() => {}} />
-        <MenuItem label="졸업 신청" onPress={() => {}} />
-      </View>
-
-      <View style={styles.section}>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>로그아웃</Text>
+      {/* Graduation Card */}
+      <View style={styles.gradCard}>
+        <Text style={styles.gradTitle}>Found your match?</Text>
+        <Text style={styles.gradSubtitle}>Share your success story with the community</Text>
+        <TouchableOpacity style={styles.gradBtn}>
+          <Text style={styles.gradBtnText}>Graduate Now</Text>
         </TouchableOpacity>
       </View>
 
+      {/* ACCOUNT */}
+      <Text style={styles.sectionLabel}>ACCOUNT</Text>
+      <View style={styles.card}>
+        <SettingsRow icon="person" label="Personal Info" />
+        <SettingsRow icon="mail" label="Email & Phone" />
+        <SettingsRow icon="credit-card" label="Subscription" isLast />
+      </View>
+
+      {/* MATCH PREFERENCES */}
+      <Text style={styles.sectionLabel}>MATCH PREFERENCES</Text>
+      <View style={styles.card}>
+        <SettingsRow icon="tune" label="Search Filters" />
+        <SettingsRow icon="favorite" label="Relationship Values" isLast />
+      </View>
+
+      {/* NOTIFICATIONS */}
+      <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+      <View style={styles.card}>
+        <View style={styles.settingsRow}>
+          <MaterialIcons name="notifications" size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
+          <Text style={styles.rowLabel}>Push Notifications</Text>
+          <Switch
+            value={true}
+            trackColor={{ true: COLORS.primary, false: COLORS.border }}
+          />
+        </View>
+        <SettingsRow icon="schedule" label="Quiet Mode" isLast />
+      </View>
+
+      {/* PRIVACY & DANGER ZONE */}
+      <Text style={styles.sectionLabel}>PRIVACY & DANGER ZONE</Text>
+      <View style={styles.card}>
+        <SettingsRow icon="visibility" label="Visibility" />
+        <View style={[styles.settingsRow, styles.settingsRowLast]}>
+          <MaterialIcons name="warning" size={20} color={COLORS.primary} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: COLORS.primary }]}>Deactivate Profile</Text>
+          <View style={styles.tempBadge}>
+            <Text style={styles.tempBadgeText}>TEMPORARY</Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
+        </View>
+      </View>
+
+      {/* SUPPORT */}
+      <Text style={styles.sectionLabel}>SUPPORT</Text>
+      <View style={styles.card}>
+        <SettingsRow icon="help" label="Help Center" />
+        <SettingsRow icon="verified-user" label="Safety Guidelines" isLast />
+      </View>
+
+      {/* Sign Out */}
+      <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
+        <Text style={styles.signOutText}>SIGN OUT</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.versionText}>Version 1.0.0</Text>
       <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
 
-function MenuItem({ label, onPress }: { label: string; onPress: () => void }) {
+function SettingsRow({
+  icon,
+  label,
+  isLast,
+}: {
+  icon: string;
+  label: string;
+  isLast?: boolean;
+}) {
   return (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <Text style={styles.menuLabel}>{label}</Text>
-      <Text style={styles.menuArrow}>›</Text>
+    <TouchableOpacity style={[styles.settingsRow, isLast && styles.settingsRowLast]}>
+      <MaterialIcons name={icon as any} size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
+      <Text style={styles.rowLabel}>{label}</Text>
+      <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
     </TouchableOpacity>
   );
 }
@@ -207,83 +171,168 @@ const styles = StyleSheet.create({
   profileSection: {
     backgroundColor: COLORS.background,
     alignItems: "center",
-    padding: 24,
-    paddingTop: 16,
+    paddingVertical: 28,
+    paddingHorizontal: 20,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  avatarWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    marginBottom: 14,
+    position: "relative",
+  },
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: COLORS.surface,
+  },
+  profileBadge: {
+    position: "absolute",
+    bottom: 2,
+    right: 2,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.badgeBlue,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: COLORS.background,
   },
-  avatarText: { fontSize: 32, fontWeight: "600", color: COLORS.textSecondary },
-  nameRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-  nickname: { fontSize: 20, fontWeight: "700", color: COLORS.text },
-  meta: { fontSize: 14, color: COLORS.textSecondary },
-  bio: { fontSize: 14, color: COLORS.text, marginTop: 8, textAlign: "center" },
-  section: {
-    backgroundColor: COLORS.background,
-    marginTop: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
+  profileBadgeText: {
+    color: "#fff",
+    fontSize: 12,
     fontWeight: "700",
-    color: COLORS.text,
-    marginBottom: 12,
   },
-  row: {
+  nameRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  rowLabel: { fontSize: 14, color: COLORS.textSecondary },
-  rowValue: { fontSize: 14, color: COLORS.textLight },
-  verified: { color: COLORS.success, fontWeight: "600" },
-  verifiedRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  menuItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    gap: 8,
+    marginBottom: 4,
   },
-  menuLabel: { fontSize: 15, color: COLORS.text },
-  menuArrow: { fontSize: 20, color: COLORS.textLight },
-  logoutBtn: {
-    paddingVertical: 12,
+  nickname: { fontSize: 22, fontWeight: "700", color: COLORS.text },
+  premiumText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+
+  // Graduation card
+  gradCard: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    backgroundColor: COLORS.primary,
+    borderRadius: 16,
+    padding: 20,
     alignItems: "center",
   },
-  logoutText: { fontSize: 15, color: COLORS.error, fontWeight: "600" },
-  inviteDesc: { fontSize: 13, color: COLORS.textSecondary, marginBottom: 12 },
-  codeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  codeInfo: { flex: 1 },
-  codeText: {
+  gradTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: COLORS.text,
-    letterSpacing: 3,
+    color: "#fff",
+    marginBottom: 4,
   },
-  codeUsed: { color: COLORS.textLight },
-  codeUsedBy: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 },
-  shareBtn: {
-    backgroundColor: COLORS.primary,
+  gradSubtitle: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.85)",
+    marginBottom: 14,
+    textAlign: "center",
+  },
+  gradBtn: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 28,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  gradBtnText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  // Section label
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.textLight,
+    letterSpacing: 0.5,
+    marginTop: 24,
+    marginBottom: 8,
+    marginLeft: 20,
+  },
+
+  // White card
+  card: {
+    backgroundColor: COLORS.background,
+    marginHorizontal: 16,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+
+  // Settings row
+  settingsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
   },
-  shareBtnText: { color: "#fff", fontSize: 13, fontWeight: "600" },
-  usedBadge: { fontSize: 12, color: COLORS.textLight },
+  settingsRowLast: {
+    borderBottomWidth: 0,
+  },
+  rowIcon: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    width: 28,
+    textAlign: "center",
+  },
+  rowLabel: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.text,
+    marginLeft: 8,
+  },
+  chevron: {
+    fontSize: 22,
+    color: COLORS.textLight,
+    fontWeight: "300",
+  },
+
+  // Temp badge
+  tempBadge: {
+    backgroundColor: COLORS.warning,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  tempBadgeText: {
+    color: "#fff",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+
+  // Sign out
+  signOutBtn: {
+    marginTop: 30,
+    alignItems: "center",
+    paddingVertical: 14,
+  },
+  signOutText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.error,
+    letterSpacing: 1,
+  },
+
+  // Version
+  versionText: {
+    textAlign: "center",
+    fontSize: 12,
+    color: COLORS.textLight,
+    marginTop: 8,
+  },
 });
