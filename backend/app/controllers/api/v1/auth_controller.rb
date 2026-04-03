@@ -12,10 +12,6 @@ module Api
         end
 
         # MVP: 테스트용 고정 인증코드 (실 서비스에서는 SMS API 연동)
-        code = "123456"
-
-        Rails.cache.write("phone_code:#{phone}", code, expires_in: 5.minutes)
-
         render json: { message: "인증코드가 발송되었습니다", phone: phone }
       end
 
@@ -24,14 +20,12 @@ module Api
         phone = params[:phone]
         code = params[:code]
 
-        cached_code = Rails.cache.read("phone_code:#{phone}")
-
-        unless cached_code == code
+        # MVP: 고정 코드 123456
+        unless code == "123456"
           return render json: { error: "인증코드가 일치하지 않습니다" }, status: :unprocessable_entity
         end
 
         user = User.find_by(phone: phone)
-        Rails.cache.delete("phone_code:#{phone}")
 
         if user
           user.update!(phone_verified: true)
