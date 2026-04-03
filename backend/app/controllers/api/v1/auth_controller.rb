@@ -1,7 +1,7 @@
 module Api
   module V1
     class AuthController < ApplicationController
-      skip_before_action :authenticate_request, only: [ :request_code, :verify_code, :register ]
+      skip_before_action :authenticate_request, only: [ :request_code, :verify_code, :register, :kakao_login ]
 
       # POST /api/v1/auth/request_code
       def request_code
@@ -76,6 +76,14 @@ module Api
         user.paid = payment_token.present?
         user.is_seed_user = is_seed
 
+        # 카카오 정보 매핑
+        if params[:kakao_id].present?
+          user.kakao_id = params[:kakao_id]
+          user.kakao_nickname = params[:kakao_nickname]
+          user.kakao_profile_image = params[:kakao_profile_image]
+          user.kakao_email = params[:kakao_email]
+        end
+
         if user.save
           # 초대코드 사용 처리
           invite_code&.redeem!(user)
@@ -90,6 +98,59 @@ module Api
           render json: { token: token, user: user_response(user) }, status: :created
         else
           render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      # POST /api/v1/auth/kakao
+      def kakao_login
+        kakao_token = params[:kakao_access_token]
+        return render json: { error: "카카오 토큰이 필요합니다" }, status: :unprocessable_entity unless kakao_token
+
+        kakao_info = KakaoAuthService.get_user_info(kakao_token)
+        return render json: { error: "카카오 인증에 실패했습니다" }, status: :unprocessable_entity unless kakao_info
+
+        user = User.find_by(kakao_id: kakao_info[:kakao_id])
+
+        if user
+          # 기존 유저 로그인
+          token = JwtService.encode(user_id: user.id)
+          AnalyticsService.track("login_kakao", { user_id: user.id })
+          render json: { token: token, user: user_response(user), is_new_user: false }
+        else
+          # 새 유저 → 추가 정보 필요
+          render json: {
+            is_new_user: true,
+            kakao_info: {
+              kakao_id: kakao_info[:kakao_id],
+              nickname: kakao_info[:nickname],
+              profile_image: kakao_info[:profile_image],
+              email: kakao_info[:email],
+              gender: kakao_info[:gender],
+            }
+          }
+        end
+      end
+
+      # POST /api/v1/auth/verify_work_email
+      def send_work_email_verification
+        email = params[:email]
+        result = EmailVerificationService.send_verification(current_user, email)
+
+        if result[:error]
+          render json: { error: result[:error] }, status: :unprocessable_entity
+        else
+          render json: { message: "인증 메일이 발송되었습니다", email_type: result[:type] }
+        end
+      end
+
+      # POST /api/v1/auth/confirm_work_email
+      def confirm_work_email
+        token = params[:token]
+
+        if EmailVerificationService.verify_token(current_user, token)
+          render json: { message: "메일 인증이 완료되었습니다", user: user_response(current_user) }
+        else
+          render json: { error: "인증코드가 일치하지 않습니다" }, status: :unprocessable_entity
         end
       end
 
@@ -133,6 +194,9 @@ module Api
           invite_code_count: user.invite_code_count,
           is_seed_user: user.is_seed_user,
           paid: user.paid,
+          kakao_connected: user.kakao_id.present?,
+          work_email_verified: user.work_email_verified,
+          work_email_domain: user.work_email_domain,
           created_at: user.created_at
         }
       end

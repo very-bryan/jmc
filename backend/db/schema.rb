@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_105702) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_111056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -236,7 +236,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_105702) do
     t.string "invited_by_code"
     t.boolean "paid", default: false
     t.boolean "is_seed_user", default: false
+    t.string "kakao_id"
+    t.string "kakao_nickname"
+    t.string "kakao_profile_image"
+    t.string "kakao_email"
+    t.string "work_email"
+    t.boolean "work_email_verified", default: false
+    t.datetime "work_email_verified_at"
+    t.string "work_email_domain"
+    t.string "email_verification_token"
     t.index ["gender"], name: "index_users_on_gender"
+    t.index ["kakao_id"], name: "index_users_on_kakao_id", unique: true
     t.index ["nickname"], name: "index_users_on_nickname", unique: true
     t.index ["phone"], name: "index_users_on_phone", unique: true
     t.index ["region"], name: "index_users_on_region"

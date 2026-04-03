@@ -42,7 +42,10 @@ Rails.application.routes.draw do
       # Auth
       post "auth/request_code", to: "auth#request_code"
       post "auth/verify_code", to: "auth#verify_code"
+      post "auth/kakao", to: "auth#kakao_login"
       post "auth/register", to: "auth#register"
+      post "auth/verify_work_email", to: "auth#send_work_email_verification"
+      post "auth/confirm_work_email", to: "auth#confirm_work_email"
       get "auth/me", to: "auth#me"
 
       # Profile

@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../src/store/authStore";
 import { inviteCodeApi } from "../../src/api";
+import client from "../../src/api/client";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
 import { COLORS } from "../../src/constants/config";
@@ -90,6 +91,47 @@ export default function MypageScreen() {
           <Text style={[styles.rowValue, user.profile_completed && styles.verified]}>
             {user.profile_completed ? "완료" : "미완료"}
           </Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>직장/학교 인증</Text>
+          {(user as any).work_email_verified ? (
+            <Text style={[styles.rowValue, styles.verified]}>
+              {(user as any).work_email_domain}
+            </Text>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                Alert.prompt(
+                  "직장/학교 메일 인증",
+                  "직장 또는 학교 메일을 입력해주세요\n(gmail, naver 등 개인 메일 불가)",
+                  async (email) => {
+                    if (!email) return;
+                    try {
+                      await client.post("/auth/verify_work_email", { email });
+                      Alert.prompt(
+                        "인증코드 입력",
+                        `${email}로 인증코드를 발송했습니다`,
+                        async (token) => {
+                          if (!token) return;
+                          try {
+                            await client.post("/auth/confirm_work_email", { token });
+                            Alert.alert("완료", "메일 인증이 완료되었습니다");
+                            useAuthStore.getState().fetchMe();
+                          } catch {
+                            Alert.alert("오류", "인증코드가 일치하지 않습니다");
+                          }
+                        }
+                      );
+                    } catch (err: any) {
+                      Alert.alert("오류", err.response?.data?.error || "인증 요청에 실패했습니다");
+                    }
+                  }
+                );
+              }}
+            >
+              <Text style={[styles.rowValue, { color: COLORS.primary }]}>인증하기</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 

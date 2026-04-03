@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { inviteCodeApi } from "../../src/api";
+import { purchaseSignup } from "../../src/services/iap";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
@@ -38,14 +39,26 @@ export default function InviteScreen() {
     }
   };
 
-  const handlePay = () => {
-    // TODO: 토스페이먼츠 결제 연동
-    // 지금은 결제 완료로 바로 진행
-    trackEvent("signup_payment", { amount: 10000 });
-    router.push({
-      pathname: "/onboarding/profile",
-      params: { phone, payment_token: "mock_payment" },
-    });
+  const handlePay = async () => {
+    setLoading(true);
+    try {
+      const result = await purchaseSignup();
+      if (result.success) {
+        trackEvent("signup_payment_complete", { amount: 10000 });
+        router.push({
+          pathname: "/onboarding/profile",
+          params: { phone, payment_token: result.receipt || "iap_verified" },
+        });
+      } else {
+        if (result.error !== "결제가 취소되었습니다") {
+          Alert.alert("결제 실패", result.error);
+        }
+      }
+    } catch {
+      Alert.alert("오류", "결제 처리 중 문제가 발생했습니다");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

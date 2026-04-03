@@ -8,12 +8,13 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../src/store/authStore";
+import { loginWithKakao } from "../src/services/kakaoAuth";
 import { trackEvent, EVENTS } from "../src/api/analytics";
 import { COLORS } from "../src/constants/config";
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { isLoading, isAuthenticated, user } = useAuthStore();
+  const { isLoading, isAuthenticated, user, setToken, setUser } = useAuthStore();
 
   React.useEffect(() => {
     if (!isLoading) {
@@ -47,17 +48,36 @@ export default function SplashScreen() {
 
       <View style={styles.bottom}>
         <TouchableOpacity
-          style={styles.startButton}
-          onPress={() => { trackEvent(EVENTS.ONBOARDING_START); router.push("/onboarding/intro"); }}
+          style={styles.kakaoButton}
+          onPress={async () => {
+            trackEvent(EVENTS.ONBOARDING_START);
+            const result = await loginWithKakao();
+            if (result.success) {
+              if (result.isNewUser) {
+                router.push({
+                  pathname: "/onboarding/invite",
+                  params: {
+                    kakao_id: result.kakaoInfo?.kakao_id,
+                    kakao_nickname: result.kakaoInfo?.nickname,
+                    kakao_email: result.kakaoInfo?.email,
+                  },
+                });
+              } else {
+                await setToken(result.token!);
+                setUser(result.user!);
+                router.replace("/(tabs)");
+              }
+            }
+          }}
         >
-          <Text style={styles.startButtonText}>시작하기</Text>
+          <Text style={styles.kakaoButtonText}>카카오로 시작하기</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.loginButton}
           onPress={() => router.push("/onboarding/phone")}
         >
-          <Text style={styles.loginButtonText}>이미 계정이 있어요</Text>
+          <Text style={styles.loginButtonText}>휴대폰 번호로 로그인</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -99,6 +119,17 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingBottom: 40,
     gap: 12,
+  },
+  kakaoButton: {
+    backgroundColor: "#FEE500",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  kakaoButtonText: {
+    color: "#191919",
+    fontSize: 16,
+    fontWeight: "700",
   },
   startButton: {
     backgroundColor: COLORS.primary,
