@@ -6,9 +6,10 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  KeyboardAvoidingView,
   Platform,
   Image,
+  Keyboard,
+  Animated,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -139,12 +140,38 @@ export default function ChatScreen() {
     return msg.sender_id === user?.id;
   };
 
+  const keyboardHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      Animated.timing(keyboardHeight, {
+        toValue: e.endCoordinates.height,
+        duration: Platform.OS === "ios" ? 250 : 100,
+        useNativeDriver: false,
+      }).start();
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 150);
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      Animated.timing(keyboardHeight, {
+        toValue: 0,
+        duration: Platform.OS === "ios" ? 200 : 100,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-    >
+    <View style={styles.container}>
+      <Animated.View style={[styles.innerContainer, { paddingBottom: keyboardHeight }]}>
       <FlatList
         ref={flatListRef}
         data={displayMessages}
@@ -209,12 +236,14 @@ export default function ChatScreen() {
           <MaterialIcons name={input.trim() ? "send" : "mic"} size={20} color="#fff" />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF9FE" },
+  innerContainer: { flex: 1 },
   list: { padding: 14, paddingBottom: 4 },
   msgRow: {
     flexDirection: "row",
