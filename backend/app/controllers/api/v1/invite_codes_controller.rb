@@ -1,6 +1,8 @@
 module Api
   module V1
     class InviteCodesController < ApplicationController
+      skip_before_action :authenticate_request, only: [ :validate ]
+
       # GET /api/v1/invite_codes
       def index
         codes = current_user.owned_invite_codes.order(created_at: :desc)
@@ -17,7 +19,7 @@ module Api
         code = InviteCode.validate_code(params[:code])
 
         if code
-          render json: { valid: true, owner_nickname: code.owner.nickname }
+          render json: { valid: true, owner_nickname: code.respond_to?(:owner) && code.owner ? code.owner.nickname : "진만추" }
         else
           render json: { valid: false, error: "유효하지 않은 초대코드입니다" }
         end
