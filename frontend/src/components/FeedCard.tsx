@@ -81,14 +81,14 @@ export function FeedCard({ post, onInterest }: Props) {
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.connectBtn} onPress={onInterest}>
-          <Text style={styles.connectText}>Connect</Text>
+          <Text style={styles.connectText}>관심 보내기</Text>
         </TouchableOpacity>
       </View>
 
       {/* Likes */}
       <View style={styles.content}>
         <Text style={styles.likesText}>
-          {Math.floor(Math.random() * 50 + 5)} likes
+          좋아요 {Math.floor(Math.random() * 50 + 5)}개
         </Text>
         <Text style={styles.contentText}>
           <Text style={styles.contentNickname}>{post.user.nickname}</Text>

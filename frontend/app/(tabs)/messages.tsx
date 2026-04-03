@@ -49,7 +49,7 @@ export default function MessagesScreen() {
   const fetchConversations = async () => {
     try {
       const res = await conversationApi.list();
-      const real = res.data.conversations;
+      const real = res.data?.conversations || [];
       setConversations(real.length > 0 ? real : DUMMY_CONVERSATIONS);
     } catch {
       setConversations(DUMMY_CONVERSATIONS);

@@ -142,8 +142,8 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={90}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <FlatList
         ref={flatListRef}
@@ -193,7 +193,7 @@ export default function ChatScreen() {
         <View style={styles.inputWrap}>
           <TextInput
             style={styles.input}
-            placeholder="Message..."
+            placeholder="메시지 입력..."
             placeholderTextColor={COLORS.textLight}
             value={input}
             onChangeText={setInput}

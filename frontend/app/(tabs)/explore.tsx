@@ -35,7 +35,7 @@ export default function ExploreScreen() {
     setTab(t);
     try {
       const res = await interestApi.list(t);
-      const data = res.data.interests;
+      const data = res.data?.interests || [];
       setInterests(data.length > 0 ? data : DUMMY_INTERESTS);
     } catch {
       setInterests(DUMMY_INTERESTS);

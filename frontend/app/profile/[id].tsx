@@ -152,7 +152,7 @@ export default function ProfileScreen() {
               <MaterialIcons name="arrow-back" size={22} color={COLORS.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.graduateBtn}>
-              <Text style={styles.graduateBtnText}>Graduate with {profile.nickname}</Text>
+              <Text style={styles.graduateBtnText}>{profile.nickname}님과 졸업</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
 
         {/* My Taste */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Taste</Text>
+          <Text style={styles.sectionTitle}>취향</Text>
           <View style={styles.tagsWrap}>
             {DUMMY_TASTES.map((tag) => (
               <View key={tag} style={styles.tag}>
@@ -189,7 +189,7 @@ export default function ProfileScreen() {
 
         {/* Deep Dive */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Deep Dive</Text>
+          <Text style={styles.sectionTitle}>더 알아보기</Text>
           {DUMMY_DEEP_DIVE.map((item, i) => (
             <View key={i} style={styles.deepDiveCard}>
               <Text style={styles.deepDiveQ}>{item.q}</Text>
@@ -258,7 +258,7 @@ export default function ProfileScreen() {
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.connectBtn} onPress={handleInterest}>
           <MaterialIcons name="favorite-border" size={20} color="#fff" />
-          <Text style={styles.connectText}>Connect</Text>
+          <Text style={styles.connectText}>관심 보내기</Text>
         </TouchableOpacity>
       </View>
     </View>

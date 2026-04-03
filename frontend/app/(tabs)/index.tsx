@@ -55,7 +55,7 @@ export default function HomeScreen() {
   const fetchFeed = useCallback(async (pageNum = 1, refresh = false) => {
     try {
       const res = await feedApi.get(pageNum);
-      const newPosts = res.data.posts;
+      const newPosts = res.data?.posts || [];
       const data = newPosts.length > 0 ? newPosts : (pageNum === 1 ? DUMMY_POSTS : []);
 
       if (refresh) {
@@ -124,20 +124,20 @@ export default function HomeScreen() {
       onEndReachedThreshold={0.5}
       ListHeaderComponent={
         <View style={styles.filterBar}>
-          <Text style={styles.filterLabel}>MY CONDITIONS</Text>
+          <Text style={styles.filterLabel}>내 조건</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
             <View style={styles.chip}>
               <Text style={styles.chipText}>25-30</Text>
             </View>
             <View style={styles.chip}>
-              <Text style={styles.chipText}>Seoul</Text>
+              <Text style={styles.chipText}>서울</Text>
             </View>
             <View style={[styles.chip, styles.chipActive]}>
-              <Text style={[styles.chipText, styles.chipTextActive]}>Verified</Text>
+              <Text style={[styles.chipText, styles.chipTextActive]}>인증됨</Text>
             </View>
             <TouchableOpacity style={styles.chipAdjust}>
               <MaterialIcons name="tune" size={14} color={COLORS.primary} />
-              <Text style={styles.chipAdjustText}> Adjust</Text>
+              <Text style={styles.chipAdjustText}> 조정</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

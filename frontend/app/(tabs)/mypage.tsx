@@ -75,74 +75,74 @@ export default function MypageScreen() {
           <Text style={styles.nickname}>{user.nickname}</Text>
           <VerificationBadge level={user.verification_level} size="medium" />
         </View>
-        <Text style={styles.premiumText}>Premium Member since 2023</Text>
+        <Text style={styles.premiumText}>가입일 2023년</Text>
       </View>
 
       {/* Graduation Card */}
       <View style={styles.gradCard}>
-        <Text style={styles.gradTitle}>Found your match?</Text>
-        <Text style={styles.gradSubtitle}>Share your success story with the community</Text>
+        <Text style={styles.gradTitle}>좋은 사람을 만나셨나요?</Text>
+        <Text style={styles.gradSubtitle}>졸업은 진만추의 축하입니다</Text>
         <TouchableOpacity style={styles.gradBtn}>
-          <Text style={styles.gradBtnText}>Graduate Now</Text>
+          <Text style={styles.gradBtnText}>졸업 신청</Text>
         </TouchableOpacity>
       </View>
 
-      {/* ACCOUNT */}
-      <Text style={styles.sectionLabel}>ACCOUNT</Text>
+      {/* 계정 */}
+      <Text style={styles.sectionLabel}>계정</Text>
       <View style={styles.card}>
-        <SettingsRow icon="person" label="Personal Info" />
-        <SettingsRow icon="mail" label="Email & Phone" />
-        <SettingsRow icon="credit-card" label="Subscription" isLast />
+        <SettingsRow icon="person" label="개인정보" />
+        <SettingsRow icon="mail" label="이메일 · 전화번호" />
+        <SettingsRow icon="credit-card" label="구독 · 결제" isLast />
       </View>
 
-      {/* MATCH PREFERENCES */}
-      <Text style={styles.sectionLabel}>MATCH PREFERENCES</Text>
+      {/* 매칭 설정 */}
+      <Text style={styles.sectionLabel}>매칭 설정</Text>
       <View style={styles.card}>
-        <SettingsRow icon="tune" label="Search Filters" />
-        <SettingsRow icon="favorite" label="Relationship Values" isLast />
+        <SettingsRow icon="tune" label="검색 필터" />
+        <SettingsRow icon="favorite" label="관계 가치관" isLast />
       </View>
 
-      {/* NOTIFICATIONS */}
-      <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+      {/* 알림 */}
+      <Text style={styles.sectionLabel}>알림</Text>
       <View style={styles.card}>
         <View style={styles.settingsRow}>
           <MaterialIcons name="notifications" size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
-          <Text style={styles.rowLabel}>Push Notifications</Text>
+          <Text style={styles.rowLabel}>푸시 알림</Text>
           <Switch
             value={true}
             trackColor={{ true: COLORS.primary, false: COLORS.border }}
           />
         </View>
-        <SettingsRow icon="schedule" label="Quiet Mode" isLast />
+        <SettingsRow icon="schedule" label="방해금지 모드" isLast />
       </View>
 
-      {/* PRIVACY & DANGER ZONE */}
-      <Text style={styles.sectionLabel}>PRIVACY & DANGER ZONE</Text>
+      {/* 개인정보 · 위험 구역 */}
+      <Text style={styles.sectionLabel}>개인정보 · 계정 관리</Text>
       <View style={styles.card}>
-        <SettingsRow icon="visibility" label="Visibility" />
+        <SettingsRow icon="visibility" label="프로필 공개 설정" />
         <View style={[styles.settingsRow, styles.settingsRowLast]}>
           <MaterialIcons name="warning" size={20} color={COLORS.primary} style={{ width: 28 }} />
-          <Text style={[styles.rowLabel, { color: COLORS.primary }]}>Deactivate Profile</Text>
+          <Text style={[styles.rowLabel, { color: COLORS.primary }]}>프로필 비활성화</Text>
           <View style={styles.tempBadge}>
-            <Text style={styles.tempBadgeText}>TEMPORARY</Text>
+            <Text style={styles.tempBadgeText}>임시</Text>
           </View>
           <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
         </View>
       </View>
 
-      {/* SUPPORT */}
-      <Text style={styles.sectionLabel}>SUPPORT</Text>
+      {/* 고객지원 */}
+      <Text style={styles.sectionLabel}>고객지원</Text>
       <View style={styles.card}>
-        <SettingsRow icon="help" label="Help Center" />
-        <SettingsRow icon="verified-user" label="Safety Guidelines" isLast />
+        <SettingsRow icon="help" label="도움말 센터" />
+        <SettingsRow icon="verified-user" label="안전 가이드라인" isLast />
       </View>
 
-      {/* Sign Out */}
+      {/* 로그아웃 */}
       <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
-        <Text style={styles.signOutText}>SIGN OUT</Text>
+        <Text style={styles.signOutText}>로그아웃</Text>
       </TouchableOpacity>
 
-      <Text style={styles.versionText}>Version 1.0.0</Text>
+      <Text style={styles.versionText}>버전 1.0.0</Text>
       <View style={{ height: 40 }} />
     </ScrollView>
   );
