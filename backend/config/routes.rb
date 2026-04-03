@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     get "statistics", to: "statistics#index", as: :statistics
 
     resources :announcements, only: [ :index, :new, :create, :edit, :update, :destroy ]
+    resources :pre_registrations, only: [ :index ]
   end
 
   namespace :api do
@@ -92,6 +93,10 @@ Rails.application.routes.draw do
           post :end_relationship
         end
       end
+
+      # Pre-registration
+      post "pre_registrations", to: "pre_registrations#create"
+      get "pre_registrations/count", to: "pre_registrations#count"
     end
   end
 end

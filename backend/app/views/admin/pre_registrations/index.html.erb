@@ -1,0 +1,65 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">사전등록 현황</h1>
+    <p class="text-sm text-muted-foreground">Phase 0 — 목표 100명</p>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="shadcn-card stat-card">
+      <div class="stat-value"><%= @stats[:total] %></div>
+      <div class="stat-label">전체 등록</div>
+    </div>
+    <div class="shadcn-card stat-card">
+      <div class="stat-value"><%= @stats[:male] %></div>
+      <div class="stat-label">남성</div>
+    </div>
+    <div class="shadcn-card stat-card">
+      <div class="stat-value"><%= @stats[:female] %></div>
+      <div class="stat-label">여성</div>
+    </div>
+    <div class="shadcn-card stat-card">
+      <div class="stat-value"><%= @stats[:today] %></div>
+      <div class="stat-label">오늘</div>
+    </div>
+  </div>
+
+  <% if @stats[:total] > 0 %>
+    <div class="shadcn-card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="text-sm font-medium">목표 달성률</div>
+        <div class="text-sm text-muted-foreground"><%= @stats[:total] %> / 100</div>
+      </div>
+      <div class="w-full bg-muted rounded-full h-2">
+        <div class="bg-foreground h-2 rounded-full transition-all" style="width: <%= [(@stats[:total].to_f / 100 * 100), 100].min %>%"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>#</th><th>이름</th><th>전화번호</th><th>성별</th><th>출생연도</th><th>지역</th><th>유입경로</th><th>등록일</th>
+      </tr></thead>
+      <tbody>
+        <% @registrations.each do |reg| %>
+          <tr>
+            <td class="text-muted-foreground"><%= reg.id %></td>
+            <td class="font-medium"><%= reg.name %></td>
+            <td class="text-muted-foreground"><%= reg.phone.gsub(/(\d{3})(\d{4})(\d{4})/, '\1-****-\3') %></td>
+            <td><%= reg.gender == "male" ? "남" : reg.gender == "female" ? "여" : "-" %></td>
+            <td class="text-muted-foreground"><%= reg.birth_year || "-" %></td>
+            <td class="text-muted-foreground"><%= reg.region || "-" %></td>
+            <td class="text-muted-foreground"><%= reg.referral_source || "-" %></td>
+            <td class="text-muted-foreground"><%= reg.created_at.strftime("%m/%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @registrations.empty? %>
+      <div class="text-center py-16">
+        <i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i>
+        <p class="text-sm text-muted-foreground">아직 사전등록이 없습니다</p>
+      </div>
+    <% end %>
+  </div>
+</div>
