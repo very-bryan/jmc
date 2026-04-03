@@ -39,7 +39,8 @@ export default function ProfileScreen() {
     payment_token?: string;
     is_seed?: string;
   }>();
-  const { setToken, setUser, user } = useAuthStore();
+  const { setToken, setUser, user, token } = useAuthStore();
+  const isExistingUser = !!token;
 
   const [form, setForm] = useState({
     nickname: user?.nickname || "",
@@ -58,33 +59,48 @@ export default function ProfileScreen() {
 
   const isValid =
     form.nickname && form.gender && form.birth_year && form.region &&
-    form.occupation && form.desired_marriage_timing && form.password;
+    form.occupation && form.desired_marriage_timing && (isExistingUser || form.password);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await authApi.register({
-        user: {
-          phone: phone || user?.phone || "",
-          password: form.password,
+      if (isExistingUser) {
+        // 기존 유저: 프로필 업데이트
+        const { profileApi } = require("../../src/api");
+        const res = await profileApi.update({
           nickname: form.nickname,
           gender: form.gender,
           birth_year: parseInt(form.birth_year),
           region: form.region,
           occupation: form.occupation,
           desired_marriage_timing: form.desired_marriage_timing,
-        },
-        invite_code: invite_code || undefined,
-        payment_token: payment_token || undefined,
-        is_seed: is_seed === "true" ? true : undefined,
-      });
-
-      await setToken(res.data.token);
-      setUser(res.data.user);
+        });
+        setUser(res.data.user);
+      } else {
+        // 새 유저: 회원가입
+        const res = await authApi.register({
+          user: {
+            phone: phone || user?.phone || "",
+            password: form.password,
+            nickname: form.nickname,
+            gender: form.gender,
+            birth_year: parseInt(form.birth_year),
+            region: form.region,
+            occupation: form.occupation,
+            desired_marriage_timing: form.desired_marriage_timing,
+          },
+          invite_code: invite_code || undefined,
+          payment_token: payment_token || undefined,
+          is_seed: is_seed === "true" ? true : undefined,
+        });
+        await setToken(res.data.token);
+        setUser(res.data.user);
+      }
       trackEvent(EVENTS.PROFILE_COMPLETE, { gender: form.gender, region: form.region });
       router.push("/onboarding/survey");
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.errors?.join("\n") || "가입에 실패했습니다");
+      const msg = err.response?.data?.errors?.join("\n") || err.response?.data?.error || err.message || "가입에 실패했습니다";
+      Alert.alert("오류", msg);
     } finally {
       setLoading(false);
     }
