@@ -17,7 +17,9 @@ WORKDIR /rails
 # Install base packages
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 postgresql-client imagemagick libmagickwand-dev webp && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml 2>/dev/null || true && \
+    sed -i '/<\/policymap>/i <policy domain="coder" rights="read|write" pattern="*" />' /etc/ImageMagick-6/policy.xml 2>/dev/null || true
 
 # Set production environment
 ENV RAILS_ENV="production" \
@@ -30,7 +32,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config imagemagick libmagickwand-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems
