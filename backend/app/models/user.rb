@@ -24,6 +24,9 @@ class User < ApplicationRecord
   has_many :received_relationships, class_name: "Relationship", foreign_key: :partner_id, dependent: :destroy
 
   has_many :sanctions, dependent: :destroy
+  has_many :owned_invite_codes, class_name: "InviteCode", foreign_key: :owner_id, dependent: :destroy
+
+  after_create :generate_invite_codes, if: :should_generate_codes?
 
   enum :gender, { male: 0, female: 1, other: 2 }
   enum :smoking, { non_smoker: 0, smoker: 1, occasional_smoker: 2 }, prefix: true
@@ -68,5 +71,23 @@ class User < ApplicationRecord
               :basic
             end
     update!(verification_level: level)
+  end
+
+  def available_invite_codes
+    owned_invite_codes.available_codes
+  end
+
+  def invite_code_count
+    owned_invite_codes.available_codes.count
+  end
+
+  private
+
+  def should_generate_codes?
+    profile_completed? || is_seed_user?
+  end
+
+  def generate_invite_codes
+    InviteCode.generate_for_user!(self)
   end
 end

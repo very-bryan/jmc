@@ -94,6 +94,13 @@ Rails.application.routes.draw do
         end
       end
 
+      # Invite Codes
+      resources :invite_codes, only: [ :index ] do
+        collection do
+          post :validate
+        end
+      end
+
       # Pre-registration
       post "pre_registrations", to: "pre_registrations#create"
       get "pre_registrations/count", to: "pre_registrations#count"

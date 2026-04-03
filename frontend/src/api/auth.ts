@@ -13,16 +13,21 @@ export const authApi = {
       phone?: string;
     }>("/auth/verify_code", { phone, code }),
 
-  register: (userData: {
-    phone: string;
-    password: string;
-    nickname: string;
-    gender: string;
-    birth_year: number;
-    region: string;
-    occupation: string;
-    desired_marriage_timing: string;
-  }) => client.post<{ token: string; user: User }>("/auth/register", { user: userData }),
+  register: (data: {
+    user: {
+      phone: string;
+      password: string;
+      nickname: string;
+      gender: string;
+      birth_year: number;
+      region: string;
+      occupation: string;
+      desired_marriage_timing: string;
+    };
+    invite_code?: string;
+    payment_token?: string;
+    is_seed?: boolean;
+  }) => client.post<{ token: string; user: User }>("/auth/register", data),
 
   me: () => client.get<{ user: User }>("/auth/me"),
 };

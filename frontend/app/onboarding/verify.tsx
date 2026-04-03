@@ -28,7 +28,7 @@ export default function VerifyScreen() {
 
       if (data.is_new_user) {
         trackEvent(EVENTS.PHONE_VERIFY_COMPLETE, { is_new_user: 1 });
-        router.push({ pathname: "/onboarding/profile", params: { phone } });
+        router.push({ pathname: "/onboarding/invite", params: { phone } });
       } else {
         trackEvent(EVENTS.LOGIN_SUCCESS);
         await setToken(data.token!);

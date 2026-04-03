@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_103811) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_105702) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,6 +81,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_103811) do
     t.index ["receiver_id"], name: "index_interests_on_receiver_id"
     t.index ["sender_id", "receiver_id"], name: "index_interests_on_sender_id_and_receiver_id", unique: true
     t.index ["sender_id"], name: "index_interests_on_sender_id"
+  end
+
+  create_table "invite_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.bigint "owner_id", null: false
+    t.bigint "used_by_id"
+    t.integer "status", default: 0
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_invite_codes_on_code", unique: true
+    t.index ["owner_id", "status"], name: "index_invite_codes_on_owner_id_and_status"
+    t.index ["owner_id"], name: "index_invite_codes_on_owner_id"
+    t.index ["used_by_id"], name: "index_invite_codes_on_used_by_id"
   end
 
   create_table "matches", force: :cascade do |t|
@@ -219,6 +233,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_103811) do
     t.string "profile_image_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "invited_by_code"
+    t.boolean "paid", default: false
+    t.boolean "is_seed_user", default: false
     t.index ["gender"], name: "index_users_on_gender"
     t.index ["nickname"], name: "index_users_on_nickname", unique: true
     t.index ["phone"], name: "index_users_on_phone", unique: true
@@ -247,6 +264,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_103811) do
   add_foreign_key "conversations", "matches"
   add_foreign_key "interests", "users", column: "receiver_id"
   add_foreign_key "interests", "users", column: "sender_id"
+  add_foreign_key "invite_codes", "users", column: "owner_id"
+  add_foreign_key "invite_codes", "users", column: "used_by_id"
   add_foreign_key "matches", "users", column: "user1_id"
   add_foreign_key "matches", "users", column: "user2_id"
   add_foreign_key "messages", "conversations"

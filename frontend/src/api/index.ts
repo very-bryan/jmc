@@ -90,3 +90,12 @@ export const relationshipApi = {
   confirm: (id: number) => client.post(`/relationships/${id}/confirm`),
   end: (id: number) => client.post(`/relationships/${id}/end_relationship`),
 };
+
+export const inviteCodeApi = {
+  list: () => client.get("/invite_codes"),
+  validate: (code: string) =>
+    client.post<{ valid: boolean; owner_nickname?: string; error?: string }>(
+      "/invite_codes/validate",
+      { code }
+    ),
+};

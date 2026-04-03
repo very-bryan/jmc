@@ -49,13 +49,43 @@ module Api
 
       # POST /api/v1/auth/register
       def register
+        invite_code_str = params[:invite_code]
+        payment_token = params[:payment_token]
+        is_seed = params[:is_seed] == true
+
+        # 시드 유저가 아니면 초대코드 or 결제 필요
+        unless is_seed
+          if invite_code_str.present?
+            invite_code = InviteCode.validate_code(invite_code_str)
+            unless invite_code
+              return render json: { error: "유효하지 않은 초대코드입니다" }, status: :unprocessable_entity
+            end
+          elsif payment_token.present?
+            # TODO: 토스페이먼츠 결제 검증 연동
+            # 지금은 payment_token이 있으면 결제 완료로 처리
+          else
+            return render json: { error: "초대코드 또는 결제가 필요합니다" }, status: :unprocessable_entity
+          end
+        end
+
         user = User.new(register_params)
         user.phone_verified = true
         user.status = :active
         user.verification_level = :phone_verified
+        user.invited_by_code = invite_code_str if invite_code_str.present?
+        user.paid = payment_token.present?
+        user.is_seed_user = is_seed
 
         if user.save
+          # 초대코드 사용 처리
+          invite_code&.redeem!(user)
+
           AnalyticsService.track_registration(user)
+          AnalyticsService.track("registration_method", {
+            method: is_seed ? "seed" : invite_code_str.present? ? "invite" : "paid",
+            user_id: user.id
+          })
+
           token = JwtService.encode(user_id: user.id)
           render json: { token: token, user: user_response(user) }, status: :created
         else
@@ -100,6 +130,9 @@ module Api
           profile_completed: user.profile_completed,
           status: user.status,
           verification_level: user.verification_level,
+          invite_code_count: user.invite_code_count,
+          is_seed_user: user.is_seed_user,
+          paid: user.paid,
           created_at: user.created_at
         }
       end

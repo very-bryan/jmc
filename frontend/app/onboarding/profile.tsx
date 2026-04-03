@@ -33,7 +33,11 @@ const MARRIAGE_TIMINGS = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { phone } = useLocalSearchParams<{ phone: string }>();
+  const { phone, invite_code, payment_token } = useLocalSearchParams<{
+    phone: string;
+    invite_code?: string;
+    payment_token?: string;
+  }>();
   const { setToken, setUser, user } = useAuthStore();
 
   const [form, setForm] = useState({
@@ -59,14 +63,18 @@ export default function ProfileScreen() {
     setLoading(true);
     try {
       const res = await authApi.register({
-        phone: phone || user?.phone || "",
-        password: form.password,
-        nickname: form.nickname,
-        gender: form.gender,
-        birth_year: parseInt(form.birth_year),
-        region: form.region,
-        occupation: form.occupation,
-        desired_marriage_timing: form.desired_marriage_timing,
+        user: {
+          phone: phone || user?.phone || "",
+          password: form.password,
+          nickname: form.nickname,
+          gender: form.gender,
+          birth_year: parseInt(form.birth_year),
+          region: form.region,
+          occupation: form.occupation,
+          desired_marriage_timing: form.desired_marriage_timing,
+        },
+        invite_code: invite_code || undefined,
+        payment_token: payment_token || undefined,
       });
 
       await setToken(res.data.token);

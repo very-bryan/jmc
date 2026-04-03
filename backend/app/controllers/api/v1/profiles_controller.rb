@@ -9,8 +9,15 @@ module Api
       # PUT /api/v1/profile
       def update
         if current_user.update(profile_params)
+          was_incomplete = !current_user.profile_completed?
           current_user.update!(profile_completed: profile_complete?) unless current_user.profile_completed?
           current_user.update_verification_level!
+
+          # 프로필 완성 시 초대코드 발급
+          if was_incomplete && current_user.profile_completed? && current_user.owned_invite_codes.empty?
+            InviteCode.generate_for_user!(current_user)
+          end
+
           render json: { user: full_profile(current_user) }
         else
           render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity

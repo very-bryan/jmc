@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,15 +6,36 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Share,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../src/store/authStore";
+import { inviteCodeApi } from "../../src/api";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
 import { COLORS } from "../../src/constants/config";
 
 export default function MypageScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [inviteCodes, setInviteCodes] = useState<
+    { id: number; code: string; status: string; used_by: any }[]
+  >([]);
+
+  useEffect(() => {
+    inviteCodeApi.list().then((res) => setInviteCodes(res.data.codes)).catch(() => {});
+  }, []);
+
+  const handleShare = async (code: string) => {
+    trackEvent("invite_code_share", { code });
+    try {
+      await Share.share({
+        message: `진만추(진지한 만남 추구)에 초대합니다!\n\n초대코드: ${code}\n\n검증된 사람과 진지한 만남을 시작하세요.\nhttps://jmc-landing.verycloud.io`,
+      });
+    } catch {
+      // 무시
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert("로그아웃", "정말 로그아웃하시겠습니까?", [
@@ -71,6 +92,39 @@ export default function MypageScreen() {
           </Text>
         </View>
       </View>
+
+      {inviteCodes.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>초대코드</Text>
+          <Text style={styles.inviteDesc}>
+            친구를 초대하면 무료로 가입할 수 있어요
+          </Text>
+          {inviteCodes.map((c) => (
+            <View key={c.id} style={styles.codeRow}>
+              <View style={styles.codeInfo}>
+                <Text style={[styles.codeText, c.status !== "available" && styles.codeUsed]}>
+                  {c.code}
+                </Text>
+                {c.status === "used" && c.used_by && (
+                  <Text style={styles.codeUsedBy}>
+                    {c.used_by.nickname}님이 사용
+                  </Text>
+                )}
+              </View>
+              {c.status === "available" ? (
+                <TouchableOpacity
+                  style={styles.shareBtn}
+                  onPress={() => handleShare(c.code)}
+                >
+                  <Text style={styles.shareBtnText}>공유</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.usedBadge}>사용됨</Text>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>설정</Text>
@@ -163,4 +217,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoutText: { fontSize: 15, color: COLORS.error, fontWeight: "600" },
+  inviteDesc: { fontSize: 13, color: COLORS.textSecondary, marginBottom: 12 },
+  codeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  codeInfo: { flex: 1 },
+  codeText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: COLORS.text,
+    letterSpacing: 3,
+  },
+  codeUsed: { color: COLORS.textLight },
+  codeUsedBy: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 },
+  shareBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  shareBtnText: { color: "#fff", fontSize: 13, fontWeight: "600" },
+  usedBadge: { fontSize: 12, color: COLORS.textLight },
 });
