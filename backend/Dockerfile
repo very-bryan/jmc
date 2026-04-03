@@ -66,5 +66,5 @@ USER 1000:1000
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start server — use PORT env var from VeryCloud
-EXPOSE 8080
-CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
+EXPOSE 3000
+CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]
