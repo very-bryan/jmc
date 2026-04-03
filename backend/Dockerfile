@@ -18,8 +18,7 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 postgresql-client imagemagick libmagickwand-dev webp && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
-    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml 2>/dev/null || true && \
-    sed -i '/<\/policymap>/i <policy domain="coder" rights="read|write" pattern="*" />' /etc/ImageMagick-6/policy.xml 2>/dev/null || true
+    (find /etc -name "policy.xml" -exec sh -c 'cp /dev/null {}' \; 2>/dev/null || true)
 
 # Set production environment
 ENV RAILS_ENV="production" \

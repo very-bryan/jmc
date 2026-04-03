@@ -21,9 +21,6 @@ gem "rack-cors"
 # S3-compatible storage (RustFS)
 gem "aws-sdk-s3", require: false
 
-# Image processing (WebP conversion + resize)
-gem "mini_magick"
-
 # Pagination
 gem "kaminari"
 
