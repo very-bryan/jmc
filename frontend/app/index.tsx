@@ -60,9 +60,13 @@ export default function SplashScreen() {
           을 추구하는 MZ 세대를 위한 프리미엄 소셜 커뮤니티.
         </Text>
 
-        {/* 이미지 영역 (나중에 교체) */}
+        {/* 메인 이미지 */}
         <View style={styles.imageWrap}>
-          <View style={styles.imagePlaceholder} />
+          <Image
+            source={require("../assets/splash-couple.webp")}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
         </View>
 
         <Text style={styles.ctaLabel}>지금, 새로운 일상을 시작하세요.</Text>
@@ -201,16 +205,15 @@ const styles = StyleSheet.create({
 
   // 이미지
   imageWrap: {
-    width: width - 80,
-    height: width - 80,
+    width: width - 48,
+    aspectRatio: 1024 / 858,
     borderRadius: 20,
     overflow: "hidden",
     marginBottom: 24,
   },
-  imagePlaceholder: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+  heroImage: {
+    width: "100%",
+    height: "100%",
   },
 
   ctaLabel: {
