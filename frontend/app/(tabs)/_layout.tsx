@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../../src/constants/config";
 
@@ -28,7 +28,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: () => <Text style={styles.headerBrand}>진만추</Text>,
+          headerTitle: () => (
+            <Image
+              source={require("../../assets/logo.png")}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+          ),
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name={focused ? "home" : "home"} size={28} color={color} />
@@ -91,7 +97,7 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabIconWrap: { alignItems: "center", gap: 3 },
   tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary },
-  headerBrand: { fontSize: 22, fontWeight: "800", fontStyle: "italic", color: COLORS.primary },
+  headerLogo: { width: 120, height: 32 },
   plusWrap: {
     width: 36, height: 36, borderRadius: 12,
     backgroundColor: COLORS.surface,
