@@ -7,7 +7,9 @@ class Relationship < ApplicationRecord
 
   validate :cannot_relate_self
 
+  after_create -> { AnalyticsService.track_relationship(self, "request") }
   after_save :update_user_statuses, if: :rel_confirmed?
+  after_save -> { AnalyticsService.track_relationship(self, graduated? ? "graduation_confirm" : "confirm") }, if: :rel_confirmed?
 
   private
 

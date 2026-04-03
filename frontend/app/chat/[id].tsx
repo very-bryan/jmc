@@ -12,6 +12,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { conversationApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 import type { Message } from "../../src/types";
 
@@ -22,17 +23,50 @@ export default function ChatScreen() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const trackedMilestones = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    trackEvent(EVENTS.DM_CONVERSATION_OPEN, { conversation_id: Number(id) });
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000); // polling for MVP
+    const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const checkMilestones = (msgs: Message[]) => {
+    if (!user) return;
+
+    // 내가 보낸 메시지 수 (턴 계산)
+    const myMessages = msgs.filter((m) => m.sender_id === user.id);
+    const otherMessages = msgs.filter((m) => m.sender_id !== user.id);
+    const turns = Math.min(myMessages.length, otherMessages.length);
+
+    if (turns >= 5 && !trackedMilestones.current.has("5turns")) {
+      trackedMilestones.current.add("5turns");
+      trackEvent(EVENTS.DM_5_TURNS, { conversation_id: Number(id), total_messages: msgs.length });
+    }
+    if (turns >= 10 && !trackedMilestones.current.has("10turns")) {
+      trackedMilestones.current.add("10turns");
+      trackEvent(EVENTS.DM_10_TURNS, { conversation_id: Number(id), total_messages: msgs.length });
+    }
+
+    // 2일 이상 이어진 대화 체크
+    if (msgs.length >= 2 && !trackedMilestones.current.has("multiday")) {
+      const first = new Date(msgs[0].created_at);
+      const last = new Date(msgs[msgs.length - 1].created_at);
+      const daysDiff = (last.getTime() - first.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysDiff >= 2) {
+        trackedMilestones.current.add("multiday");
+        trackEvent(EVENTS.DM_MULTI_DAY, { conversation_id: Number(id), days: Math.floor(daysDiff) });
+      }
+    }
+  };
 
   const fetchMessages = async () => {
     try {
       const res = await conversationApi.messages(Number(id));
-      setMessages(res.data.messages.reverse());
+      const reversed = res.data.messages.reverse();
+      setMessages(reversed);
+      checkMilestones(reversed);
     } catch {
       // ignore
     }
@@ -43,7 +77,15 @@ export default function ChatScreen() {
 
     setLoading(true);
     try {
+      const isFirstMessage = messages.filter((m) => m.sender_id === user?.id).length === 0;
+
       await conversationApi.sendMessage(Number(id), input.trim());
+      trackEvent(EVENTS.DM_SEND, { conversation_id: Number(id) });
+
+      if (isFirstMessage) {
+        trackEvent(EVENTS.DM_START, { conversation_id: Number(id) });
+      }
+
       setInput("");
       fetchMessages();
     } catch {

@@ -10,6 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { preferenceFilterApi, profileApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
 const GENDERS = [
@@ -54,8 +55,13 @@ export default function PreferenceScreen() {
         preferred_regions: regions,
       });
 
-      await profileApi.selfieVerify(); // MVP: 간소화 처리
+      trackEvent(EVENTS.PREFERENCE_COMPLETE, { preferred_gender: gender, regions: regions.join(",") });
+
+      await profileApi.selfieVerify();
+      trackEvent(EVENTS.SELFIE_VERIFY_COMPLETE);
+
       await fetchMe();
+      trackEvent(EVENTS.REGISTRATION_COMPLETE);
       router.replace("/(tabs)");
     } catch (err: any) {
       Alert.alert("오류", "저장에 실패했습니다");

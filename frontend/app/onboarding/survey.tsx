@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { valueSurveyApi } from "../../src/api";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
 const QUESTIONS = [
@@ -82,6 +83,7 @@ export default function SurveyScreen() {
     setLoading(true);
     try {
       await valueSurveyApi.create(answers);
+      trackEvent(EVENTS.SURVEY_COMPLETE);
       router.push("/onboarding/preference");
     } catch (err: any) {
       Alert.alert("오류", err.response?.data?.errors?.join("\n") || "저장에 실패했습니다");

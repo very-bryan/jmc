@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../src/store/authStore";
+import { trackEvent, EVENTS } from "../src/api/analytics";
 import { COLORS } from "../src/constants/config";
 
 export default function SplashScreen() {
@@ -47,7 +48,7 @@ export default function SplashScreen() {
       <View style={styles.bottom}>
         <TouchableOpacity
           style={styles.startButton}
-          onPress={() => router.push("/onboarding/intro")}
+          onPress={() => { trackEvent(EVENTS.ONBOARDING_START); router.push("/onboarding/intro"); }}
         >
           <Text style={styles.startButtonText}>시작하기</Text>
         </TouchableOpacity>

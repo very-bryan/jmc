@@ -18,6 +18,8 @@ class Report < ApplicationRecord
   validates :reason, presence: true, length: { maximum: 500 }
   validate :cannot_report_self
 
+  after_create -> { AnalyticsService.track_report(self) }
+
   private
 
   def cannot_report_self

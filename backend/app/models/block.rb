@@ -5,6 +5,8 @@ class Block < ApplicationRecord
   validates :blocker_id, uniqueness: { scope: :blocked_id }
   validate :cannot_block_self
 
+  after_create -> { AnalyticsService.track_block(blocker, blocked) }
+
   private
 
   def cannot_block_self

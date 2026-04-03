@@ -55,6 +55,7 @@ module Api
         user.verification_level = :phone_verified
 
         if user.save
+          AnalyticsService.track_registration(user)
           token = JwtService.encode(user_id: user.id)
           render json: { token: token, user: user_response(user) }, status: :created
         else

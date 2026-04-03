@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { interestApi } from "../../src/api";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
 import { COLORS } from "../../src/constants/config";
 import type { Interest } from "../../src/types";
@@ -41,6 +42,8 @@ export default function ExploreScreen() {
   const handleAccept = async (id: number) => {
     try {
       await interestApi.accept(id);
+      trackEvent(EVENTS.INTEREST_ACCEPT);
+      trackEvent(EVENTS.MUTUAL_INTEREST);
       fetchInterests(tab);
     } catch {
       // ignore

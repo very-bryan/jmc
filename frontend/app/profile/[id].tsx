@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { userApi, interestApi, blockApi, reportApi } from "../../src/api";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
 import { COLORS } from "../../src/constants/config";
 
@@ -26,6 +27,7 @@ export default function ProfileScreen() {
     try {
       const res = await userApi.get(Number(id));
       setProfile(res.data.user);
+      trackEvent(EVENTS.PROFILE_VIEW, { target_user_id: Number(id) });
     } catch {
       // ignore
     } finally {
@@ -36,6 +38,7 @@ export default function ProfileScreen() {
   const handleInterest = async () => {
     try {
       await interestApi.create(Number(id));
+      trackEvent(EVENTS.INTEREST_SEND, { target_user_id: Number(id), source: "profile" });
       Alert.alert("완료", "관심을 보냈습니다!");
     } catch (err: any) {
       Alert.alert("알림", err.response?.data?.errors?.[0] || "관심 보내기에 실패했습니다");
@@ -51,6 +54,7 @@ export default function ProfileScreen() {
         onPress: async () => {
           try {
             await blockApi.create(Number(id));
+            trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
             Alert.alert("완료", "차단되었습니다");
           } catch {
             // ignore
@@ -75,6 +79,7 @@ export default function ProfileScreen() {
               report_type: "other",
               reason: "사용자 신고",
             });
+            trackEvent(EVENTS.REPORT_SUBMIT, { target_user_id: Number(id), report_type: "other" });
             Alert.alert("완료", "신고가 접수되었습니다");
           } catch {
             // ignore

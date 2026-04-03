@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
 const GENDERS = [
@@ -70,6 +71,7 @@ export default function ProfileScreen() {
 
       await setToken(res.data.token);
       setUser(res.data.user);
+      trackEvent(EVENTS.PROFILE_COMPLETE, { gender: form.gender, region: form.region });
       router.push("/onboarding/survey");
     } catch (err: any) {
       Alert.alert("오류", err.response?.data?.errors?.join("\n") || "가입에 실패했습니다");

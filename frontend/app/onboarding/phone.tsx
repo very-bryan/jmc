@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { authApi } from "../../src/api/auth";
+import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
 
 export default function PhoneScreen() {
@@ -25,6 +26,7 @@ export default function PhoneScreen() {
     setLoading(true);
     try {
       await authApi.requestCode(phone);
+      trackEvent(EVENTS.PHONE_VERIFY_REQUEST);
       router.push({ pathname: "/onboarding/verify", params: { phone } });
     } catch (err: any) {
       Alert.alert("오류", err.response?.data?.error || "인증코드 발송에 실패했습니다");

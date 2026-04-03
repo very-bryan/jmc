@@ -11,6 +11,7 @@ class Interest < ApplicationRecord
   validate :cannot_interest_blocked_user
   validate :daily_interest_limit, on: :create
 
+  after_create :track_interest_sent
   after_create :check_mutual_interest
 
   private
@@ -30,11 +31,16 @@ class Interest < ApplicationRecord
     errors.add(:base, "하루 관심 보내기 횟수를 초과했습니다") if daily_count >= 10
   end
 
+  def track_interest_sent
+    AnalyticsService.track_interest_sent(sender, receiver)
+  end
+
   def check_mutual_interest
     reverse = Interest.find_by(sender: receiver, receiver: sender, status: :pending)
     if reverse
       reverse.update!(status: :accepted)
       update!(status: :accepted)
+      AnalyticsService.track_mutual_interest(sender, receiver)
       create_match!
     end
   end
