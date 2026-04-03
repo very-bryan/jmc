@@ -110,21 +110,41 @@ export default function ChatScreen() {
     }
   };
 
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
+
   const sendMessage = async () => {
     if (!input.trim()) return;
+
+    const text = input.trim();
+    setInput("");
+
+    if (useDummy) {
+      // 더미 모드: 로컬에서 바로 추가
+      const newMsg: Message = {
+        id: Date.now(),
+        content: text,
+        message_type: "text",
+        sender_id: user?.id || -1,
+        is_mine: true,
+        read: false,
+        created_at: new Date().toISOString(),
+      };
+      setLocalMessages((prev) => [...prev, newMsg]);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      return;
+    }
 
     setLoading(true);
     try {
       const isFirstMessage = messages.filter((m) => m.sender_id === user?.id).length === 0;
 
-      await conversationApi.sendMessage(Number(id), input.trim());
+      await conversationApi.sendMessage(Number(id), text);
       trackEvent(EVENTS.DM_SEND, { conversation_id: Number(id) });
 
       if (isFirstMessage) {
         trackEvent(EVENTS.DM_START, { conversation_id: Number(id) });
       }
 
-      setInput("");
       fetchMessages();
     } catch {
       // ignore
@@ -133,7 +153,7 @@ export default function ChatScreen() {
     }
   };
 
-  const displayMessages = useDummy ? DUMMY_MESSAGES : messages;
+  const displayMessages = useDummy ? [...DUMMY_MESSAGES, ...localMessages] : messages;
 
   const isMine = (msg: Message) => {
     if (useDummy) return msg.sender_id === -1;
