@@ -127,22 +127,28 @@ export default function ChatScreen() {
         }
       />
 
+      {/* Progress bar accent */}
+      <View style={styles.progressBar} />
       <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="메시지를 입력하세요"
-          placeholderTextColor={COLORS.textLight}
-          value={input}
-          onChangeText={setInput}
-          multiline
-          maxLength={2000}
-        />
+        <TouchableOpacity style={styles.attachBtn}><Text style={styles.attachIcon}>＋</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.attachBtn}><Text style={styles.attachIcon}>🖼</Text></TouchableOpacity>
+        <View style={styles.inputWrap}>
+          <TextInput
+            style={styles.input}
+            placeholder="Message..."
+            placeholderTextColor={COLORS.textLight}
+            value={input}
+            onChangeText={setInput}
+            multiline
+            maxLength={2000}
+          />
+        </View>
         <TouchableOpacity
           style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
           onPress={sendMessage}
           disabled={loading || !input.trim()}
         >
-          <Text style={styles.sendText}>전송</Text>
+          <Text style={styles.sendIcon}>🎤</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -150,56 +156,75 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.surface },
-  list: { padding: 12, paddingBottom: 4 },
+  container: { flex: 1, backgroundColor: "#FAF9FE" },
+  list: { padding: 14, paddingBottom: 4 },
   bubble: {
-    maxWidth: "75%",
-    padding: 10,
-    borderRadius: 16,
-    marginBottom: 8,
+    maxWidth: "78%",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+    marginBottom: 10,
   },
   mine: {
     alignSelf: "flex-end",
     backgroundColor: COLORS.primary,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 6,
   },
   theirs: {
     alignSelf: "flex-start",
-    backgroundColor: COLORS.background,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    backgroundColor: "#F0EFF5",
+    borderBottomLeftRadius: 6,
   },
-  bubbleText: { fontSize: 14, color: COLORS.text, lineHeight: 20 },
+  bubbleText: { fontSize: 15, color: COLORS.text, lineHeight: 22 },
   mineText: { color: "#fff" },
   time: { fontSize: 10, color: COLORS.textLight, marginTop: 4 },
-  mineTime: { color: "rgba(255,255,255,0.7)" },
+  mineTime: { color: "rgba(255,255,255,0.6)" },
   inputRow: {
     flexDirection: "row",
-    padding: 8,
+    padding: 10,
+    paddingBottom: 14,
     backgroundColor: COLORS.background,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    alignItems: "flex-end",
+    alignItems: "center",
+    gap: 6,
   },
-  input: {
-    flex: 1,
+  progressBar: {
+    height: 2,
+    backgroundColor: COLORS.primary,
+    marginHorizontal: 20,
+    borderRadius: 1,
+    opacity: 0.3,
+  },
+  attachBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: COLORS.border,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  attachIcon: { fontSize: 16 },
+  inputWrap: {
+    flex: 1,
     borderRadius: 20,
+    backgroundColor: "#F5F5F8",
     paddingHorizontal: 14,
-    paddingVertical: 8,
+  },
+  input: {
     fontSize: 14,
     color: COLORS.text,
-    maxHeight: 100,
+    maxHeight: 80,
+    paddingVertical: 8,
   },
   sendBtn: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    marginLeft: 8,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
   },
+  sendIcon: { fontSize: 18 },
   sendBtnDisabled: { backgroundColor: COLORS.textLight },
   sendText: { color: "#fff", fontSize: 14, fontWeight: "600" },
 });

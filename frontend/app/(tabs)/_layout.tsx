@@ -1,6 +1,15 @@
 import { Tabs } from "expo-router";
-import { Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { COLORS } from "../../src/constants/config";
+
+function TabIcon({ icon, focused }: { icon: string; focused: boolean }) {
+  return (
+    <View style={styles.tabIconWrap}>
+      <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>{icon}</Text>
+      {focused && <View style={styles.tabDot} />}
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   return (
@@ -8,46 +17,61 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.textLight,
-        headerTitleStyle: { fontWeight: "700" },
-        tabBarStyle: { paddingBottom: 4, height: 56 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+        tabBarShowLabel: false,
+        headerStyle: { backgroundColor: COLORS.background, shadowColor: "transparent", elevation: 0 },
+        headerTitleStyle: { fontWeight: "700", fontSize: 18, color: COLORS.text },
+        tabBarStyle: {
+          backgroundColor: COLORS.background,
+          borderTopWidth: 0.5,
+          borderTopColor: COLORS.border,
+          height: 60,
+          paddingTop: 6,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "홈",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>🏠</Text>,
+          headerTitle: "진만추",
+          headerTitleStyle: { fontWeight: "800", fontSize: 20, color: COLORS.primary, fontStyle: "italic" },
+          tabBarIcon: ({ focused }) => <TabIcon icon="🏠" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "탐색",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>🔍</Text>,
+          headerTitle: "탐색",
+          tabBarIcon: ({ focused }) => <TabIcon icon="🔍" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="post"
         options={{
-          title: "작성",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>✏️</Text>,
+          headerTitle: "새 게시글",
+          tabBarIcon: ({ focused }) => <TabIcon icon="➕" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="messages"
         options={{
-          title: "DM",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>💬</Text>,
+          headerTitle: "메시지",
+          tabBarIcon: ({ focused }) => <TabIcon icon="💬" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="mypage"
         options={{
-          title: "마이",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>👤</Text>,
+          headerTitle: "설정",
+          tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabIconWrap: { alignItems: "center", gap: 3 },
+  tabIcon: { fontSize: 22, opacity: 0.4 },
+  tabIconActive: { opacity: 1 },
+  tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary },
+});

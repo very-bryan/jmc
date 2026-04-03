@@ -6,6 +6,8 @@ import {
   ActivityIndicator,
   RefreshControl,
   Text,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { feedApi, interestApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
@@ -85,12 +87,24 @@ export default function HomeScreen() {
         <FeedCard post={item} onInterest={() => handleInterest(item.user.id)} />
       )}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      ListHeaderComponent={
+        <View style={styles.filterBar}>
+          <Text style={styles.filterLabel}>MY CONDITIONS</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+            <View style={styles.chip}><Text style={styles.chipText}>26-35</Text></View>
+            <View style={styles.chip}><Text style={styles.chipText}>서울</Text></View>
+            <View style={[styles.chip, styles.chipActive]}><Text style={[styles.chipText, styles.chipTextActive]}>Verified</Text></View>
+            <TouchableOpacity style={styles.chipAdjust}><Text style={styles.chipAdjustText}>Adjust</Text></TouchableOpacity>
+          </ScrollView>
+        </View>
+      }
       ListEmptyComponent={
         <View style={styles.empty}>
+          <Text style={styles.emptyIcon}>💑</Text>
           <Text style={styles.emptyText}>아직 피드가 없습니다</Text>
           <Text style={styles.emptySubtext}>관심 조건을 넓혀보세요</Text>
         </View>
@@ -101,8 +115,32 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.background },
+  filterBar: {
+    backgroundColor: COLORS.background,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.border,
+  },
+  filterLabel: { fontSize: 11, fontWeight: "700", color: COLORS.textLight, letterSpacing: 0.5, marginBottom: 8 },
+  filterScroll: { flexDirection: "row" },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginRight: 8,
+    backgroundColor: COLORS.background,
+  },
+  chipActive: { borderColor: COLORS.primary, backgroundColor: COLORS.coralLight },
+  chipText: { fontSize: 12, fontWeight: "600", color: COLORS.textSecondary },
+  chipTextActive: { color: COLORS.primary },
+  chipAdjust: { paddingHorizontal: 14, paddingVertical: 6 },
+  chipAdjustText: { fontSize: 12, fontWeight: "700", color: COLORS.primary },
   empty: { alignItems: "center", padding: 40 },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyContainer: { flex: 1, justifyContent: "center" },
   emptyText: { fontSize: 16, fontWeight: "600", color: COLORS.text },
   emptySubtext: { fontSize: 14, color: COLORS.textSecondary, marginTop: 8 },

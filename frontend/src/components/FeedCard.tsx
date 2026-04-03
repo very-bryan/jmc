@@ -24,6 +24,7 @@ export function FeedCard({ post, onInterest }: Props) {
 
   return (
     <View style={styles.card}>
+      {/* Header */}
       <TouchableOpacity
         style={styles.header}
         onPress={() => router.push(`/profile/${post.user.id}` as any)}
@@ -32,9 +33,14 @@ export function FeedCard({ post, onInterest }: Props) {
           {post.user.profile_image_url ? (
             <Image source={{ uri: post.user.profile_image_url }} style={styles.avatarImage} />
           ) : (
-            <Text style={styles.avatarText}>
-              {post.user.nickname?.charAt(0) || "?"}
-            </Text>
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarText}>
+                {post.user.nickname?.charAt(0) || "?"}
+              </Text>
+            </View>
+          )}
+          {post.user.verification_level !== "basic" && (
+            <View style={styles.verifiedDot} />
           )}
         </View>
         <View style={styles.userInfo}>
@@ -43,11 +49,13 @@ export function FeedCard({ post, onInterest }: Props) {
             <VerificationBadge level={post.user.verification_level} />
           </View>
           <Text style={styles.meta}>
-            {post.user.age}세 · {post.user.region}
+            {post.user.region} · {post.user.age}세
           </Text>
         </View>
+        <Text style={styles.moreBtn}>···</Text>
       </TouchableOpacity>
 
+      {/* Image */}
       {post.images.length > 0 && (
         <Image
           source={{ uri: post.images[0].url }}
@@ -56,101 +64,108 @@ export function FeedCard({ post, onInterest }: Props) {
         />
       )}
 
+      {/* Actions */}
+      <View style={styles.actionsRow}>
+        <View style={styles.leftActions}>
+          <Text style={styles.actionIcon}>♥</Text>
+          <Text style={styles.actionIcon}>💬</Text>
+          <Text style={styles.actionIcon}>➤</Text>
+        </View>
+        <TouchableOpacity style={styles.connectBtn} onPress={onInterest}>
+          <Text style={styles.connectText}>Connect</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.contentText}>{post.content}</Text>
+        <Text style={styles.contentText}>
+          <Text style={styles.contentNickname}>{post.user.nickname}</Text>
+          {"  "}{post.content}
+        </Text>
         {post.mood_tag && (
           <Text style={styles.moodTag}>#{post.mood_tag}</Text>
         )}
-      </View>
-
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.interestButton} onPress={onInterest}>
-          <Text style={styles.interestText}>관심 보내기</Text>
-        </TouchableOpacity>
+        <Text style={styles.timeAgo}>
+          {formatTimeAgo(post.created_at)}
+        </Text>
       </View>
     </View>
   );
 }
 
+function formatTimeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (hours < 1) return "방금 전";
+  if (hours < 24) return `${hours}시간 전`;
+  return `${Math.floor(hours / 24)}일 전`;
+}
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.background,
-    marginBottom: 8,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.5,
     borderBottomColor: COLORS.border,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: "hidden",
+    position: "relative",
+  },
+  avatarImage: { width: 40, height: 40 },
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: COLORS.surface,
     justifyContent: "center",
     alignItems: "center",
-    overflow: "hidden",
   },
-  avatarImage: {
-    width: 44,
-    height: 44,
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.textSecondary,
-  },
-  userInfo: {
-    marginLeft: 10,
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  nickname: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: COLORS.text,
-  },
-  meta: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  postImage: {
-    width: width,
-    height: width * 0.75,
-  },
-  content: {
-    padding: 12,
-  },
-  contentText: {
-    fontSize: 14,
-    color: COLORS.text,
-    lineHeight: 20,
-  },
-  moodTag: {
-    fontSize: 13,
-    color: COLORS.primary,
-    marginTop: 6,
-  },
-  actions: {
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-  },
-  interestButton: {
+  avatarText: { fontSize: 16, fontWeight: "700", color: COLORS.textSecondary },
+  verifiedDot: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: COLORS.primary,
-    paddingVertical: 10,
-    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: COLORS.background,
+  },
+  userInfo: { marginLeft: 10, flex: 1 },
+  nameRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+  nickname: { fontSize: 14, fontWeight: "700", color: COLORS.text },
+  meta: { fontSize: 12, color: COLORS.textSecondary, marginTop: 1 },
+  moreBtn: { fontSize: 18, color: COLORS.textLight, paddingHorizontal: 8 },
+  postImage: { width: width, height: width },
+  actionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  interestText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+  leftActions: { flexDirection: "row", gap: 16 },
+  actionIcon: { fontSize: 22 },
+  connectBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 18,
+    paddingVertical: 7,
+    borderRadius: 6,
   },
+  connectText: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  content: { paddingHorizontal: 14, paddingBottom: 12 },
+  contentNickname: { fontWeight: "700", fontSize: 13, color: COLORS.text },
+  contentText: { fontSize: 13, color: COLORS.text, lineHeight: 19 },
+  moodTag: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
+  timeAgo: { fontSize: 11, color: COLORS.textLight, marginTop: 4, textTransform: "uppercase" },
 });

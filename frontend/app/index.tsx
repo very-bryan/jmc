@@ -105,16 +105,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "800",
     color: COLORS.primary,
+    fontStyle: "italic",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
     fontWeight: "600",
     color: COLORS.text,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   description: {
     fontSize: 15,
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   kakaoButton: {
     backgroundColor: "#FEE500",
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
   },
   kakaoButtonText: {

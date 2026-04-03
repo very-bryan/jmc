@@ -31,3 +31,4 @@ backend/config/credentials/*.key
 backend/config/master.key
 
 .verycloud/
+.gstack/
