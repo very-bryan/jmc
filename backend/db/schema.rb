@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_112703) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_113745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -261,6 +261,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_112703) do
     t.string "work_email_domain"
     t.string "email_verification_token"
     t.string "organization_name"
+    t.string "company_email"
+    t.string "company_name"
+    t.string "company_domain"
+    t.boolean "company_verified", default: false
+    t.datetime "company_verified_at"
+    t.string "university_email"
+    t.string "university_name"
+    t.string "university_domain"
+    t.boolean "university_verified", default: false
+    t.datetime "university_verified_at"
+    t.boolean "show_company", default: false
+    t.boolean "show_university", default: false
+    t.string "email_verify_type"
     t.index ["gender"], name: "index_users_on_gender"
     t.index ["kakao_id"], name: "index_users_on_kakao_id", unique: true
     t.index ["nickname"], name: "index_users_on_nickname", unique: true

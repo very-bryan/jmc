@@ -132,10 +132,17 @@ module Api
       end
 
       # POST /api/v1/auth/verify_work_email
+      # params: email, organization_name, type (company|university)
       def send_work_email_verification
         email = params[:email]
         organization_name = params[:organization_name]
-        result = EmailVerificationService.send_verification(current_user, email, organization_name: organization_name)
+        verify_type = params[:type] || "company" # company or university
+
+        result = EmailVerificationService.send_verification(
+          current_user, email,
+          organization_name: organization_name,
+          verify_type: verify_type
+        )
 
         if result[:error]
           render json: { error: result[:error] }, status: :unprocessable_entity
@@ -144,7 +151,7 @@ module Api
             message: "인증 메일이 발송되었습니다",
             organization_name: result[:organization_name],
             organization_type: result[:organization_type],
-            auto_approved: result[:auto_approved]
+            verify_type: verify_type
           }
         end
       end
@@ -160,6 +167,12 @@ module Api
         end
       end
 
+      # PUT /api/v1/auth/visibility
+      def update_visibility
+        current_user.update!(visibility_params)
+        render json: { user: user_response(current_user) }
+      end
+
       # GET /api/v1/auth/me
       def me
         render json: { user: user_response(current_user) }
@@ -173,6 +186,10 @@ module Api
           :region, :occupation, :desired_marriage_timing,
           :education, :height, :smoking, :drinking, :bio
         )
+      end
+
+      def visibility_params
+        params.permit(:show_company, :show_university)
       end
 
       def user_response(user)
@@ -201,8 +218,12 @@ module Api
           is_seed_user: user.is_seed_user,
           paid: user.paid,
           kakao_connected: user.kakao_id.present?,
-          work_email_verified: user.work_email_verified,
-          work_email_domain: user.work_email_domain,
+          company_verified: user.company_verified,
+          company_name: user.show_company? ? user.company_name : nil,
+          show_company: user.show_company,
+          university_verified: user.university_verified,
+          university_name: user.show_university? ? user.university_name : nil,
+          show_university: user.show_university,
           created_at: user.created_at
         }
       end

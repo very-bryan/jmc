@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Switch,
   Share,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -18,7 +19,7 @@ import { COLORS } from "../../src/constants/config";
 
 export default function MypageScreen() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, fetchMe } = useAuthStore();
   const [inviteCodes, setInviteCodes] = useState<
     { id: number; code: string; status: string; used_by: any }[]
   >([]);
@@ -93,42 +94,41 @@ export default function MypageScreen() {
           </Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>직장/학교 인증</Text>
-          {(user as any).work_email_verified ? (
-            <Text style={[styles.rowValue, styles.verified]}>
-              {(user as any).work_email_domain}
-            </Text>
+          <Text style={styles.rowLabel}>직장 인증</Text>
+          {(user as any).company_verified ? (
+            <View style={styles.verifiedRow}>
+              <Text style={[styles.rowValue, styles.verified]}>{(user as any).company_name || "인증됨"}</Text>
+              <Switch
+                value={(user as any).show_company}
+                onValueChange={async (v) => {
+                  await client.put("/auth/visibility", { show_company: v });
+                  fetchMe();
+                }}
+                trackColor={{ true: COLORS.primary }}
+              />
+            </View>
           ) : (
-            <TouchableOpacity
-              onPress={() => {
-                Alert.prompt(
-                  "직장/학교 메일 인증",
-                  "직장 또는 학교 메일을 입력해주세요\n(gmail, naver 등 개인 메일 불가)",
-                  async (email) => {
-                    if (!email) return;
-                    try {
-                      await client.post("/auth/verify_work_email", { email });
-                      Alert.prompt(
-                        "인증코드 입력",
-                        `${email}로 인증코드를 발송했습니다`,
-                        async (token) => {
-                          if (!token) return;
-                          try {
-                            await client.post("/auth/confirm_work_email", { token });
-                            Alert.alert("완료", "메일 인증이 완료되었습니다");
-                            useAuthStore.getState().fetchMe();
-                          } catch {
-                            Alert.alert("오류", "인증코드가 일치하지 않습니다");
-                          }
-                        }
-                      );
-                    } catch (err: any) {
-                      Alert.alert("오류", err.response?.data?.error || "인증 요청에 실패했습니다");
-                    }
-                  }
-                );
-              }}
-            >
+            <TouchableOpacity onPress={() => router.push("/onboarding/email-verify" as any)}>
+              <Text style={[styles.rowValue, { color: COLORS.primary }]}>인증하기</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>학교 인증</Text>
+          {(user as any).university_verified ? (
+            <View style={styles.verifiedRow}>
+              <Text style={[styles.rowValue, styles.verified]}>{(user as any).university_name || "인증됨"}</Text>
+              <Switch
+                value={(user as any).show_university}
+                onValueChange={async (v) => {
+                  await client.put("/auth/visibility", { show_university: v });
+                  fetchMe();
+                }}
+                trackColor={{ true: COLORS.primary }}
+              />
+            </View>
+          ) : (
+            <TouchableOpacity onPress={() => router.push("/onboarding/email-verify" as any)}>
               <Text style={[styles.rowValue, { color: COLORS.primary }]}>인증하기</Text>
             </TouchableOpacity>
           )}
@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 14, color: COLORS.textSecondary },
   rowValue: { fontSize: 14, color: COLORS.textLight },
   verified: { color: COLORS.success, fontWeight: "600" },
+  verifiedRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   menuItem: {
     flexDirection: "row",
     justifyContent: "space-between",
