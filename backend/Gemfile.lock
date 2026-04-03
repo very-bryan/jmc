@@ -177,6 +177,8 @@ GEM
       net-pop
       net-smtp
     marcel (1.1.0)
+    mini_magick (5.3.1)
+      logger
     mini_mime (1.1.5)
     minitest (6.0.3)
       drb (~> 2.0)
@@ -378,6 +380,7 @@ DEPENDENCIES
   jwt
   kamal
   kaminari
+  mini_magick
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors
