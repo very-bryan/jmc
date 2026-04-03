@@ -35,6 +35,12 @@ Rails.application.routes.draw do
 
     resources :announcements, only: [ :index, :new, :create, :edit, :update, :destroy ]
     resources :pre_registrations, only: [ :index ]
+    resources :organization_domains, only: [ :index ] do
+      member do
+        post :verify
+        post :reject
+      end
+    end
   end
 
   namespace :api do

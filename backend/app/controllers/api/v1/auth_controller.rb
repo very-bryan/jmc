@@ -134,12 +134,18 @@ module Api
       # POST /api/v1/auth/verify_work_email
       def send_work_email_verification
         email = params[:email]
-        result = EmailVerificationService.send_verification(current_user, email)
+        organization_name = params[:organization_name]
+        result = EmailVerificationService.send_verification(current_user, email, organization_name: organization_name)
 
         if result[:error]
           render json: { error: result[:error] }, status: :unprocessable_entity
         else
-          render json: { message: "인증 메일이 발송되었습니다", email_type: result[:type] }
+          render json: {
+            message: "인증 메일이 발송되었습니다",
+            organization_name: result[:organization_name],
+            organization_type: result[:organization_type],
+            auto_approved: result[:auto_approved]
+          }
         end
       end
 

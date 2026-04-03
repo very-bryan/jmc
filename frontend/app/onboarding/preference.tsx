@@ -62,7 +62,7 @@ export default function PreferenceScreen() {
 
       await fetchMe();
       trackEvent(EVENTS.REGISTRATION_COMPLETE);
-      router.replace("/(tabs)");
+      router.replace("/onboarding/email-verify");
     } catch (err: any) {
       Alert.alert("오류", "저장에 실패했습니다");
     } finally {

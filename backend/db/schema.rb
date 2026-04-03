@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_111056) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_112703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -120,6 +120,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_111056) do
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["metadata"], name: "index_messages_on_metadata", using: :gin
     t.index ["sender_id"], name: "index_messages_on_sender_id"
+  end
+
+  create_table "organization_domains", force: :cascade do |t|
+    t.string "domain", null: false
+    t.string "organization_name"
+    t.integer "organization_type", default: 0
+    t.boolean "verified", default: false
+    t.integer "verified_by", default: 0
+    t.integer "user_count", default: 0
+    t.float "ai_confidence"
+    t.text "ai_raw_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["domain"], name: "index_organization_domains_on_domain", unique: true
+    t.index ["verified"], name: "index_organization_domains_on_verified"
   end
 
   create_table "post_images", force: :cascade do |t|
@@ -245,6 +260,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_111056) do
     t.datetime "work_email_verified_at"
     t.string "work_email_domain"
     t.string "email_verification_token"
+    t.string "organization_name"
     t.index ["gender"], name: "index_users_on_gender"
     t.index ["kakao_id"], name: "index_users_on_kakao_id", unique: true
     t.index ["nickname"], name: "index_users_on_nickname", unique: true

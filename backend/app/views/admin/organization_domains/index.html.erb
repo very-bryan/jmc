@@ -1,0 +1,63 @@
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">조직 도메인 관리</h1>
+    <p class="text-sm text-muted-foreground">회사/학교 메일 도메인 검수</p>
+  </div>
+
+  <div class="flex gap-1 bg-muted rounded-lg p-1 w-fit">
+    <% [["pending", "검수 대기 (#{@pending_count})"], ["verified", "승인됨"], ["all", "전체"]].each do |key, label| %>
+      <%= link_to label, admin_organization_domains_path(tab: key),
+          class: "px-3 py-1.5 text-sm font-medium rounded-md transition #{@tab == key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}" %>
+    <% end %>
+  </div>
+
+  <div class="shadcn-card overflow-hidden">
+    <table class="shadcn-table">
+      <thead><tr class="border-b bg-muted/50">
+        <th>도메인</th><th>조직명</th><th>유형</th><th>가입자 수</th><th>AI 확신도</th><th>상태</th><th></th>
+      </tr></thead>
+      <tbody>
+        <% @domains.each do |d| %>
+          <tr>
+            <td class="font-medium font-mono text-sm"><%= d.domain %></td>
+            <td>
+              <% if @tab == "pending" %>
+                <%= form_tag verify_admin_organization_domain_path(d), method: :post, class: "flex gap-2", style: "display:inline-flex" do %>
+                  <input type="text" name="organization_name" value="<%= d.organization_name %>" placeholder="조직명"
+                         class="shadcn-input w-40">
+                  <select name="organization_type" class="shadcn-input w-24">
+                    <option value="company" <%= "selected" if d.company? %>>회사</option>
+                    <option value="university" <%= "selected" if d.university? %>>대학교</option>
+                    <option value="government" <%= "selected" if d.government? %>>정부</option>
+                  </select>
+                  <button type="submit" class="shadcn-btn shadcn-btn-primary h-9 px-3 text-xs">승인</button>
+                <% end %>
+                <%= button_to "거부", reject_admin_organization_domain_path(d), method: :post,
+                    class: "shadcn-btn shadcn-btn-ghost h-9 px-2 text-xs text-destructive",
+                    data: { confirm: "정말 거부하시겠습니까?" } %>
+              <% else %>
+                <%= d.organization_name || "-" %>
+              <% end %>
+            </td>
+            <td class="text-muted-foreground">
+              <span class="shadcn-badge border <%= d.university? ? 'bg-blue-50 text-blue-700 border-blue-200' : d.government? ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-neutral-100 text-neutral-600 border-neutral-200' %>">
+                <%= { "company" => "회사", "university" => "대학교", "government" => "정부", "other" => "기타" }[d.organization_type] %>
+              </span>
+            </td>
+            <td class="text-muted-foreground"><%= d.user_count %></td>
+            <td class="text-muted-foreground"><%= d.ai_confidence ? "#{(d.ai_confidence * 100).round}%" : "-" %></td>
+            <td>
+              <span class="shadcn-badge border <%= d.verified? ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' %>">
+                <%= d.verified? ? "승인" : "대기" %>
+              </span>
+            </td>
+            <td class="text-muted-foreground text-xs"><%= d.verified_by %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @domains.empty? %>
+      <div class="text-center py-16"><i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50 mx-auto mb-2"></i><p class="text-sm text-muted-foreground">도메인이 없습니다</p></div>
+    <% end %>
+  </div>
+</div>
