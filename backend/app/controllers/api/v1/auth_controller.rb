@@ -11,8 +11,8 @@ module Api
           return render json: { error: "유효하지 않은 전화번호입니다" }, status: :unprocessable_entity
         end
 
-        # MVP: 인증코드를 고정값으로 사용 (실 서비스에서는 SMS API 연동)
-        code = Rails.env.production? ? rand(100000..999999).to_s : "123456"
+        # MVP: 테스트용 고정 인증코드 (실 서비스에서는 SMS API 연동)
+        code = "123456"
 
         Rails.cache.write("phone_code:#{phone}", code, expires_in: 5.minutes)
 
