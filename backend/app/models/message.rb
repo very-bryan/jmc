@@ -8,7 +8,7 @@ class Message < ApplicationRecord
   validate :sender_is_participant
 
   after_create :update_conversation_timestamp
-  after_create :check_dm_milestones
+  after_create :safe_check_dm_milestones
 
   def read?
     metadata&.dig("read") == true
@@ -28,6 +28,12 @@ class Message < ApplicationRecord
 
   def update_conversation_timestamp
     conversation.update!(last_message_at: created_at)
+  end
+
+  def safe_check_dm_milestones
+    check_dm_milestones
+  rescue StandardError => e
+    Rails.logger.warn("DM milestone check failed: #{e.message}")
   end
 
   def check_dm_milestones

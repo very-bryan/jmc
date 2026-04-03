@@ -67,6 +67,8 @@ module Api
           "conversation_#{conversation.id}",
           message_response(message)
         )
+      rescue StandardError
+        # Action Cable not available in production without Redis
       end
     end
   end
