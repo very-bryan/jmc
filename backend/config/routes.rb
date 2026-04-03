@@ -104,6 +104,9 @@ Rails.application.routes.draw do
         end
       end
 
+      # Image Upload
+      post "uploads/image", to: "uploads#image"
+
       # Invite Codes
       resources :invite_codes, only: [ :index ] do
         collection do

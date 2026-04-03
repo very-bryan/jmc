@@ -13,7 +13,9 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { conversationApi } from "../../src/api";
+import { uploadImage } from "../../src/api/upload";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { COLORS } from "../../src/constants/config";
@@ -208,9 +210,17 @@ export default function ChatScreen() {
               )}
               <View>
                 <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
+                  {item.content.startsWith("[사진]") ? (
+                    <Image
+                      source={{ uri: item.content.replace("[사진] ", "") }}
+                      style={{ width: 200, height: 200, borderRadius: 12 }}
+                      resizeMode="cover"
+                    />
+                  ) : (
                   <Text style={[styles.bubbleText, mine && styles.mineText]}>
                     {item.content}
                   </Text>
+                  )}
                 </View>
                 <Text style={[styles.time, mine && styles.timeMine]}>
                   {new Date(item.created_at).toLocaleTimeString("ko-KR", {
@@ -231,10 +241,23 @@ export default function ChatScreen() {
       {/* Progress bar accent */}
       <View style={styles.progressBar} />
       <View style={styles.inputRow}>
-        <TouchableOpacity style={styles.attachBtn}>
-          <MaterialIcons name="add-circle-outline" size={22} color={COLORS.textSecondary} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.attachBtn}>
+        <TouchableOpacity style={styles.attachBtn} onPress={async () => {
+          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.8 });
+          if (!result.canceled && result.assets[0]) {
+            const uploaded = await uploadImage(result.assets[0].uri, "chat");
+            if (uploaded?.url) {
+              if (useDummy) {
+                setLocalMessages((prev) => [...prev, {
+                  id: Date.now(), content: `[사진] ${uploaded.url}`, message_type: "image",
+                  sender_id: user?.id || -1, is_mine: true, read: false, created_at: new Date().toISOString(),
+                }]);
+              } else {
+                await conversationApi.sendMessage(Number(id), `[사진] ${uploaded.url}`);
+                fetchMessages();
+              }
+            }
+          }
+        }}>
           <MaterialIcons name="image" size={22} color={COLORS.textSecondary} />
         </TouchableOpacity>
         <View style={styles.inputWrap}>
