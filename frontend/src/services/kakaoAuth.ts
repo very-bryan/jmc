@@ -1,10 +1,7 @@
-import * as Linking from "expo-linking";
-import * as WebBrowser from "expo-web-browser";
 import client from "../api/client";
 
 // 카카오 개발자 콘솔에서 발급받은 REST API 키
 const KAKAO_REST_API_KEY = ""; // TODO: 카카오 앱 등록 후 입력
-const REDIRECT_URI = Linking.createURL("kakao-callback");
 
 export async function loginWithKakao(): Promise<{
   success: boolean;
@@ -15,6 +12,15 @@ export async function loginWithKakao(): Promise<{
   error?: string;
 }> {
   try {
+    const Linking = require("expo-linking");
+    const WebBrowser = require("expo-web-browser");
+    const REDIRECT_URI = Linking.createURL("kakao-callback");
+
+    if (!KAKAO_REST_API_KEY) {
+      // 카카오 키 미설정 시 개발 모드 안내
+      return { success: false, error: "카카오 앱 키가 설정되지 않았습니다" };
+    }
+
     // 1. 카카오 OAuth 인증 페이지 열기
     const authUrl =
       `https://kauth.kakao.com/oauth/authorize?` +

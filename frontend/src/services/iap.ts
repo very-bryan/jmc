@@ -1,5 +1,11 @@
-import * as InAppPurchases from "expo-in-app-purchases";
 import { Platform } from "react-native";
+
+let InAppPurchases: any = null;
+try {
+  InAppPurchases = require("expo-in-app-purchases");
+} catch {
+  // Expo Go에서는 네이티브 모듈 없음
+}
 
 const SIGNUP_PRODUCT_ID = Platform.select({
   ios: "com.jmc.signup.10000",
@@ -10,12 +16,12 @@ const SIGNUP_PRODUCT_ID = Platform.select({
 let isConnected = false;
 
 export async function initIAP() {
-  if (isConnected) return;
+  if (!InAppPurchases || isConnected) return;
   try {
     await InAppPurchases.connectAsync();
     isConnected = true;
   } catch {
-    // 이미 연결되어 있거나 시뮬레이터
+    // 시뮬레이터 또는 Expo Go
   }
 }
 
@@ -24,6 +30,11 @@ export async function purchaseSignup(): Promise<{
   receipt?: string;
   error?: string;
 }> {
+  if (!InAppPurchases) {
+    // Expo Go 개발 모드: 결제 없이 통과
+    return { success: true, receipt: "dev_mode_receipt" };
+  }
+
   try {
     await initIAP();
 
@@ -37,18 +48,14 @@ export async function purchaseSignup(): Promise<{
 
     await InAppPurchases.purchaseItemAsync(SIGNUP_PRODUCT_ID);
 
-    // 구매 결과는 리스너로 받아야 함
     return new Promise((resolve) => {
-      InAppPurchases.setPurchaseListener(({ responseCode, results }) => {
+      InAppPurchases.setPurchaseListener(({ responseCode, results }: any) => {
         if (
           responseCode === InAppPurchases.IAPResponseCode.OK &&
           results?.length
         ) {
           const purchase = results[0];
-
-          // 소비형 상품이므로 finishTransaction 호출
           InAppPurchases.finishTransactionAsync(purchase, true);
-
           resolve({
             success: true,
             receipt: purchase.transactionReceipt || purchase.purchaseToken,
@@ -70,7 +77,7 @@ export async function purchaseSignup(): Promise<{
 }
 
 export async function disconnectIAP() {
-  if (!isConnected) return;
+  if (!InAppPurchases || !isConnected) return;
   try {
     await InAppPurchases.disconnectAsync();
     isConnected = false;

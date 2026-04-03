@@ -32,6 +32,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   loadToken: async () => {
+    // 5초 안전 타임아웃: 어떤 이유로든 멈추면 로딩 해제
+    const timeout = setTimeout(() => {
+      set({ isLoading: false });
+    }, 5000);
+
     try {
       const token = await AsyncStorage.getItem("auth_token");
       if (token) {
@@ -39,8 +44,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().fetchMe();
       }
     } catch {
-      // ignore
+      // 무시
     } finally {
+      clearTimeout(timeout);
       set({ isLoading: false });
     }
   },
@@ -51,12 +57,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: res.data.user, isAuthenticated: true });
     } catch {
       set({ user: null, isAuthenticated: false, token: null });
-      await AsyncStorage.removeItem("auth_token");
+      await AsyncStorage.removeItem("auth_token").catch(() => {});
     }
   },
 
   logout: async () => {
-    await AsyncStorage.removeItem("auth_token");
+    await AsyncStorage.removeItem("auth_token").catch(() => {});
     set({ user: null, token: null, isAuthenticated: false });
   },
 }));

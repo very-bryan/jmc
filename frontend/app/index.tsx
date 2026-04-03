@@ -51,22 +51,29 @@ export default function SplashScreen() {
           style={styles.kakaoButton}
           onPress={async () => {
             trackEvent(EVENTS.ONBOARDING_START);
-            const result = await loginWithKakao();
-            if (result.success) {
-              if (result.isNewUser) {
-                router.push({
-                  pathname: "/onboarding/invite",
-                  params: {
-                    kakao_id: result.kakaoInfo?.kakao_id,
-                    kakao_nickname: result.kakaoInfo?.nickname,
-                    kakao_email: result.kakaoInfo?.email,
-                  },
-                });
-              } else {
-                await setToken(result.token!);
-                setUser(result.user!);
-                router.replace("/(tabs)");
+            try {
+              const result = await loginWithKakao();
+              if (result.success) {
+                if (result.isNewUser) {
+                  router.push({
+                    pathname: "/onboarding/invite",
+                    params: {
+                      kakao_id: result.kakaoInfo?.kakao_id,
+                      kakao_nickname: result.kakaoInfo?.nickname,
+                      kakao_email: result.kakaoInfo?.email,
+                    },
+                  });
+                } else {
+                  await setToken(result.token!);
+                  setUser(result.user!);
+                  router.replace("/(tabs)");
+                }
+              } else if (result.error) {
+                // 카카오 키 미설정 시 전화번호 가입으로 안내
+                router.push("/onboarding/intro");
               }
+            } catch {
+              router.push("/onboarding/intro");
             }
           }}
         >
