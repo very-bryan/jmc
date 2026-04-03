@@ -17,6 +17,34 @@ import { FeedCard } from "../../src/components/FeedCard";
 import { COLORS } from "../../src/constants/config";
 import type { Post } from "../../src/types";
 
+const DUMMY_POSTS: Post[] = [
+  {
+    id: 801, content: "한강에서 저녁 러닝 완료. 오늘 날씨 최고였어요. 러닝 후 맥주 한 잔의 여유.", mood_tag: "운동",
+    visibility: "public_post", images: [], created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    user: { id: 2, nickname: "지은", age: 29, region: "서울", profile_image_url: null, verification_level: "profile_verified" },
+  },
+  {
+    id: 802, content: "새로 산 필름 카메라로 찍은 첫 롤. 현상 기다리는 이 설렘이 디지털에는 없죠.", mood_tag: "취미",
+    visibility: "public_post", images: [], created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    user: { id: 3, nickname: "민수", age: 31, region: "서울", profile_image_url: null, verification_level: "selfie_verified" },
+  },
+  {
+    id: 803, content: "퇴근 후 혼자 요리하는 시간이 하루 중 제일 좋아요. 오늘은 감바스.", mood_tag: "요리",
+    visibility: "public_post", images: [], created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+    user: { id: 5, nickname: "수현", age: 28, region: "경기", profile_image_url: null, verification_level: "profile_verified" },
+  },
+  {
+    id: 804, content: "주말 북한산 등산. 정상에서 보는 서울이 참 예뻤습니다.", mood_tag: "여행",
+    visibility: "public_post", images: [], created_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    user: { id: 4, nickname: "준호", age: 32, region: "서울", profile_image_url: null, verification_level: "fully_verified" },
+  },
+  {
+    id: 805, content: "요즘 읽고 있는 책: 이기적 유전자. 진화 심리학 관점에서 연애를 보면 재밌어요.", mood_tag: "독서",
+    visibility: "public_post", images: [], created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    user: { id: 7, nickname: "하은", age: 30, region: "인천", profile_image_url: null, verification_level: "phone_verified" },
+  },
+];
+
 export default function HomeScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
@@ -28,11 +56,12 @@ export default function HomeScreen() {
     try {
       const res = await feedApi.get(pageNum);
       const newPosts = res.data.posts;
+      const data = newPosts.length > 0 ? newPosts : (pageNum === 1 ? DUMMY_POSTS : []);
 
       if (refresh) {
-        setPosts(newPosts);
+        setPosts(data);
       } else {
-        setPosts((prev) => [...prev, ...newPosts]);
+        setPosts((prev) => [...prev, ...data]);
       }
       setHasMore(newPosts.length >= 20);
       setPage(pageNum);

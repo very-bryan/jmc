@@ -13,6 +13,34 @@ import { conversationApi } from "../../src/api";
 import { COLORS } from "../../src/constants/config";
 import type { Conversation } from "../../src/types";
 
+const DUMMY_CONVERSATIONS: Conversation[] = [
+  {
+    id: 901, status: "active", last_message_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    last_message: { content: "그 전시 정말 좋았어요! 다음에 같이 가요", sender_id: 2, created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(), read: false },
+    user: { id: 2, nickname: "지은", age: 29, region: "서울", profile_image_url: null, verification_level: "profile_verified" },
+  },
+  {
+    id: 902, status: "active", last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    last_message: { content: "주말에 한강 러닝 어때요?", sender_id: 3, created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), read: true },
+    user: { id: 3, nickname: "수현", age: 28, region: "경기", profile_image_url: null, verification_level: "selfie_verified" },
+  },
+  {
+    id: 903, status: "active", last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+    last_message: { content: "카페 추천 감사합니다 ☺️", sender_id: 0, created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), read: true },
+    user: { id: 5, nickname: "하은", age: 30, region: "인천", profile_image_url: null, verification_level: "profile_verified" },
+  },
+  {
+    id: 904, status: "active", last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    last_message: { content: "프로필 사진이 정말 자연스럽네요", sender_id: 7, created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), read: true },
+    user: { id: 7, nickname: "예진", age: 27, region: "서울", profile_image_url: null, verification_level: "phone_verified" },
+  },
+  {
+    id: 905, status: "active", last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+    last_message: { content: "독서 모임 어떠셨어요?", sender_id: 4, created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), read: true },
+    user: { id: 4, nickname: "민서", age: 31, region: "서울", profile_image_url: null, verification_level: "fully_verified" },
+  },
+];
+
 export default function MessagesScreen() {
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -21,9 +49,10 @@ export default function MessagesScreen() {
   const fetchConversations = async () => {
     try {
       const res = await conversationApi.list();
-      setConversations(res.data.conversations);
+      const real = res.data.conversations;
+      setConversations(real.length > 0 ? real : DUMMY_CONVERSATIONS);
     } catch {
-      // ignore
+      setConversations(DUMMY_CONVERSATIONS);
     } finally {
       setLoading(false);
     }

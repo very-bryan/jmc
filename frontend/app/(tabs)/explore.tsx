@@ -17,6 +17,13 @@ import type { Interest } from "../../src/types";
 
 type Tab = "sent" | "received" | "mutual";
 
+const DUMMY_INTERESTS: Interest[] = [
+  { id: 701, status: "pending", user: { id: 2, nickname: "지은", age: 29, region: "서울", profile_image_url: null, verification_level: "profile_verified" }, created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
+  { id: 702, status: "pending", user: { id: 6, nickname: "성민", age: 33, region: "부산", profile_image_url: null, verification_level: "selfie_verified" }, created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() },
+  { id: 703, status: "pending", user: { id: 7, nickname: "예진", age: 27, region: "서울", profile_image_url: null, verification_level: "fully_verified" }, created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString() },
+  { id: 704, status: "accepted", user: { id: 3, nickname: "수현", age: 28, region: "경기", profile_image_url: null, verification_level: "profile_verified" }, created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
+];
+
 export default function ExploreScreen() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("received");
@@ -28,9 +35,10 @@ export default function ExploreScreen() {
     setTab(t);
     try {
       const res = await interestApi.list(t);
-      setInterests(res.data.interests);
+      const data = res.data.interests;
+      setInterests(data.length > 0 ? data : DUMMY_INTERESTS);
     } catch {
-      // ignore
+      setInterests(DUMMY_INTERESTS);
     } finally {
       setLoading(false);
     }
