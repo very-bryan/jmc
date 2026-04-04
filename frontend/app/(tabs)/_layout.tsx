@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { notificationApi } from "../../src/api";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { postSubmitRef } from "../../src/store/postSubmitRef";
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -93,6 +94,14 @@ export default function TabsLayout() {
         name="post"
         options={{
           headerTitle: "새 게시글",
+          headerRight: () => (
+            <TouchableOpacity
+              style={[styles.postHeaderBtn, { backgroundColor: C.primary }]}
+              onPress={() => postSubmitRef.current?.submit()}
+            >
+              <Text style={styles.postHeaderBtnText}>게시</Text>
+            </TouchableOpacity>
+          ),
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.plusWrap, { backgroundColor: focused ? C.primary : C.surface }]}>
               <MaterialIcons name="add" size={24} color={focused ? "#fff" : C.textLight} />
@@ -165,6 +174,17 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   badgeText: { color: "#fff", fontSize: 10, fontWeight: "800" },
+  postHeaderBtn: {
+    marginRight: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 7,
+    borderRadius: 12,
+  },
+  postHeaderBtnText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
   plusWrap: {
     width: 36, height: 36, borderRadius: 12,
     justifyContent: "center", alignItems: "center",

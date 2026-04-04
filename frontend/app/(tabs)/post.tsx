@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { postApi } from "../../src/api";
 import { uploadImage } from "../../src/api/upload";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { postSubmitRef } from "../../src/store/postSubmitRef";
 
 const MOOD_TAGS = [
   "일상", "취미", "맛집", "여행", "운동", "독서", "음악", "반려동물", "요리",
@@ -95,22 +96,13 @@ export default function PostScreen() {
     }
   };
 
+  useEffect(() => {
+    postSubmitRef.current = { submit: handlePost };
+    return () => { postSubmitRef.current = null; };
+  });
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: C.background }]} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={[styles.postBtn, { backgroundColor: C.primary }, (!content.trim() && images.length === 0) && { backgroundColor: C.textLight }]}
-          onPress={handlePost}
-          disabled={loading || (!content.trim() && images.length === 0)}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.postBtnText}>게시</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.imageSection}>
         {images.map((uri, i) => (
           <View key={i} style={styles.imageThumb}>
@@ -169,20 +161,6 @@ export default function PostScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  postBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 12,
-    minWidth: 60,
-    alignItems: "center",
-  },
-  postBtnText: { color: "#fff", fontSize: 14, fontWeight: "600" },
   imageSection: {
     flexDirection: "row",
     flexWrap: "wrap",
