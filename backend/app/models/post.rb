@@ -1,6 +1,7 @@
 class Post < ApplicationRecord
   belongs_to :user
   has_many :post_images, dependent: :destroy
+  has_many :likes, dependent: :destroy
   accepts_nested_attributes_for :post_images, allow_destroy: true
 
   enum :visibility, { public_post: 0, followers_only: 1, private_post: 2 }

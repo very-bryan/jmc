@@ -61,6 +61,8 @@ module Api
           id: post.id,
           content: post.content,
           mood_tag: post.mood_tag,
+          likes_count: post.likes_count || 0,
+          liked: current_user.present? && post.likes.exists?(user: current_user),
           images: post.post_images.order(:position).map { |i| { url: i.image_url, position: i.position } },
           user: {
             id: post.user.id,

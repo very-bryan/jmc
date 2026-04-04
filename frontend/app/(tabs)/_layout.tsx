@@ -36,7 +36,7 @@ export default function TabsLayout() {
           backgroundColor: COLORS.background,
           borderTopWidth: 0.5,
           borderTopColor: COLORS.border,
-          height: 60,
+          height: 80,
           paddingTop: 6,
           justifyContent: "center",
         },
@@ -72,7 +72,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name="home" size={28} color={color} />
-              {focused && <View style={styles.tabDot} />}
             </View>
           ),
         }}
@@ -86,7 +85,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name={focused ? "favorite" : "favorite-border"} size={26} color={color} />
-              {focused && <View style={styles.tabDot} />}
             </View>
           ),
         }}
@@ -113,7 +111,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name={focused ? "chat" : "chat-bubble-outline"} size={26} color={color} />
-              {focused && <View style={styles.tabDot} />}
+              {unreadCount > 0 && <View style={styles.msgDot} />}
             </View>
           ),
         }}
@@ -127,7 +125,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name={focused ? "person" : "person-outline"} size={28} color={color} />
-              {focused && <View style={styles.tabDot} />}
             </View>
           ),
         }}
@@ -147,8 +144,19 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabIconWrap: { alignItems: "center", gap: 3 },
+  tabIconWrap: { alignItems: "center", gap: 3, position: "relative" },
   tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary },
+  msgDot: {
+    position: "absolute",
+    top: -2,
+    right: -6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FF3B30",
+    borderWidth: 1.5,
+    borderColor: COLORS.background,
+  },
   headerLogo: { width: 220, height: 59, marginTop: 8 },
   headerBtn: { marginRight: 16, padding: 4, position: "relative" },
   badge: {

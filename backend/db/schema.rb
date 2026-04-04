@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_04_151737) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_04_154414) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_151737) do
     t.index ["used_by_id"], name: "index_invite_codes_on_used_by_id"
   end
 
+  create_table "likes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "post_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_id"], name: "index_likes_on_post_id"
+    t.index ["user_id", "post_id"], name: "index_likes_on_user_id_and_post_id", unique: true
+    t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
   create_table "matches", force: :cascade do |t|
     t.bigint "user1_id", null: false
     t.bigint "user2_id", null: false
@@ -170,6 +180,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_151737) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "likes_count", default: 0
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -321,6 +332,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_151737) do
   add_foreign_key "interests", "users", column: "sender_id"
   add_foreign_key "invite_codes", "users", column: "owner_id"
   add_foreign_key "invite_codes", "users", column: "used_by_id"
+  add_foreign_key "likes", "posts"
+  add_foreign_key "likes", "users"
   add_foreign_key "matches", "users", column: "user1_id"
   add_foreign_key "matches", "users", column: "user2_id"
   add_foreign_key "messages", "conversations"

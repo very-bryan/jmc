@@ -82,7 +82,7 @@ export default function MypageScreen() {
       <View style={styles.gradCard}>
         <Text style={styles.gradTitle}>좋은 사람을 만나셨나요?</Text>
         <Text style={styles.gradSubtitle}>졸업은 진만추의 축하입니다</Text>
-        <TouchableOpacity style={styles.gradBtn}>
+        <TouchableOpacity style={styles.gradBtn} onPress={() => Alert.alert("준비 중입니다")}>
           <Text style={styles.gradBtnText}>졸업 신청</Text>
         </TouchableOpacity>
       </View>
@@ -90,16 +90,16 @@ export default function MypageScreen() {
       {/* 계정 */}
       <Text style={styles.sectionLabel}>계정</Text>
       <View style={styles.card}>
-        <SettingsRow icon="person" label="개인정보" />
-        <SettingsRow icon="mail" label="이메일 · 전화번호" />
-        <SettingsRow icon="credit-card" label="구독 · 결제" isLast />
+        <SettingsRow icon="person" label="개인정보" onPress={() => router.push("/onboarding/profile")} />
+        <SettingsRow icon="mail" label="이메일 · 전화번호" onPress={() => router.push("/onboarding/email-verify")} />
+        <SettingsRow icon="credit-card" label="구독 · 결제" badge="[미구현]" isLast />
       </View>
 
       {/* 매칭 설정 */}
       <Text style={styles.sectionLabel}>매칭 설정</Text>
       <View style={styles.card}>
-        <SettingsRow icon="tune" label="검색 필터" />
-        <SettingsRow icon="favorite" label="관계 가치관" isLast />
+        <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} />
+        <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} isLast />
       </View>
 
       {/* 알림 */}
@@ -113,28 +113,21 @@ export default function MypageScreen() {
             trackColor={{ true: COLORS.primary, false: COLORS.border }}
           />
         </View>
-        <SettingsRow icon="schedule" label="방해금지 모드" isLast />
+        <SettingsRow icon="schedule" label="방해금지 모드" badge="[미구현]" isLast />
       </View>
 
       {/* 개인정보 · 위험 구역 */}
       <Text style={styles.sectionLabel}>개인정보 · 계정 관리</Text>
       <View style={styles.card}>
-        <SettingsRow icon="visibility" label="프로필 공개 설정" />
-        <View style={[styles.settingsRow, styles.settingsRowLast]}>
-          <MaterialIcons name="warning" size={20} color={COLORS.primary} style={{ width: 28 }} />
-          <Text style={[styles.rowLabel, { color: COLORS.primary }]}>프로필 비활성화</Text>
-          <View style={styles.tempBadge}>
-            <Text style={styles.tempBadgeText}>임시</Text>
-          </View>
-          <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
-        </View>
+        <SettingsRow icon="visibility" label="프로필 공개 설정" badge="[미구현]" />
+        <SettingsRow icon="warning" label="프로필 비활성화" badge="[미구현]" isLast />
       </View>
 
       {/* 고객지원 */}
       <Text style={styles.sectionLabel}>고객지원</Text>
       <View style={styles.card}>
-        <SettingsRow icon="help" label="도움말 센터" />
-        <SettingsRow icon="verified-user" label="안전 가이드라인" isLast />
+        <SettingsRow icon="help" label="도움말 센터" badge="[미구현]" />
+        <SettingsRow icon="verified-user" label="안전 가이드라인" badge="[미구현]" isLast />
       </View>
 
       {/* 로그아웃 */}
@@ -152,15 +145,20 @@ function SettingsRow({
   icon,
   label,
   isLast,
+  onPress,
+  badge,
 }: {
   icon: string;
   label: string;
   isLast?: boolean;
+  onPress?: () => void;
+  badge?: string;
 }) {
   return (
-    <TouchableOpacity style={[styles.settingsRow, isLast && styles.settingsRowLast]}>
+    <TouchableOpacity style={[styles.settingsRow, isLast && styles.settingsRowLast]} onPress={onPress}>
       <MaterialIcons name={icon as any} size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
       <Text style={styles.rowLabel}>{label}</Text>
+      {badge && <Text style={styles.notImplBadge}>{badge}</Text>}
       <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
     </TouchableOpacity>
   );
@@ -298,6 +296,13 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: COLORS.textLight,
     fontWeight: "300",
+  },
+
+  // Not implemented badge
+  notImplBadge: {
+    fontSize: 11,
+    color: COLORS.textLight,
+    marginRight: 4,
   },
 
   // Temp badge

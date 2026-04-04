@@ -66,7 +66,12 @@ Rails.application.routes.draw do
       resource :preference_filter, only: [ :show, :create, :update ]
 
       # Posts
-      resources :posts, only: [ :index, :show, :create, :destroy ]
+      resources :posts, only: [ :index, :show, :create, :destroy ] do
+        member do
+          post :like, to: "likes#create"
+          delete :like, to: "likes#destroy"
+        end
+      end
 
       # Feed
       get "feed", to: "feed#index"

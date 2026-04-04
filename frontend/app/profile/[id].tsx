@@ -151,7 +151,7 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
               <MaterialIcons name="arrow-back" size={22} color={COLORS.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.graduateBtn}>
+            <TouchableOpacity style={styles.graduateBtn} onPress={() => Alert.alert("준비 중", "졸업 기능은 준비 중입니다")}>
               <Text style={styles.graduateBtnText}>{profile.nickname}님과 졸업</Text>
             </TouchableOpacity>
           </View>
