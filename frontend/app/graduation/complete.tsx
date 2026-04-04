@@ -1,32 +1,43 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ConfettiCannon from "react-native-confetti-cannon";
-import { useThemeColors, useIsDark } from "../../src/hooks/useThemeColors";
+import LottieView from "lottie-react-native";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
+
+const { width, height } = Dimensions.get("window");
 
 export default function GraduationCompleteScreen() {
   const router = useRouter();
   const C = useThemeColors();
-  const isDark = useIsDark();
-  const confettiRef = useRef<any>(null);
+  const lottieRef = useRef<LottieView>(null);
+
+  useEffect(() => {
+    lottieRef.current?.play();
+  }, []);
+
+  const replay = () => {
+    lottieRef.current?.reset();
+    lottieRef.current?.play();
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: C.background }]} edges={["top", "bottom"]}>
-      <ConfettiCannon
-        ref={confettiRef}
-        count={150}
-        origin={{ x: -10, y: 0 }}
-        autoStart
-        fadeOut
-        fallSpeed={3000}
-        colors={["#9C86FF", "#B8A5FF", "#FFD700", "#FF6B9D", "#5BD1D7", "#FF9A5C"]}
+      {/* Lottie confetti overlay */}
+      <LottieView
+        ref={lottieRef}
+        source={require("../../assets/confetti.json")}
+        style={styles.lottie}
+        resizeMode="cover"
+        loop={false}
+        autoPlay
       />
 
       <View style={styles.content}>
@@ -45,10 +56,6 @@ export default function GraduationCompleteScreen() {
           진만추는 두 분의 행복을 응원합니다.{"\n"}
           멋진 사랑 이어가세요!
         </Text>
-
-        <View style={[styles.flowerRow]}>
-          <Text style={styles.flowerEmoji}>{"  "}</Text>
-        </View>
       </View>
 
       <View style={styles.bottom}>
@@ -62,8 +69,8 @@ export default function GraduationCompleteScreen() {
         <TouchableOpacity
           style={[styles.btn, { backgroundColor: C.primary }]}
           onPress={() => {
-            confettiRef.current?.start();
-            setTimeout(() => router.replace("/(tabs)" as any), 1500);
+            replay();
+            setTimeout(() => router.replace("/(tabs)" as any), 2000);
           }}
         >
           <Text style={styles.btnText}>진만추 졸업!</Text>
@@ -75,11 +82,21 @@ export default function GraduationCompleteScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  lottie: {
+    position: "absolute",
+    width: width,
+    height: height,
+    top: 0,
+    left: 0,
+    zIndex: 10,
+    pointerEvents: "none",
+  },
   content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 32,
+    zIndex: 1,
   },
   iconCircle: {
     width: 96,
@@ -105,16 +122,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 26,
   },
-  flowerRow: {
-    marginTop: 24,
-  },
-  flowerEmoji: {
-    fontSize: 36,
-  },
   bottom: {
     paddingHorizontal: 20,
     paddingBottom: 20,
     gap: 12,
+    zIndex: 20,
   },
   noticeCard: {
     flexDirection: "row",
