@@ -56,7 +56,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          headerTitle: "",
+          headerShown: false,
           tabBarButton: () => null,
         }}
       />
