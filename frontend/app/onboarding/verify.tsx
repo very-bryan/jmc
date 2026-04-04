@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 export default function VerifyScreen() {
@@ -47,54 +48,47 @@ export default function VerifyScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>인증코드 입력</Text>
-      <Text style={styles.subtitle}>
-        {phone}로 발송된 인증코드를 입력해주세요
-      </Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="123456"
-        placeholderTextColor={COLORS.textLight}
-        keyboardType="number-pad"
-        maxLength={6}
-        value={code}
-        onChangeText={setCode}
-        autoFocus
-      />
-
-      <TouchableOpacity
-        style={[styles.button, code.length < 6 && styles.buttonDisabled]}
-        onPress={handleVerify}
-        disabled={loading || code.length < 6}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "확인 중..." : "확인"}
+    <OnboardingLayout scrollable={false}>
+      <View style={styles.content}>
+        <Text style={styles.title}>인증코드 입력</Text>
+        <Text style={styles.subtitle}>
+          {phone}로 발송된 인증코드를 입력해주세요
         </Text>
-      </TouchableOpacity>
-    </View>
+
+        <GlassCard>
+          <TextInput
+            style={styles.input}
+            placeholder="123456"
+            placeholderTextColor={COLORS.textLight}
+            keyboardType="number-pad"
+            maxLength={6}
+            value={code}
+            onChangeText={setCode}
+            autoFocus
+          />
+
+          <TouchableOpacity
+            style={[styles.button, code.length < 6 && styles.buttonDisabled]}
+            onPress={handleVerify}
+            disabled={loading || code.length < 6}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "확인 중..." : "확인"}
+            </Text>
+          </TouchableOpacity>
+        </GlassCard>
+      </View>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 32,
-  },
+  content: { flex: 1, justifyContent: "center" },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28 },
   input: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 24,
@@ -106,15 +100,9 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
   },
-  buttonDisabled: {
-    backgroundColor: COLORS.textLight,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

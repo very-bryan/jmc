@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { valueSurveyApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 const QUESTIONS = [
@@ -93,14 +93,14 @@ export default function SurveyScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+    <OnboardingLayout scrollable={true}>
       <Text style={styles.title}>가치관 설문</Text>
       <Text style={styles.subtitle}>
         상대방과의 가치관 적합도를 파악하기 위한 설문입니다
       </Text>
 
       {QUESTIONS.map((q) => (
-        <View key={q.key} style={styles.question}>
+        <GlassCard key={q.key}>
           <Text style={styles.questionTitle}>{q.title}</Text>
           <View style={styles.chipRow}>
             {q.options.map((o) => (
@@ -117,7 +117,7 @@ export default function SurveyScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </GlassCard>
       ))}
 
       <TouchableOpacity
@@ -129,69 +129,34 @@ export default function SurveyScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  scroll: { padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 24,
-  },
-  question: { marginBottom: 24 },
-  questionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.text,
-    marginBottom: 10,
-  },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
+  questionTitle: { fontSize: 16, fontWeight: "700", color: COLORS.text, marginBottom: 10 },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  chipText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  chipTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 4,
   },
-  buttonDisabled: {
-    backgroundColor: COLORS.textLight,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

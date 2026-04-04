@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { inviteCodeApi } from "../../src/api";
 import { purchaseSignup } from "../../src/services/iap";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 export default function InviteScreen() {
@@ -62,89 +63,77 @@ export default function InviteScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>가입 방법 선택</Text>
-      <Text style={styles.subtitle}>
-        초대코드가 있으면 무료로, 없으면 10,000원으로 가입할 수 있습니다
-      </Text>
+    <OnboardingLayout scrollable={false}>
+      <View style={styles.content}>
+        <Text style={styles.title}>가입 방법 선택</Text>
+        <Text style={styles.subtitle}>
+          초대코드가 있으면 무료로, 없으면 10,000원으로 가입할 수 있습니다
+        </Text>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>초대코드 입력</Text>
-        <TextInput
-          style={styles.codeInput}
-          placeholder="ABC123"
-          placeholderTextColor={COLORS.textLight}
-          value={code}
-          onChangeText={(t) => setCode(t.toUpperCase())}
-          maxLength={6}
-          autoCapitalize="characters"
-          autoCorrect={false}
-        />
-        <TouchableOpacity
-          style={[styles.primaryBtn, code.length < 6 && styles.btnDisabled]}
-          onPress={handleValidate}
-          disabled={loading || code.length < 6}
-        >
-          <Text style={styles.primaryBtnText}>
-            {loading ? "확인 중..." : "초대코드로 무료 가입"}
-          </Text>
-        </TouchableOpacity>
+        <GlassCard>
+          <Text style={styles.sectionTitle}>초대코드 입력</Text>
+          <TextInput
+            style={styles.codeInput}
+            placeholder="ABC123"
+            placeholderTextColor={COLORS.textLight}
+            value={code}
+            onChangeText={(t) => setCode(t.toUpperCase())}
+            maxLength={6}
+            autoCapitalize="characters"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={[styles.primaryBtn, code.length < 6 && styles.btnDisabled]}
+            onPress={handleValidate}
+            disabled={loading || code.length < 6}
+          >
+            <Text style={styles.primaryBtnText}>
+              {loading ? "확인 중..." : "초대코드로 무료 가입"}
+            </Text>
+          </TouchableOpacity>
+        </GlassCard>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>또는</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <GlassCard>
+          <TouchableOpacity style={styles.payBtn} onPress={handlePay}>
+            <Text style={styles.payBtnText}>10,000원 결제하고 가입</Text>
+            <Text style={styles.payBtnSub}>초대코드가 없어도 가입할 수 있어요</Text>
+          </TouchableOpacity>
+        </GlassCard>
+
+        {__DEV__ && (
+          <GlassCard style={{ marginTop: 0 }}>
+            <TouchableOpacity
+              style={styles.payBtn}
+              onPress={() => {
+                router.push({
+                  pathname: "/onboarding/profile",
+                  params: { phone, is_seed: "true" },
+                });
+              }}
+            >
+              <Text style={[styles.payBtnText, { color: "#999" }]}>[테스트] 시드 유저로 가입</Text>
+            </TouchableOpacity>
+          </GlassCard>
+        )}
       </View>
-
-      <View style={styles.divider}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>또는</Text>
-        <View style={styles.dividerLine} />
-      </View>
-
-      <TouchableOpacity style={styles.payBtn} onPress={handlePay}>
-        <Text style={styles.payBtnText}>10,000원 결제하고 가입</Text>
-        <Text style={styles.payBtnSub}>초대코드가 없어도 가입할 수 있어요</Text>
-      </TouchableOpacity>
-
-      {__DEV__ && (
-        <TouchableOpacity
-          style={[styles.payBtn, { marginTop: 12, borderColor: "#ddd" }]}
-          onPress={() => {
-            router.push({
-              pathname: "/onboarding/profile",
-              params: { phone, is_seed: "true" },
-            });
-          }}
-        >
-          <Text style={[styles.payBtnText, { color: "#999" }]}>[테스트] 시드 유저로 가입</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 32,
-    lineHeight: 20,
-  },
-  section: { marginBottom: 24 },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.text,
-    marginBottom: 10,
-  },
+  content: { flex: 1, justifyContent: "center" },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28, lineHeight: 20 },
+  sectionTitle: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 10 },
   codeInput: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 24,
@@ -157,7 +146,7 @@ const styles = StyleSheet.create({
   primaryBtn: {
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
   },
   btnDisabled: { backgroundColor: COLORS.textLight },
@@ -165,21 +154,11 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 24,
+    marginVertical: 4,
   },
-  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
-  dividerText: {
-    marginHorizontal: 16,
-    fontSize: 13,
-    color: COLORS.textLight,
-  },
-  payBtn: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.4)" },
+  dividerText: { marginHorizontal: 16, fontSize: 13, color: COLORS.textLight },
+  payBtn: { alignItems: "center" },
   payBtnText: { fontSize: 16, fontWeight: "700", color: COLORS.text },
   payBtnSub: { fontSize: 12, color: COLORS.textSecondary, marginTop: 4 },
 });

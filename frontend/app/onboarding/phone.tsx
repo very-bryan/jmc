@@ -10,6 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 export default function PhoneScreen() {
@@ -22,7 +23,6 @@ export default function PhoneScreen() {
       Alert.alert("오류", "유효한 전화번호를 입력해주세요");
       return;
     }
-
     setLoading(true);
     try {
       await authApi.requestCode(phone);
@@ -37,72 +37,46 @@ export default function PhoneScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>본인확인</Text>
-      <Text style={styles.subtitle}>
-        휴대폰 번호로 본인확인을 진행합니다
-      </Text>
+    <OnboardingLayout scrollable={false}>
+      <View style={styles.content}>
+        <Text style={styles.title}>본인확인</Text>
+        <Text style={styles.subtitle}>휴대폰 번호로 본인확인을 진행합니다</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="01012345678"
-        placeholderTextColor={COLORS.textLight}
-        keyboardType="phone-pad"
-        maxLength={11}
-        value={phone}
-        onChangeText={setPhone}
-      />
-
-      <TouchableOpacity
-        style={[styles.button, phone.length < 10 && styles.buttonDisabled]}
-        onPress={handleRequestCode}
-        disabled={loading || phone.length < 10}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "발송 중..." : "인증코드 받기"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <GlassCard>
+          <Text style={styles.label}>휴대폰 번호</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="01012345678"
+            placeholderTextColor={COLORS.textLight}
+            keyboardType="phone-pad"
+            maxLength={11}
+            value={phone}
+            onChangeText={setPhone}
+          />
+          <TouchableOpacity
+            style={[styles.button, phone.length < 10 && styles.buttonDisabled]}
+            onPress={handleRequestCode}
+            disabled={loading || phone.length < 10}
+          >
+            <Text style={styles.buttonText}>{loading ? "발송 중..." : "인증코드 받기"}</Text>
+          </TouchableOpacity>
+        </GlassCard>
+      </View>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 32,
-  },
+  content: { flex: 1, justifyContent: "center" },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28 },
+  label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 10 },
   input: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 18,
-    color: COLORS.text,
-    letterSpacing: 1,
-    marginBottom: 20,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14,
+    fontSize: 18, color: COLORS.text, letterSpacing: 1, marginBottom: 20,
   },
-  button: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    backgroundColor: COLORS.textLight,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  button: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: 14, alignItems: "center" },
+  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

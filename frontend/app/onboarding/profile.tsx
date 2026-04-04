@@ -5,13 +5,13 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 const GENDERS = [
@@ -107,99 +107,107 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+    <OnboardingLayout scrollable={true}>
       <Text style={styles.title}>기본 프로필</Text>
       <Text style={styles.subtitle}>진지한 만남을 위한 기본 정보를 입력해주세요</Text>
 
-      <Text style={styles.label}>닉네임 *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="2~20자"
-        placeholderTextColor={COLORS.textLight}
-        value={form.nickname}
-        onChangeText={(v) => updateField("nickname", v)}
-        maxLength={20}
-      />
+      <GlassCard>
+        <Text style={styles.label}>닉네임 *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="2~20자"
+          placeholderTextColor={COLORS.textLight}
+          value={form.nickname}
+          onChangeText={(v) => updateField("nickname", v)}
+          maxLength={20}
+        />
 
-      <Text style={styles.label}>비밀번호 *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="비밀번호"
-        placeholderTextColor={COLORS.textLight}
-        secureTextEntry
-        value={form.password}
-        onChangeText={(v) => updateField("password", v)}
-      />
+        <Text style={[styles.label, { marginTop: 16 }]}>비밀번호 *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="비밀번호"
+          placeholderTextColor={COLORS.textLight}
+          secureTextEntry
+          value={form.password}
+          onChangeText={(v) => updateField("password", v)}
+        />
+      </GlassCard>
 
-      <Text style={styles.label}>성별 *</Text>
-      <View style={styles.chipRow}>
-        {GENDERS.map((g) => (
-          <TouchableOpacity
-            key={g.value}
-            style={[styles.chip, form.gender === g.value && styles.chipActive]}
-            onPress={() => updateField("gender", g.value)}
-          >
-            <Text style={[styles.chipText, form.gender === g.value && styles.chipTextActive]}>
-              {g.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>출생연도 *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="1995"
-        placeholderTextColor={COLORS.textLight}
-        keyboardType="number-pad"
-        maxLength={4}
-        value={form.birth_year}
-        onChangeText={(v) => updateField("birth_year", v)}
-      />
-
-      <Text style={styles.label}>지역 *</Text>
-      <View style={styles.chipRow}>
-        {REGIONS.map((r) => (
-          <TouchableOpacity
-            key={r}
-            style={[styles.chip, form.region === r && styles.chipActive]}
-            onPress={() => updateField("region", r)}
-          >
-            <Text style={[styles.chipText, form.region === r && styles.chipTextActive]}>
-              {r}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>직업군 *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="예: IT/개발, 금융, 의료 등"
-        placeholderTextColor={COLORS.textLight}
-        value={form.occupation}
-        onChangeText={(v) => updateField("occupation", v)}
-      />
-
-      <Text style={styles.label}>결혼 희망 시기 *</Text>
-      <View style={styles.chipRow}>
-        {MARRIAGE_TIMINGS.map((t) => (
-          <TouchableOpacity
-            key={t.value}
-            style={[styles.chip, form.desired_marriage_timing === t.value && styles.chipActive]}
-            onPress={() => updateField("desired_marriage_timing", t.value)}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                form.desired_marriage_timing === t.value && styles.chipTextActive,
-              ]}
+      <GlassCard>
+        <Text style={styles.label}>성별 *</Text>
+        <View style={styles.chipRow}>
+          {GENDERS.map((g) => (
+            <TouchableOpacity
+              key={g.value}
+              style={[styles.chip, form.gender === g.value && styles.chipActive]}
+              onPress={() => updateField("gender", g.value)}
             >
-              {t.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text style={[styles.chipText, form.gender === g.value && styles.chipTextActive]}>
+                {g.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={[styles.label, { marginTop: 16 }]}>출생연도 *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="1995"
+          placeholderTextColor={COLORS.textLight}
+          keyboardType="number-pad"
+          maxLength={4}
+          value={form.birth_year}
+          onChangeText={(v) => updateField("birth_year", v)}
+        />
+      </GlassCard>
+
+      <GlassCard>
+        <Text style={styles.label}>지역 *</Text>
+        <View style={styles.chipRow}>
+          {REGIONS.map((r) => (
+            <TouchableOpacity
+              key={r}
+              style={[styles.chip, form.region === r && styles.chipActive]}
+              onPress={() => updateField("region", r)}
+            >
+              <Text style={[styles.chipText, form.region === r && styles.chipTextActive]}>
+                {r}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </GlassCard>
+
+      <GlassCard>
+        <Text style={styles.label}>직업군 *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="예: IT/개발, 금융, 의료 등"
+          placeholderTextColor={COLORS.textLight}
+          value={form.occupation}
+          onChangeText={(v) => updateField("occupation", v)}
+        />
+
+        <Text style={[styles.label, { marginTop: 16 }]}>결혼 희망 시기 *</Text>
+        <View style={styles.chipRow}>
+          {MARRIAGE_TIMINGS.map((t) => (
+            <TouchableOpacity
+              key={t.value}
+              style={[styles.chip, form.desired_marriage_timing === t.value && styles.chipActive]}
+              onPress={() => updateField("desired_marriage_timing", t.value)}
+            >
+              <Text
+                style={[
+                  styles.chipText,
+                  form.desired_marriage_timing === t.value && styles.chipTextActive,
+                ]}
+              >
+                {t.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </GlassCard>
 
       <TouchableOpacity
         style={[styles.button, !isValid && styles.buttonDisabled]}
@@ -212,78 +220,42 @@ export default function ProfileScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  scroll: { padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.text,
-    marginBottom: 8,
-    marginTop: 16,
-  },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
+  label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 8 },
   input: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
     color: COLORS.text,
   },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  chipText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  chipTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
-    marginTop: 32,
+    marginTop: 12,
   },
-  buttonDisabled: {
-    backgroundColor: COLORS.textLight,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { preferenceFilterApi, profileApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
 const GENDERS = [
@@ -71,64 +71,70 @@ export default function PreferenceScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+    <OnboardingLayout scrollable={true}>
       <Text style={styles.title}>관심 조건 설정</Text>
       <Text style={styles.subtitle}>
         만나고 싶은 상대의 조건을 설정해주세요
       </Text>
 
-      <Text style={styles.label}>희망 성별</Text>
-      <View style={styles.chipRow}>
-        {GENDERS.map((g) => (
-          <TouchableOpacity
-            key={g.value}
-            style={[styles.chip, gender === g.value && styles.chipActive]}
-            onPress={() => setGender(g.value)}
-          >
-            <Text style={[styles.chipText, gender === g.value && styles.chipTextActive]}>
-              {g.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>희망 연령대</Text>
-      <View style={styles.chipRow}>
-        {AGE_RANGES.map((a) => (
-          <TouchableOpacity
-            key={a.label}
-            style={[
-              styles.chip,
-              ageRange.min === a.min && ageRange.max === a.max && styles.chipActive,
-            ]}
-            onPress={() => setAgeRange({ min: a.min, max: a.max })}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                ageRange.min === a.min && ageRange.max === a.max && styles.chipTextActive,
-              ]}
+      <GlassCard>
+        <Text style={styles.label}>희망 성별</Text>
+        <View style={styles.chipRow}>
+          {GENDERS.map((g) => (
+            <TouchableOpacity
+              key={g.value}
+              style={[styles.chip, gender === g.value && styles.chipActive]}
+              onPress={() => setGender(g.value)}
             >
-              {a.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text style={[styles.chipText, gender === g.value && styles.chipTextActive]}>
+                {g.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </GlassCard>
 
-      <Text style={styles.label}>희망 지역 (복수 선택 가능)</Text>
-      <View style={styles.chipRow}>
-        {REGIONS.map((r) => (
-          <TouchableOpacity
-            key={r}
-            style={[styles.chip, regions.includes(r) && styles.chipActive]}
-            onPress={() => toggleRegion(r)}
-          >
-            <Text style={[styles.chipText, regions.includes(r) && styles.chipTextActive]}>
-              {r}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <GlassCard>
+        <Text style={styles.label}>희망 연령대</Text>
+        <View style={styles.chipRow}>
+          {AGE_RANGES.map((a) => (
+            <TouchableOpacity
+              key={a.label}
+              style={[
+                styles.chip,
+                ageRange.min === a.min && ageRange.max === a.max && styles.chipActive,
+              ]}
+              onPress={() => setAgeRange({ min: a.min, max: a.max })}
+            >
+              <Text
+                style={[
+                  styles.chipText,
+                  ageRange.min === a.min && ageRange.max === a.max && styles.chipTextActive,
+                ]}
+              >
+                {a.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </GlassCard>
+
+      <GlassCard>
+        <Text style={styles.label}>희망 지역 (복수 선택 가능)</Text>
+        <View style={styles.chipRow}>
+          {REGIONS.map((r) => (
+            <TouchableOpacity
+              key={r}
+              style={[styles.chip, regions.includes(r) && styles.chipActive]}
+              onPress={() => toggleRegion(r)}
+            >
+              <Text style={[styles.chipText, regions.includes(r) && styles.chipTextActive]}>
+                {r}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </GlassCard>
 
       <TouchableOpacity
         style={styles.button}
@@ -141,66 +147,33 @@ export default function PreferenceScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  scroll: { padding: 24 },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.text,
-    marginBottom: 10,
-    marginTop: 20,
-  },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
+  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
+  label: { fontSize: 16, fontWeight: "700", color: COLORS.text, marginBottom: 10 },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  chipText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  chipTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: "center",
-    marginTop: 32,
+    marginTop: 12,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });
