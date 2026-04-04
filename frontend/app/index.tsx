@@ -43,9 +43,6 @@ export default function SplashScreen() {
       {/* 배경 장식 원 */}
       <View style={styles.decoCircleTopLeft} />
       <View style={styles.decoCircleTopRight} />
-      <View style={styles.decoHeart}>
-        <Text style={styles.decoHeartText}>♥</Text>
-      </View>
 
       {/* 콘텐츠 */}
       <View style={styles.content}>
@@ -68,12 +65,11 @@ export default function SplashScreen() {
             resizeMode="cover"
           />
         </View>
-
-        <Text style={styles.ctaLabel}>지금, 새로운 일상을 시작하세요.</Text>
       </View>
 
       {/* 하단 버튼 */}
       <View style={styles.bottom}>
+        <Text style={styles.ctaLabel}>지금, 새로운 일상을 시작하세요.</Text>
         <TouchableOpacity
           style={styles.kakaoButton}
           onPress={async () => {
@@ -138,8 +134,8 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#E8D5D0",
-    opacity: 0.5,
+    backgroundColor: "#C9BFFF",
+    opacity: 0.4,
   },
   decoCircleTopRight: {
     position: "absolute",
@@ -148,23 +144,8 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#C8C9C0",
-    opacity: 0.4,
-  },
-  decoHeart: {
-    position: "absolute",
-    top: 30,
-    left: 24,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#D4A0A0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  decoHeartText: {
-    color: "#fff",
-    fontSize: 20,
+    backgroundColor: "#B8A5FF",
+    opacity: 0.25,
   },
 
   // 콘텐츠
@@ -182,9 +163,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: {
-    fontSize: 48,
-    fontWeight: "800",
-    color: "#8B5E3C",
+    fontSize: 64,
+    fontWeight: "900",
+    color: "#9C86FF",
     marginBottom: 20,
   },
   headline: {
@@ -217,9 +198,11 @@ const styles = StyleSheet.create({
   },
 
   ctaLabel: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
+    fontSize: 17,
+    fontWeight: "700",
+    color: COLORS.text,
+    textAlign: "center",
+    marginVertical: 16,
   },
 
   // 하단 버튼
@@ -227,12 +210,14 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingBottom: 40,
     gap: 10,
+    alignItems: "center",
   },
   kakaoButton: {
     backgroundColor: "#FEE500",
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
+    width: "100%",
   },
   kakaoButtonText: {
     color: "#191919",
@@ -242,6 +227,7 @@ const styles = StyleSheet.create({
   loginButton: {
     paddingVertical: 16,
     borderRadius: 14,
+    width: "100%",
     alignItems: "center",
     borderWidth: 1,
     borderColor: COLORS.border,
