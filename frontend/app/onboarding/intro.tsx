@@ -53,8 +53,8 @@ export default function IntroScreen() {
           {/* 히어로 텍스트: 글래스 오버레이 */}
           <BlurView intensity={25} tint="dark" style={styles.heroGlass}>
             <View style={styles.heroGlassInner}>
-              <Text style={styles.heroTitle}>우리들의 약속</Text>
-              <Text style={styles.heroSubtitle}>진심이 만나는 순간, 진만추가 함께합니다.</Text>
+              <Text style={styles.heroTitle}>진지한 만남 추구</Text>
+              <Text style={styles.heroSubtitle}>가벼운 만남을 넘어 결혼까지 생각하는 진지한 인연을 응원합니다.</Text>
             </View>
           </BlurView>
         </View>
@@ -67,8 +67,8 @@ export default function IntroScreen() {
               <Text style={styles.cardNumber}>01</Text>
               <MaterialIcons name="favorite" size={28} color={COLORS.primary} />
             </View>
-            <Text style={styles.cardTitle}>결혼을 향한 진지한 마음</Text>
-            <Text style={styles.cardDesc}>가벼운 만남을 넘어 결혼까지 생각하는 진지한 인연을 위해 노력합니다.</Text>
+            <Text style={styles.cardTitle}>가벼운 만남도, 계산적인 만남도 아닌</Text>
+            <Text style={styles.cardDesc}>소개팅앱은 너무 가볍고, 결혼정보회사는 너무 본격적이어서 부담될 때. 진만추는 결혼을 전제로 진지하게 연애하고 싶은 사람들을 위한 무료 커뮤니티입니다.</Text>
           </GlassCard>
 
           {/* 2. 철저한 정보 인증 */}
@@ -77,8 +77,8 @@ export default function IntroScreen() {
               <Text style={[styles.cardNumber, styles.cardNumberAccent]}>02</Text>
               <MaterialIcons name="verified-user" size={28} color={COLORS.primary} />
             </View>
-            <Text style={styles.cardTitle}>철저한 정보 인증</Text>
-            <Text style={styles.cardDesc}>실명, 직장, 학교 정보를 인증해야 대화가 시작됩니다.</Text>
+            <Text style={styles.cardTitle}>검증된 사람만</Text>
+            <Text style={styles.cardDesc}>실명, 직장, 학교 인증을 거쳐야 시작됩니다. 누구인지 모르는 불안함 없이, 신뢰할 수 있는 사람과 만나세요.</Text>
           </GlassCard>
 
           {/* 3 & 4 그리드 */}
@@ -92,7 +92,7 @@ export default function IntroScreen() {
               >
                 <MaterialIcons name="forum" size={28} color={COLORS.primary} />
                 <Text style={styles.cardTitleSmall}>대화는 언제나 무료</Text>
-                <Text style={styles.cardDescSmall}>서로의 호감이 확인되면 대화는 언제나 무료로 가능합니다.</Text>
+                <Text style={styles.cardDescSmall}>서로의 호감이 확인되면 대화는 언제나 무료. 돈 내고 메시지 보내는 서비스가 아닙니다.</Text>
               </LinearGradient>
             </BlurView>
             <BlurView intensity={40} tint="light" style={styles.cardHalfOuter}>
@@ -102,9 +102,9 @@ export default function IntroScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.cardHalfInner}
               >
-                <MaterialIcons name="gesture" size={28} color={COLORS.primary} />
-                <Text style={styles.cardTitleSmall}>상호 관심 기반</Text>
-                <Text style={styles.cardDescSmall}>두 사람 모두 호감을 표시했을 때만 대화의 문이 열립니다.</Text>
+                <MaterialIcons name="auto-awesome" size={28} color={COLORS.primary} />
+                <Text style={styles.cardTitleSmall}>AI 맞춤 추천</Text>
+                <Text style={styles.cardDescSmall}>가치관, 생활 패턴, 취향을 분석해 나에게 맞는 사람을 추천합니다.</Text>
               </LinearGradient>
             </BlurView>
           </View>
@@ -131,13 +131,13 @@ export default function IntroScreen() {
                 </View>
               </View>
               <Text style={styles.gradTitle}>행복한 졸업(결혼)</Text>
-              <Text style={styles.gradDesc}>매칭이 완료되면 함께 앱을 삭제하고 졸업하세요.</Text>
+              <Text style={styles.gradDesc}>좋은 사람을 만나면 진만추 앱을 지우고 떠나세요!</Text>
               <Text style={styles.gradItalic}>인연의 완성은 진만추를 떠나는 순간입니다.</Text>
             </View>
           </LinearGradient>
         </View>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 120 }} />
       </ScrollView>
 
       {/* 하단 글래스 버튼 */}
