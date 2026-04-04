@@ -68,7 +68,7 @@ export default function IntroScreen() {
               <MaterialIcons name="favorite" size={28} color={COLORS.primary} />
             </View>
             <Text style={styles.cardTitle}>가벼운 만남도, 계산적인 만남도 아닌</Text>
-            <Text style={styles.cardDesc}>소개팅앱은 너무 가볍고, 결혼정보회사는 너무 본격적이어서 부담될 때. 진만추는 결혼을 전제로 진지하게 연애하고 싶은 사람들을 위한 무료 커뮤니티입니다.</Text>
+            <Text style={styles.cardDesc}>데이팅앱은 너무 가볍고, 결혼정보회사는 너무 본격적이어서 부담될 때. 진만추는 결혼을 전제로 진지하게 연애하고 싶은 사람들을 위한 무료 커뮤니티입니다.</Text>
           </GlassCard>
 
           {/* 2. 철저한 정보 인증 */}
@@ -81,33 +81,25 @@ export default function IntroScreen() {
             <Text style={styles.cardDesc}>실명, 직장, 학교 인증을 거쳐야 시작됩니다. 누구인지 모르는 불안함 없이, 신뢰할 수 있는 사람과 만나세요.</Text>
           </GlassCard>
 
-          {/* 3 & 4 그리드 */}
-          <View style={styles.cardGrid}>
-            <BlurView intensity={40} tint="light" style={styles.cardHalfOuter}>
-              <LinearGradient
-                colors={["rgba(255,255,255,0.5)", "rgba(255,255,255,0.15)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardHalfInner}
-              >
-                <MaterialIcons name="forum" size={28} color={COLORS.primary} />
-                <Text style={styles.cardTitleSmall}>대화는 언제나 무료</Text>
-                <Text style={styles.cardDescSmall}>서로의 호감이 확인되면 대화는 언제나 무료. 돈 내고 메시지 보내는 서비스가 아닙니다.</Text>
-              </LinearGradient>
-            </BlurView>
-            <BlurView intensity={40} tint="light" style={styles.cardHalfOuter}>
-              <LinearGradient
-                colors={["rgba(255,255,255,0.5)", "rgba(255,255,255,0.15)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardHalfInner}
-              >
-                <MaterialIcons name="auto-awesome" size={28} color={COLORS.primary} />
-                <Text style={styles.cardTitleSmall}>AI 맞춤 추천</Text>
-                <Text style={styles.cardDescSmall}>가치관, 생활 패턴, 취향을 분석해 나에게 맞는 사람을 추천합니다.</Text>
-              </LinearGradient>
-            </BlurView>
-          </View>
+          {/* 3. 대화는 언제나 무료 */}
+          <GlassCard>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardNumber}>03</Text>
+              <MaterialIcons name="forum" size={28} color={COLORS.primary} />
+            </View>
+            <Text style={styles.cardTitle}>대화는 언제나 무료</Text>
+            <Text style={styles.cardDesc}>호감을 확인하고, 대화와 만남은 직접 표현하세요. 진만추는 무료 커뮤니티입니다.</Text>
+          </GlassCard>
+
+          {/* 4. AI 맞춤 추천 */}
+          <GlassCard>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardNumber}>04</Text>
+              <MaterialIcons name="auto-awesome" size={28} color={COLORS.primary} />
+            </View>
+            <Text style={styles.cardTitle}>AI 맞춤 추천</Text>
+            <Text style={styles.cardDesc}>가치관과 취향을 AI가 분석해 나에게 맞는 사람을 추천하고, 가입자가 늘수록 정확해집니다.</Text>
+          </GlassCard>
 
           {/* 5. 졸업 카드 */}
           <LinearGradient
@@ -273,7 +265,7 @@ const styles = StyleSheet.create({
     fontSize: 17, fontWeight: "700", color: "#1a1a1a",
   },
   cardDescSmall: {
-    fontSize: 13, color: "#3a3a3a", lineHeight: 19,
+    fontSize: 13, color: "#3a3a3a", lineHeight: 17,
   },
 
   // 졸업 카드
