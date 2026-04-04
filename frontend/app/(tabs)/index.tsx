@@ -124,8 +124,8 @@ export default function HomeScreen() {
       onEndReachedThreshold={0.5}
       ListHeaderComponent={
         <View style={styles.filterBar}>
-          <Text style={styles.filterLabel}>내 조건</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+          <Text style={styles.filterLabel}>필터</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
             <View style={styles.chip}>
               <Text style={styles.chipText}>25-30</Text>
             </View>
@@ -135,11 +135,10 @@ export default function HomeScreen() {
             <View style={[styles.chip, styles.chipActive]}>
               <Text style={[styles.chipText, styles.chipTextActive]}>인증됨</Text>
             </View>
-            <TouchableOpacity style={styles.chipAdjust}>
-              <MaterialIcons name="tune" size={14} color={COLORS.primary} />
-              <Text style={styles.chipAdjustText}> 조정</Text>
-            </TouchableOpacity>
           </ScrollView>
+          <TouchableOpacity style={styles.chipAdjust}>
+            <MaterialIcons name="tune" size={18} color={COLORS.primary} />
+          </TouchableOpacity>
         </View>
       }
       ListEmptyComponent={
@@ -162,37 +161,36 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   filterBar: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.background,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 0.5,
     borderBottomColor: COLORS.border,
   },
   filterLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "700",
-    color: COLORS.textLight,
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    color: COLORS.textSecondary,
+    marginRight: 10,
   },
-  filterScroll: { flexDirection: "row" },
+  filterScroll: { flexDirection: "row", alignItems: "center", flex: 1 },
   chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.primary,
-    marginRight: 8,
+    marginRight: 6,
     backgroundColor: COLORS.accentLight,
   },
   chipActive: {
-    borderColor: COLORS.primary,
     backgroundColor: COLORS.primaryLight,
   },
   chipText: { fontSize: 12, fontWeight: "600", color: COLORS.primary },
-  chipTextActive: { color: COLORS.primary, fontWeight: "700" },
-  chipAdjust: { paddingHorizontal: 14, paddingVertical: 7 },
-  chipAdjustText: { fontSize: 12, fontWeight: "700", color: COLORS.primary },
+  chipTextActive: { fontWeight: "700" },
+  chipAdjust: { padding: 6 },
   empty: { alignItems: "center", padding: 40 },
   emptyIcon: { fontSize: 48, marginBottom: 12, color: COLORS.textLight },
   emptyContainer: { flex: 1, justifyContent: "center" },
