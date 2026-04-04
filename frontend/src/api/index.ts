@@ -99,3 +99,10 @@ export const inviteCodeApi = {
       { code }
     ),
 };
+
+export const notificationApi = {
+  list: (page = 1) => client.get("/notifications", { params: { page } }),
+  unreadCount: () => client.get<{ unread_count: number }>("/notifications/unread_count"),
+  read: (id: number) => client.post(`/notifications/${id}/read`),
+  readAll: () => client.post("/notifications/read_all"),
+};

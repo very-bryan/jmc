@@ -24,6 +24,7 @@ class User < ApplicationRecord
   has_many :received_relationships, class_name: "Relationship", foreign_key: :partner_id, dependent: :destroy
 
   has_many :sanctions, dependent: :destroy
+  has_many :notifications, dependent: :destroy
   has_many :owned_invite_codes, class_name: "InviteCode", foreign_key: :owner_id, dependent: :destroy
 
   after_create :generate_invite_codes, if: :should_generate_codes?

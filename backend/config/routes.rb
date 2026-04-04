@@ -104,6 +104,17 @@ Rails.application.routes.draw do
         end
       end
 
+      # Notifications
+      resources :notifications, only: [:index] do
+        member do
+          post :read
+        end
+        collection do
+          get :unread_count
+          post :read_all
+        end
+      end
+
       # Image Upload
       post "uploads/image", to: "uploads#image"
 

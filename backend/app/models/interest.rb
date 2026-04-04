@@ -33,6 +33,12 @@ class Interest < ApplicationRecord
 
   def track_interest_sent
     AnalyticsService.track_interest_sent(sender, receiver)
+    Notification.create_for(
+      user: receiver, type: :interest_received,
+      title: "#{sender.nickname}님이 관심을 보냈어요",
+      body: "프로필을 확인해보세요",
+      actor: sender, target: self
+    ) rescue nil
   end
 
   def check_mutual_interest
@@ -41,6 +47,18 @@ class Interest < ApplicationRecord
       reverse.update!(status: :accepted)
       update!(status: :accepted)
       AnalyticsService.track_mutual_interest(sender, receiver)
+      Notification.create_for(
+        user: sender, type: :mutual_interest,
+        title: "#{receiver.nickname}님과 상호 관심이 성립되었어요!",
+        body: "지금 대화를 시작해보세요",
+        actor: receiver
+      ) rescue nil
+      Notification.create_for(
+        user: receiver, type: :mutual_interest,
+        title: "#{sender.nickname}님과 상호 관심이 성립되었어요!",
+        body: "지금 대화를 시작해보세요",
+        actor: sender
+      ) rescue nil
       create_match!
     end
   end

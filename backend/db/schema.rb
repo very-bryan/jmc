@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_113745) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_04_151737) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -120,6 +120,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_113745) do
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["metadata"], name: "index_messages_on_metadata", using: :gin
     t.index ["sender_id"], name: "index_messages_on_sender_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "notification_type", default: 0
+    t.string "title", null: false
+    t.string "body"
+    t.integer "actor_id"
+    t.string "target_type"
+    t.integer "target_id"
+    t.boolean "read", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "read"], name: "index_notifications_on_user_id_and_read"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "organization_domains", force: :cascade do |t|
@@ -309,6 +325,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_113745) do
   add_foreign_key "matches", "users", column: "user2_id"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users", column: "sender_id"
+  add_foreign_key "notifications", "users"
   add_foreign_key "post_images", "posts"
   add_foreign_key "posts", "users"
   add_foreign_key "preference_filters", "users"
