@@ -38,6 +38,10 @@ export default function TabsLayout() {
           borderTopColor: COLORS.border,
           height: 60,
           paddingTop: 6,
+          justifyContent: "center",
+        },
+        tabBarItemStyle: {
+          flex: 1,
         },
       }}
     >
@@ -129,11 +133,12 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* 알림 (탭바에 안 보임, 헤더 벨로 접근) */}
+      {/* 알림 (탭바에서 완전히 숨김, 헤더 벨로 접근) */}
       <Tabs.Screen
         name="notifications"
         options={{
           headerShown: false,
+          tabBarItemStyle: { display: "none", width: 0, height: 0 },
           tabBarButton: () => null,
         }}
       />
