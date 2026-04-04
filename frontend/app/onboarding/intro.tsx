@@ -196,7 +196,6 @@ const styles = StyleSheet.create({
   heroGlassInner: {
     paddingHorizontal: 24, paddingVertical: 18,
     backgroundColor: "rgba(255,255,255,0.15)",
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.25)",
     borderRadius: 20,
   },
   heroTitle: {
