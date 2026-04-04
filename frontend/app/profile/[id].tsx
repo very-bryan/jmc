@@ -15,7 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { userApi, interestApi, blockApi, reportApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors, useIsDark } from "../../src/hooks/useThemeColors";
 
 const { width } = Dimensions.get("window");
 
@@ -43,6 +43,8 @@ const DUMMY_DEEP_DIVE = [
 export default function ProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const C = useThemeColors();
+  const isDark = useIsDark();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [reportModal, setReportModal] = useState(false);
@@ -105,7 +107,7 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={C.primary} />
       </View>
     );
   }
@@ -113,7 +115,7 @@ export default function ProfileScreen() {
   if (!profile) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorText}>프로필을 찾을 수 없습니다</Text>
+        <Text style={[styles.errorText, { color: C.textSecondary }]}>프로필을 찾을 수 없습니다</Text>
       </View>
     );
   }
@@ -132,7 +134,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { backgroundColor: C.surface }]}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Hero Photo */}
         <View style={styles.heroWrap}>
@@ -140,7 +142,7 @@ export default function ProfileScreen() {
           {/* Top buttons overlay */}
           <View style={styles.heroOverlay}>
             <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-              <MaterialIcons name="arrow-back" size={22} color={COLORS.text} />
+              <MaterialIcons name="arrow-back" size={22} color={C.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.graduateBtn} onPress={() => Alert.alert("준비 중", "졸업 기능은 준비 중입니다")}>
               <Text style={styles.graduateBtnText}>{profile.nickname}님과 졸업</Text>
@@ -149,65 +151,65 @@ export default function ProfileScreen() {
         </View>
 
         {/* Name & Info */}
-        <View style={styles.infoSection}>
+        <View style={[styles.infoSection, { backgroundColor: C.background }]}>
           <View style={styles.nameRow}>
-            <Text style={styles.nameText}>{profile.nickname}, {profile.age}</Text>
+            <Text style={[styles.nameText, { color: C.text }]}>{profile.nickname}, {profile.age}</Text>
             {profile.verification_level !== "basic" && (
-              <MaterialIcons name="verified" size={28} color={COLORS.primary} />
+              <MaterialIcons name="verified" size={28} color={C.primary} />
             )}
           </View>
           <View style={styles.metaRow}>
-            <MaterialIcons name="work-outline" size={16} color={COLORS.textSecondary} />
-            <Text style={styles.metaText}>{profile.occupation || "직업 미등록"}</Text>
-            <Text style={styles.metaDot}>·</Text>
-            <MaterialIcons name="location-on" size={16} color={COLORS.textSecondary} />
-            <Text style={styles.metaText}>{profile.region}</Text>
+            <MaterialIcons name="work-outline" size={16} color={C.textSecondary} />
+            <Text style={[styles.metaText, { color: C.textSecondary }]}>{profile.occupation || "직업 미등록"}</Text>
+            <Text style={[styles.metaDot, { color: C.textLight }]}>·</Text>
+            <MaterialIcons name="location-on" size={16} color={C.textSecondary} />
+            <Text style={[styles.metaText, { color: C.textSecondary }]}>{profile.region}</Text>
           </View>
-          {profile.bio && <Text style={styles.bioText}>{profile.bio}</Text>}
+          {profile.bio && <Text style={[styles.bioText, { color: C.text }]}>{profile.bio}</Text>}
         </View>
 
         {/* My Taste */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>취향</Text>
+        <View style={[styles.section, { backgroundColor: C.background }]}>
+          <Text style={[styles.sectionTitle, { color: C.text }]}>취향</Text>
           <View style={styles.tagsWrap}>
             {DUMMY_TASTES.map((tag) => (
-              <View key={tag} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
+              <View key={tag} style={[styles.tag, { backgroundColor: C.primaryLight }]}>
+                <Text style={[styles.tagText, { color: C.primary }]}>{tag}</Text>
               </View>
             ))}
           </View>
         </View>
 
         {/* Deep Dive */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>더 알아보기</Text>
+        <View style={[styles.section, { backgroundColor: C.background }]}>
+          <Text style={[styles.sectionTitle, { color: C.text }]}>더 알아보기</Text>
           {DUMMY_DEEP_DIVE.map((item, i) => (
-            <View key={i} style={styles.deepDiveCard}>
-              <Text style={styles.deepDiveQ}>{item.q}</Text>
-              <Text style={styles.deepDiveA}>"{item.a}"</Text>
+            <View key={i} style={[styles.deepDiveCard, { backgroundColor: C.surface }]}>
+              <Text style={[styles.deepDiveQ, { color: C.text }]}>{item.q}</Text>
+              <Text style={[styles.deepDiveA, { color: C.textSecondary }]}>"{item.a}"</Text>
             </View>
           ))}
         </View>
 
         {/* Value Survey */}
         {survey && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>가치관</Text>
+          <View style={[styles.section, { backgroundColor: C.background }]}>
+            <Text style={[styles.sectionTitle, { color: C.text }]}>가치관</Text>
             <View style={styles.valuesGrid}>
               {survey.marriage_intention && (
-                <ValueChip label="결혼" value={LABELS[survey.marriage_intention] || survey.marriage_intention} />
+                <ValueChip C={C} label="결혼" value={LABELS[survey.marriage_intention] || survey.marriage_intention} />
               )}
               {survey.children_plan && (
-                <ValueChip label="자녀" value={LABELS[survey.children_plan] || survey.children_plan} />
+                <ValueChip C={C} label="자녀" value={LABELS[survey.children_plan] || survey.children_plan} />
               )}
               {survey.lifestyle_pattern && (
-                <ValueChip label="생활" value={LABELS[survey.lifestyle_pattern] || survey.lifestyle_pattern} />
+                <ValueChip C={C} label="생활" value={LABELS[survey.lifestyle_pattern] || survey.lifestyle_pattern} />
               )}
               {survey.relationship_style && (
-                <ValueChip label="관계" value={LABELS[survey.relationship_style] || survey.relationship_style} />
+                <ValueChip C={C} label="관계" value={LABELS[survey.relationship_style] || survey.relationship_style} />
               )}
               {survey.religion && (
-                <ValueChip label="종교" value={survey.religion} />
+                <ValueChip C={C} label="종교" value={survey.religion} />
               )}
             </View>
           </View>
@@ -215,17 +217,17 @@ export default function ProfileScreen() {
 
         {/* Recent Posts */}
         {profile.recent_posts?.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>최근 게시글</Text>
+          <View style={[styles.section, { backgroundColor: C.background }]}>
+            <Text style={[styles.sectionTitle, { color: C.text }]}>최근 게시글</Text>
             {profile.recent_posts.map((p: any, i: number) => (
-              <View key={p.id} style={styles.postCard}>
+              <View key={p.id} style={[styles.postCard, { borderBottomColor: C.border }]}>
                 <Image
                   source={{ uri: `https://picsum.photos/400/400?random=${p.id || i}` }}
-                  style={styles.postThumb}
+                  style={[styles.postThumb, { backgroundColor: C.surface }]}
                 />
                 <View style={styles.postContent}>
-                  <Text style={styles.postText} numberOfLines={2}>{p.content}</Text>
-                  {p.mood_tag && <Text style={styles.postTag}>#{p.mood_tag}</Text>}
+                  <Text style={[styles.postText, { color: C.text }]} numberOfLines={2}>{p.content}</Text>
+                  {p.mood_tag && <Text style={[styles.postTag, { color: C.primary }]}>#{p.mood_tag}</Text>}
                 </View>
               </View>
             ))}
@@ -233,12 +235,12 @@ export default function ProfileScreen() {
         )}
 
         {/* Sub Actions */}
-        <View style={styles.subActions}>
+        <View style={[styles.subActions, { backgroundColor: C.background }]}>
           <TouchableOpacity onPress={handleBlock}>
-            <Text style={styles.subActionText}>차단</Text>
+            <Text style={[styles.subActionText, { color: C.textSecondary }]}>차단</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleReport}>
-            <Text style={[styles.subActionText, { color: COLORS.primary }]}>신고</Text>
+            <Text style={[styles.subActionText, { color: C.primary }]}>신고</Text>
           </TouchableOpacity>
         </View>
 
@@ -246,8 +248,8 @@ export default function ProfileScreen() {
       </ScrollView>
 
       {/* Sticky Bottom Connect */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.connectBtn} onPress={handleInterest}>
+      <View style={[styles.bottomBar, { backgroundColor: isDark ? "rgba(18,18,24,0.95)" : "rgba(255,255,255,0.95)", borderTopColor: C.border }]}>
+        <TouchableOpacity style={[styles.connectBtn, { backgroundColor: C.primary }]} onPress={handleInterest}>
           <MaterialIcons name="favorite-border" size={20} color="#fff" />
           <Text style={styles.connectText}>관심 보내기</Text>
         </TouchableOpacity>
@@ -256,22 +258,22 @@ export default function ProfileScreen() {
       <ConfirmModal
         visible={reportModal}
         icon="flag"
-        iconColor={COLORS.error}
+        iconColor={C.error}
         title="이 사용자를 신고하시겠습니까?"
         message="허위 신고 시 제재를 받을 수 있습니다"
         confirmText="신고"
-        confirmColor={COLORS.error}
+        confirmColor={C.error}
         onConfirm={confirmReport}
         onCancel={() => setReportModal(false)}
       />
       <ConfirmModal
         visible={blockModal}
         icon="block"
-        iconColor={COLORS.textSecondary}
+        iconColor={C.textSecondary}
         title="이 사용자를 차단하시겠습니까?"
         message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
         confirmText="차단"
-        confirmColor={COLORS.error}
+        confirmColor={C.error}
         onConfirm={confirmBlock}
         onCancel={() => setBlockModal(false)}
       />
@@ -284,24 +286,22 @@ export default function ProfileScreen() {
   );
 }
 
-function ValueChip({ label, value }: { label: string; value: string }) {
+function ValueChip({ label, value, C }: { label: string; value: string; C: any }) {
   return (
-    <View style={styles.valueChip}>
-      <Text style={styles.valueChipLabel}>{label}</Text>
-      <Text style={styles.valueChipValue}>{value}</Text>
+    <View style={[styles.valueChip, { backgroundColor: C.surface }]}>
+      <Text style={[styles.valueChipLabel, { color: C.textLight }]}>{label}</Text>
+      <Text style={[styles.valueChipValue, { color: C.text }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: COLORS.surface },
+  wrapper: { flex: 1 },
   container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorText: { fontSize: 16, color: COLORS.textSecondary },
-
-  // Hero
+  errorText: { fontSize: 16 },
   heroWrap: { position: "relative" },
-  heroImage: { width: width, height: width * 0.85, backgroundColor: COLORS.surface },
+  heroImage: { width: width, height: width * 0.85 },
   heroOverlay: {
     position: "absolute", top: 0, left: 0, right: 0,
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -317,69 +317,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
   },
   graduateBtnText: { color: "#fff", fontSize: 12, fontWeight: "600" },
-
-  // Name & Info
-  infoSection: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, backgroundColor: COLORS.background },
+  infoSection: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 },
   nameRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  nameText: { fontSize: 28, fontWeight: "800", color: COLORS.text, letterSpacing: -0.5 },
+  nameText: { fontSize: 28, fontWeight: "800", letterSpacing: -0.5 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 6 },
-  metaText: { fontSize: 14, color: COLORS.textSecondary },
-  metaDot: { fontSize: 14, color: COLORS.textLight, marginHorizontal: 4 },
-  bioText: { fontSize: 14, color: COLORS.text, lineHeight: 21, marginTop: 12 },
-
-  // Section
-  section: { paddingHorizontal: 20, paddingVertical: 20, backgroundColor: COLORS.background, marginTop: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: "800", color: COLORS.text, marginBottom: 14 },
-
-  // Tags
+  metaText: { fontSize: 14 },
+  metaDot: { fontSize: 14, marginHorizontal: 4 },
+  bioText: { fontSize: 14, lineHeight: 21, marginTop: 12 },
+  section: { paddingHorizontal: 20, paddingVertical: 20, marginTop: 8 },
+  sectionTitle: { fontSize: 18, fontWeight: "800", marginBottom: 14 },
   tagsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  tag: {
-    backgroundColor: COLORS.primaryLight,
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
-  },
-  tagText: { fontSize: 13, fontWeight: "600", color: COLORS.primary },
-
-  // Deep Dive
-  deepDiveCard: {
-    backgroundColor: COLORS.surface, borderRadius: 16, padding: 18, marginBottom: 10,
-  },
-  deepDiveQ: { fontSize: 15, fontWeight: "700", color: COLORS.text, marginBottom: 8 },
-  deepDiveA: { fontSize: 14, color: COLORS.textSecondary, lineHeight: 21, fontStyle: "italic" },
-
-  // Values
+  tag: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
+  tagText: { fontSize: 13, fontWeight: "600" },
+  deepDiveCard: { borderRadius: 16, padding: 18, marginBottom: 10 },
+  deepDiveQ: { fontSize: 15, fontWeight: "700", marginBottom: 8 },
+  deepDiveA: { fontSize: 14, lineHeight: 21, fontStyle: "italic" },
   valuesGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  valueChip: {
-    backgroundColor: COLORS.surface, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
-  },
-  valueChipLabel: { fontSize: 10, fontWeight: "700", color: COLORS.textLight, textTransform: "uppercase", marginBottom: 2 },
-  valueChipValue: { fontSize: 14, fontWeight: "600", color: COLORS.text },
-
-  // Posts
-  postCard: {
-    flexDirection: "row", gap: 12, paddingVertical: 10,
-    borderBottomWidth: 0.5, borderBottomColor: COLORS.border,
-  },
-  postThumb: { width: 60, height: 60, borderRadius: 10, backgroundColor: COLORS.surface },
+  valueChip: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  valueChipLabel: { fontSize: 10, fontWeight: "700", textTransform: "uppercase", marginBottom: 2 },
+  valueChipValue: { fontSize: 14, fontWeight: "600" },
+  postCard: { flexDirection: "row", gap: 12, paddingVertical: 10, borderBottomWidth: 0.5 },
+  postThumb: { width: 60, height: 60, borderRadius: 10 },
   postContent: { flex: 1, justifyContent: "center" },
-  postText: { fontSize: 13, color: COLORS.text, lineHeight: 19 },
-  postTag: { fontSize: 12, color: COLORS.primary, marginTop: 3 },
-
-  // Sub Actions
+  postText: { fontSize: 13, lineHeight: 19 },
+  postTag: { fontSize: 12, marginTop: 3 },
   subActions: {
     flexDirection: "row", justifyContent: "center", gap: 32,
-    paddingVertical: 20, backgroundColor: COLORS.background, marginTop: 8,
+    paddingVertical: 20, marginTop: 8,
   },
-  subActionText: { fontSize: 14, color: COLORS.textSecondary },
-
-  // Bottom Bar
+  subActionText: { fontSize: 14 },
   bottomBar: {
     position: "absolute", bottom: 0, left: 0, right: 0,
-    backgroundColor: "rgba(255,255,255,0.95)",
     paddingHorizontal: 20, paddingVertical: 12, paddingBottom: 30,
-    borderTopWidth: 0.5, borderTopColor: COLORS.border,
+    borderTopWidth: 0.5,
   },
   connectBtn: {
-    backgroundColor: COLORS.primary,
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
     paddingVertical: 16, borderRadius: 14,
   },

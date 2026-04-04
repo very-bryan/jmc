@@ -17,10 +17,11 @@ import { inviteCodeApi } from "../../src/api";
 import client from "../../src/api/client";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function MypageScreen() {
   const router = useRouter();
+  const C = useThemeColors();
   const { user, logout, fetchMe } = useAuthStore();
   const [inviteCodes, setInviteCodes] = useState<
     { id: number; code: string; status: string; used_by: any }[]
@@ -36,9 +37,7 @@ export default function MypageScreen() {
       await Share.share({
         message: `진만추(진지한 만남 추구)에 초대합니다!\n\n초대코드: ${code}\n\n검증된 사람과 진지한 만남을 시작하세요.\nhttps://jmc-landing.verycloud.io`,
       });
-    } catch {
-      // 무시
-    }
+    } catch {}
   };
 
   const handleLogout = () => {
@@ -62,80 +61,72 @@ export default function MypageScreen() {
     `https://i.pravatar.cc/150?img=${(user.id ?? 1) % 10 + 1}`;
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
+    <ScrollView style={[styles.container, { backgroundColor: C.surface }]}>
+      <View style={[styles.profileSection, { backgroundColor: C.background }]}>
         <View style={styles.avatarWrap}>
-          <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
-          <View style={styles.profileBadge}>
+          <Image source={{ uri: avatarUri }} style={[styles.avatarImage, { backgroundColor: C.surface }]} />
+          <View style={[styles.profileBadge, { backgroundColor: C.badgeBlue, borderColor: C.background }]}>
             <MaterialIcons name="verified" size={14} color="#fff" />
           </View>
         </View>
         <View style={styles.nameRow}>
-          <Text style={styles.nickname}>{user.nickname}</Text>
+          <Text style={[styles.nickname, { color: C.text }]}>{user.nickname}</Text>
           <VerificationBadge level={user.verification_level} size="medium" />
         </View>
-        <Text style={styles.premiumText}>가입일 2023년</Text>
+        <Text style={[styles.premiumText, { color: C.textSecondary }]}>가입일 2023년</Text>
       </View>
 
-      {/* Graduation Card */}
-      <View style={styles.gradCard}>
+      <View style={[styles.gradCard, { backgroundColor: C.primary }]}>
         <Text style={styles.gradTitle}>좋은 사람을 만나셨나요?</Text>
         <Text style={styles.gradSubtitle}>졸업은 진만추의 축하입니다</Text>
         <TouchableOpacity style={styles.gradBtn} onPress={() => Alert.alert("준비 중입니다")}>
-          <Text style={styles.gradBtnText}>졸업 신청</Text>
+          <Text style={[styles.gradBtnText, { color: C.primary }]}>졸업 신청</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 계정 */}
-      <Text style={styles.sectionLabel}>계정</Text>
-      <View style={styles.card}>
-        <SettingsRow icon="person" label="개인정보" onPress={() => router.push("/onboarding/profile")} />
-        <SettingsRow icon="mail" label="이메일 · 전화번호" onPress={() => router.push("/onboarding/email-verify")} />
-        <SettingsRow icon="credit-card" label="구독 · 결제" badge="[미구현]" isLast />
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>계정</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <SettingsRow icon="person" label="개인정보" onPress={() => router.push("/onboarding/profile")} C={C} />
+        <SettingsRow icon="mail" label="이메일 · 전화번호" onPress={() => router.push("/onboarding/email-verify")} C={C} />
+        <SettingsRow icon="credit-card" label="구독 · 결제" badge="[미구현]" isLast C={C} />
       </View>
 
-      {/* 매칭 설정 */}
-      <Text style={styles.sectionLabel}>매칭 설정</Text>
-      <View style={styles.card}>
-        <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} />
-        <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} isLast />
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>매칭 설정</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} C={C} />
+        <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} isLast C={C} />
       </View>
 
-      {/* 알림 */}
-      <Text style={styles.sectionLabel}>알림</Text>
-      <View style={styles.card}>
-        <View style={styles.settingsRow}>
-          <MaterialIcons name="notifications" size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
-          <Text style={styles.rowLabel}>푸시 알림</Text>
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>알림</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <View style={[styles.settingsRow, { borderBottomColor: C.borderLight }]}>
+          <MaterialIcons name="notifications" size={20} color={C.textSecondary} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: C.text }]}>푸시 알림</Text>
           <Switch
             value={true}
-            trackColor={{ true: COLORS.primary, false: COLORS.border }}
+            trackColor={{ true: C.primary, false: C.border }}
           />
         </View>
-        <SettingsRow icon="schedule" label="방해금지 모드" badge="[미구현]" isLast />
+        <SettingsRow icon="schedule" label="방해금지 모드" badge="[미구현]" isLast C={C} />
       </View>
 
-      {/* 개인정보 · 위험 구역 */}
-      <Text style={styles.sectionLabel}>개인정보 · 계정 관리</Text>
-      <View style={styles.card}>
-        <SettingsRow icon="visibility" label="프로필 공개 설정" badge="[미구현]" />
-        <SettingsRow icon="warning" label="프로필 비활성화" badge="[미구현]" isLast />
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>개인정보 · 계정 관리</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <SettingsRow icon="visibility" label="프로필 공개 설정" badge="[미구현]" C={C} />
+        <SettingsRow icon="warning" label="프로필 비활성화" badge="[미구현]" isLast C={C} />
       </View>
 
-      {/* 고객지원 */}
-      <Text style={styles.sectionLabel}>고객지원</Text>
-      <View style={styles.card}>
-        <SettingsRow icon="help" label="도움말 센터" badge="[미구현]" />
-        <SettingsRow icon="verified-user" label="안전 가이드라인" badge="[미구현]" isLast />
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>고객지원</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <SettingsRow icon="help" label="도움말 센터" badge="[미구현]" C={C} />
+        <SettingsRow icon="verified-user" label="안전 가이드라인" badge="[미구현]" isLast C={C} />
       </View>
 
-      {/* 로그아웃 */}
       <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
-        <Text style={styles.signOutText}>로그아웃</Text>
+        <Text style={[styles.signOutText, { color: C.error }]}>로그아웃</Text>
       </TouchableOpacity>
 
-      <Text style={styles.versionText}>버전 1.0.0</Text>
+      <Text style={[styles.versionText, { color: C.textLight }]}>버전 1.0.0</Text>
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -147,61 +138,42 @@ function SettingsRow({
   isLast,
   onPress,
   badge,
+  C,
 }: {
   icon: string;
   label: string;
   isLast?: boolean;
   onPress?: () => void;
   badge?: string;
+  C: any;
 }) {
   return (
-    <TouchableOpacity style={[styles.settingsRow, isLast && styles.settingsRowLast]} onPress={onPress}>
-      <MaterialIcons name={icon as any} size={20} color={COLORS.textSecondary} style={{ width: 28 }} />
-      <Text style={styles.rowLabel}>{label}</Text>
-      {badge && <Text style={styles.notImplBadge}>{badge}</Text>}
-      <MaterialIcons name="chevron-right" size={22} color={COLORS.textLight} />
+    <TouchableOpacity style={[styles.settingsRow, { borderBottomColor: C.borderLight }, isLast && styles.settingsRowLast]} onPress={onPress}>
+      <MaterialIcons name={icon as any} size={20} color={C.textSecondary} style={{ width: 28 }} />
+      <Text style={[styles.rowLabel, { color: C.text }]}>{label}</Text>
+      {badge && <Text style={[styles.notImplBadge, { color: C.textLight }]}>{badge}</Text>}
+      <MaterialIcons name="chevron-right" size={22} color={C.textLight} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.surface },
+  container: { flex: 1 },
   profileSection: {
-    backgroundColor: COLORS.background,
     alignItems: "center",
     paddingVertical: 28,
     paddingHorizontal: 20,
   },
   avatarWrap: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    marginBottom: 14,
-    position: "relative",
+    width: 88, height: 88, borderRadius: 44,
+    marginBottom: 14, position: "relative",
   },
-  avatarImage: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: COLORS.surface,
-  },
+  avatarImage: { width: 88, height: 88, borderRadius: 44 },
   profileBadge: {
-    position: "absolute",
-    bottom: 2,
-    right: 2,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.badgeBlue,
-    justifyContent: "center",
-    alignItems: "center",
+    position: "absolute", bottom: 2, right: 2,
+    width: 24, height: 24, borderRadius: 12,
+    justifyContent: "center", alignItems: "center",
     borderWidth: 2,
-    borderColor: COLORS.background,
-  },
-  profileBadgeText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "700",
   },
   nameRow: {
     flexDirection: "row",
@@ -209,135 +181,43 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 4,
   },
-  nickname: { fontSize: 22, fontWeight: "700", color: COLORS.text },
-  premiumText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-
-  // Graduation card
+  nickname: { fontSize: 22, fontWeight: "700" },
+  premiumText: { fontSize: 13, marginTop: 2 },
   gradCard: {
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: COLORS.primary,
     borderRadius: 16,
     padding: 20,
     alignItems: "center",
   },
-  gradTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  gradSubtitle: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.85)",
-    marginBottom: 14,
-    textAlign: "center",
-  },
+  gradTitle: { fontSize: 18, fontWeight: "700", color: "#fff", marginBottom: 4 },
+  gradSubtitle: { fontSize: 13, color: "rgba(255,255,255,0.85)", marginBottom: 14, textAlign: "center" },
   gradBtn: {
     backgroundColor: "#fff",
-    paddingHorizontal: 28,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 28, paddingVertical: 10, borderRadius: 12,
   },
-  gradBtnText: {
-    color: COLORS.primary,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  // Section label
+  gradBtnText: { fontSize: 14, fontWeight: "700" },
   sectionLabel: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.textLight,
+    fontSize: 12, fontWeight: "700",
     letterSpacing: 0.5,
-    marginTop: 24,
-    marginBottom: 8,
-    marginLeft: 20,
+    marginTop: 24, marginBottom: 8, marginLeft: 20,
   },
-
-  // White card
   card: {
-    backgroundColor: COLORS.background,
     marginHorizontal: 16,
     borderRadius: 16,
     overflow: "hidden",
   },
-
-  // Settings row
   settingsRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
   },
-  settingsRowLast: {
-    borderBottomWidth: 0,
-  },
-  rowIcon: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    width: 28,
-    textAlign: "center",
-  },
-  rowLabel: {
-    flex: 1,
-    fontSize: 15,
-    color: COLORS.text,
-    marginLeft: 8,
-  },
-  chevron: {
-    fontSize: 22,
-    color: COLORS.textLight,
-    fontWeight: "300",
-  },
-
-  // Not implemented badge
-  notImplBadge: {
-    fontSize: 11,
-    color: COLORS.textLight,
-    marginRight: 4,
-  },
-
-  // Temp badge
-  tempBadge: {
-    backgroundColor: COLORS.warning,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  tempBadgeText: {
-    color: "#fff",
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-
-  // Sign out
-  signOutBtn: {
-    marginTop: 30,
-    alignItems: "center",
-    paddingVertical: 14,
-  },
-  signOutText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: COLORS.error,
-    letterSpacing: 1,
-  },
-
-  // Version
-  versionText: {
-    textAlign: "center",
-    fontSize: 12,
-    color: COLORS.textLight,
-    marginTop: 8,
-  },
+  settingsRowLast: { borderBottomWidth: 0 },
+  rowLabel: { flex: 1, fontSize: 15, marginLeft: 8 },
+  notImplBadge: { fontSize: 11, marginRight: 4 },
+  signOutBtn: { marginTop: 30, alignItems: "center", paddingVertical: 14 },
+  signOutText: { fontSize: 14, fontWeight: "700", letterSpacing: 1 },
+  versionText: { textAlign: "center", fontSize: 12, marginTop: 8 },
 });

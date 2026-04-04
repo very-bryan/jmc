@@ -11,7 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { conversationApi } from "../../src/api";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import type { Conversation } from "../../src/types";
 
 const DUMMY_CONVERSATIONS: Conversation[] = [
@@ -52,6 +52,7 @@ function formatTime(dateStr: string) {
 
 export default function MessagesScreen() {
   const router = useRouter();
+  const C = useThemeColors();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,18 +74,17 @@ export default function MessagesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View style={[styles.center, { backgroundColor: C.background }]}>
+        <ActivityIndicator size="large" color={C.primary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* 안전 수칙 배너 */}
-      <View style={styles.notice}>
-        <MaterialIcons name="shield" size={14} color={COLORS.primary} />
-        <Text style={styles.noticeText}>
+    <View style={[styles.container, { backgroundColor: C.background }]}>
+      <View style={[styles.notice, { backgroundColor: C.primaryLight }]}>
+        <MaterialIcons name="shield" size={14} color={C.primary} />
+        <Text style={[styles.noticeText, { color: C.primary }]}>
           금전 요청에 응하지 말고, 첫 만남은 공공장소에서 하세요
         </Text>
       </View>
@@ -97,40 +97,40 @@ export default function MessagesScreen() {
           const isUnread = item.last_message && !item.last_message.read;
           return (
             <TouchableOpacity
-              style={styles.card}
+              style={[styles.card, { borderBottomColor: C.border }]}
               onPress={() => router.push(`/chat/${item.id}` as any)}
               activeOpacity={0.7}
             >
               <View style={styles.avatarWrap}>
                 <Image
                   source={{ uri: `https://i.pravatar.cc/150?img=${(item.user.id ?? item.id) % 10 + 1}` }}
-                  style={styles.avatar}
+                  style={[styles.avatar, { backgroundColor: C.surface }]}
                 />
                 {item.user.verification_level !== "basic" && (
-                  <View style={styles.verifiedDot} />
+                  <View style={[styles.verifiedDot, { backgroundColor: C.primary, borderColor: C.background }]} />
                 )}
               </View>
               <View style={styles.info}>
                 <View style={styles.topRow}>
-                  <Text style={[styles.nickname, isUnread && styles.nicknameUnread]}>
+                  <Text style={[styles.nickname, { color: C.text }, isUnread && styles.nicknameUnread]}>
                     {item.user.nickname}
                   </Text>
                   {item.last_message && (
-                    <Text style={styles.time}>
+                    <Text style={[styles.time, { color: C.textLight }]}>
                       {formatTime(item.last_message.created_at)}
                     </Text>
                   )}
                 </View>
                 <View style={styles.bottomRow}>
                   <Text
-                    style={[styles.preview, isUnread && styles.previewUnread]}
+                    style={[styles.preview, { color: C.textSecondary }, isUnread && { color: C.text, fontWeight: "600" }]}
                     numberOfLines={1}
                   >
                     {item.last_message?.content?.startsWith("[사진]")
                     ? "사진을 보냈습니다."
                     : item.last_message?.content || "대화를 시작해보세요"}
                   </Text>
-                  {isUnread && <View style={styles.unreadDot} />}
+                  {isUnread && <View style={[styles.unreadDot, { backgroundColor: C.primary }]} />}
                 </View>
               </View>
             </TouchableOpacity>
@@ -138,9 +138,9 @@ export default function MessagesScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <MaterialIcons name="chat-bubble-outline" size={48} color={COLORS.textLight} />
-            <Text style={styles.emptyTitle}>아직 대화가 없습니다</Text>
-            <Text style={styles.emptyDesc}>상호 관심이 성립되면 대화할 수 있어요</Text>
+            <MaterialIcons name="chat-bubble-outline" size={48} color={C.textLight} />
+            <Text style={[styles.emptyTitle, { color: C.text }]}>아직 대화가 없습니다</Text>
+            <Text style={[styles.emptyDesc, { color: C.textSecondary }]}>상호 관심이 성립되면 대화할 수 있어요</Text>
           </View>
         }
       />
@@ -149,36 +149,29 @@ export default function MessagesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  // 안전 배너
   notice: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    backgroundColor: COLORS.primaryLight,
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
-  noticeText: { fontSize: 12, color: COLORS.primary, fontWeight: "500" },
-
-  // 리스트
+  noticeText: { fontSize: 12, fontWeight: "500" },
   list: { paddingHorizontal: 16 },
   card: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
   },
   avatarWrap: { position: "relative" },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.surface,
   },
   verifiedDot: {
     position: "absolute",
@@ -187,9 +180,7 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: COLORS.primary,
     borderWidth: 2,
-    borderColor: COLORS.background,
   },
   info: { flex: 1, marginLeft: 14 },
   topRow: {
@@ -197,27 +188,23 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  nickname: { fontSize: 16, fontWeight: "600", color: COLORS.text },
+  nickname: { fontSize: 16, fontWeight: "600" },
   nicknameUnread: { fontWeight: "800" },
-  time: { fontSize: 12, color: COLORS.textLight },
+  time: { fontSize: 12 },
   bottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 4,
   },
-  preview: { fontSize: 14, color: COLORS.textSecondary, flex: 1 },
-  previewUnread: { color: COLORS.text, fontWeight: "600" },
+  preview: { fontSize: 14, flex: 1 },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
     marginLeft: 8,
   },
-
-  // 빈 상태
   empty: { alignItems: "center", paddingTop: 80, gap: 8 },
-  emptyTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
-  emptyDesc: { fontSize: 14, color: COLORS.textSecondary },
+  emptyTitle: { fontSize: 17, fontWeight: "700" },
+  emptyDesc: { fontSize: 14 },
 });

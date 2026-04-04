@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { interestApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import type { Interest } from "../../src/types";
 
 type Tab = "received" | "sent" | "mutual";
@@ -36,6 +36,7 @@ function formatTimeAgo(dateStr: string) {
 
 export default function ExploreScreen() {
   const router = useRouter();
+  const C = useThemeColors();
   const [tab, setTab] = useState<Tab>("received");
   const [interests, setInterests] = useState<Interest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,40 +65,35 @@ export default function ExploreScreen() {
       trackEvent(EVENTS.INTEREST_ACCEPT);
       trackEvent(EVENTS.MUTUAL_INTEREST);
       fetchInterests(tab);
-    } catch {
-      // ignore
-    }
+    } catch {}
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* 상단 바 */}
+    <SafeAreaView style={[styles.container, { backgroundColor: C.background }]} edges={["top"]}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={24} color={COLORS.text} />
+          <MaterialIcons name="arrow-back" size={24} color={C.text} />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>관심</Text>
+        <Text style={[styles.topTitle, { color: C.text }]}>관심</Text>
         <View style={{ width: 32 }} />
       </View>
 
-      {/* 탭 */}
       <View style={styles.tabs}>
         {(["received", "sent", "mutual"] as Tab[]).map((t) => (
           <TouchableOpacity
             key={t}
-            style={[styles.tab, tab === t && styles.tabActive]}
+            style={[styles.tab, { backgroundColor: C.surface }, tab === t && { backgroundColor: C.primary }]}
             onPress={() => fetchInterests(t)}
           >
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
+            <Text style={[styles.tabText, { color: C.textSecondary }, tab === t && styles.tabTextActive]}>
               {t === "received" ? "나를 본 사람" : t === "sent" ? "보낸 관심" : "상호 관심"}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* 리스트 */}
       {loading ? (
-        <ActivityIndicator style={styles.loader} size="large" color={COLORS.primary} />
+        <ActivityIndicator style={styles.loader} size="large" color={C.primary} />
       ) : (
         <FlatList
           data={interests}
@@ -105,42 +101,36 @@ export default function ExploreScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.card}
+              style={[styles.card, { borderBottomColor: C.border }]}
               onPress={() => router.push(`/profile/${item.user.id}` as any)}
               activeOpacity={0.7}
             >
               <View style={styles.avatarWrap}>
                 <Image
                   source={{ uri: `https://i.pravatar.cc/150?img=${(item.user.id % 10) + 1}` }}
-                  style={styles.avatar}
+                  style={[styles.avatar, { backgroundColor: C.surface }]}
                 />
                 {item.user.verification_level !== "basic" && (
-                  <View style={styles.verifiedDot} />
+                  <View style={[styles.verifiedDot, { backgroundColor: C.primary, borderColor: C.background }]} />
                 )}
               </View>
               <View style={styles.info}>
                 <View style={styles.nameRow}>
-                  <Text style={styles.nickname}>{item.user.nickname}</Text>
+                  <Text style={[styles.nickname, { color: C.text }]}>{item.user.nickname}</Text>
                   <VerificationBadge level={item.user.verification_level} />
                 </View>
-                <Text style={styles.meta}>
+                <Text style={[styles.meta, { color: C.textSecondary }]}>
                   {item.user.age}세 · {item.user.region} · {formatTimeAgo(item.created_at)}
                 </Text>
               </View>
               {tab === "received" && item.status === "pending" && (
-                <TouchableOpacity
-                  style={styles.acceptBtn}
-                  onPress={() => handleAccept(item.id)}
-                >
+                <TouchableOpacity style={[styles.acceptBtn, { backgroundColor: C.primary }]} onPress={() => handleAccept(item.id)}>
                   <MaterialIcons name="favorite" size={16} color="#fff" />
                   <Text style={styles.acceptText}>수락</Text>
                 </TouchableOpacity>
               )}
               {tab === "mutual" && (
-                <TouchableOpacity
-                  style={styles.chatBtn}
-                  onPress={() => router.push(`/chat/${item.id}` as any)}
-                >
+                <TouchableOpacity style={[styles.chatBtn, { backgroundColor: C.primary }]} onPress={() => router.push(`/chat/${item.id}` as any)}>
                   <MaterialIcons name="chat-bubble" size={16} color="#fff" />
                 </TouchableOpacity>
               )}
@@ -148,9 +138,9 @@ export default function ExploreScreen() {
           )}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <MaterialIcons name="favorite-border" size={48} color={COLORS.textLight} />
-              <Text style={styles.emptyTitle}>아직 없습니다</Text>
-              <Text style={styles.emptyDesc}>
+              <MaterialIcons name="favorite-border" size={48} color={C.textLight} />
+              <Text style={[styles.emptyTitle, { color: C.text }]}>아직 없습니다</Text>
+              <Text style={[styles.emptyDesc, { color: C.textSecondary }]}>
                 {tab === "received" ? "프로필을 더 꾸며보세요" : tab === "sent" ? "피드에서 관심을 보내보세요" : "상호 관심이 성립되면 여기에 표시됩니다"}
               </Text>
             </View>
@@ -162,9 +152,7 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-
-  // 상단 바
+  container: { flex: 1 },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -173,9 +161,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: { padding: 4 },
-  topTitle: { fontSize: 18, fontWeight: "700", color: COLORS.text },
-
-  // 탭
+  topTitle: { fontSize: 18, fontWeight: "700" },
   tabs: {
     flexDirection: "row",
     paddingHorizontal: 16,
@@ -187,22 +173,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     borderRadius: 12,
-    backgroundColor: COLORS.surface,
   },
-  tabActive: {
-    backgroundColor: COLORS.primary,
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.textSecondary,
-  },
-  tabTextActive: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-
-  // 리스트
+  tabText: { fontSize: 14, fontWeight: "600" },
+  tabTextActive: { color: "#fff", fontWeight: "700" },
   loader: { marginTop: 40 },
   list: { paddingHorizontal: 16 },
   card: {
@@ -210,51 +183,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
   },
   avatarWrap: { position: "relative" },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.surface,
-  },
+  avatar: { width: 56, height: 56, borderRadius: 28 },
   verifiedDot: {
     position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: COLORS.primary,
+    bottom: 0, right: 0,
+    width: 14, height: 14, borderRadius: 7,
     borderWidth: 2,
-    borderColor: COLORS.background,
   },
   info: { flex: 1, marginLeft: 14 },
   nameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  nickname: { fontSize: 16, fontWeight: "700", color: COLORS.text },
-  meta: { fontSize: 13, color: COLORS.textSecondary, marginTop: 3 },
+  nickname: { fontSize: 16, fontWeight: "700" },
+  meta: { fontSize: 13, marginTop: 3 },
   acceptBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 14,
   },
   acceptText: { color: "#fff", fontSize: 14, fontWeight: "700" },
   chatBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    width: 40, height: 40, borderRadius: 20,
+    justifyContent: "center", alignItems: "center",
   },
-
-  // 빈 상태
   empty: { alignItems: "center", paddingTop: 80, gap: 8 },
-  emptyTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
-  emptyDesc: { fontSize: 14, color: COLORS.textSecondary, textAlign: "center", paddingHorizontal: 40 },
+  emptyTitle: { fontSize: 17, fontWeight: "700" },
+  emptyDesc: { fontSize: 14, textAlign: "center", paddingHorizontal: 40 },
 });

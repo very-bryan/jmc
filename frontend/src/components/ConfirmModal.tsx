@@ -8,8 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { COLORS } from "../constants/config";
+import { useThemeColors } from "../hooks/useThemeColors";
 
 interface Props {
   visible: boolean;
@@ -32,26 +31,29 @@ export function ConfirmModal({
   message,
   confirmText = "확인",
   cancelText = "취소",
-  confirmColor = COLORS.primary,
+  confirmColor,
   onConfirm,
   onCancel,
 }: Props) {
+  const C = useThemeColors();
+  const btnColor = confirmColor || C.primary;
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable style={styles.container}>
+        <Pressable style={[styles.container, { backgroundColor: C.background }]}>
           {icon && (
-            <View style={[styles.iconWrap, { backgroundColor: (iconColor || COLORS.primary) + "15" }]}>
-              <MaterialIcons name={icon as any} size={28} color={iconColor || COLORS.primary} />
+            <View style={[styles.iconWrap, { backgroundColor: (iconColor || C.primary) + "15" }]}>
+              <MaterialIcons name={icon as any} size={28} color={iconColor || C.primary} />
             </View>
           )}
-          <Text style={styles.title}>{title}</Text>
-          {message && <Text style={styles.message}>{message}</Text>}
+          <Text style={[styles.title, { color: C.text }]}>{title}</Text>
+          {message && <Text style={[styles.message, { color: C.textSecondary }]}>{message}</Text>}
           <View style={styles.buttons}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>{cancelText}</Text>
+            <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: C.surface }]} onPress={onCancel}>
+              <Text style={[styles.cancelText, { color: C.textSecondary }]}>{cancelText}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: confirmColor }]} onPress={onConfirm}>
+            <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: btnColor }]} onPress={onConfirm}>
               <Text style={styles.confirmText}>{confirmText}</Text>
             </TouchableOpacity>
           </View>
@@ -61,7 +63,6 @@ export function ConfirmModal({
   );
 }
 
-// 결과 토스트 (성공/완료 표시용)
 export function ResultToast({
   visible,
   message,
@@ -71,6 +72,8 @@ export function ResultToast({
   message: string;
   onDone: () => void;
 }) {
+  const C = useThemeColors();
+
   React.useEffect(() => {
     if (visible) {
       const timer = setTimeout(onDone, 1500);
@@ -83,9 +86,9 @@ export function ResultToast({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.toastOverlay}>
-        <View style={styles.toast}>
-          <MaterialIcons name="check-circle" size={32} color={COLORS.primary} />
-          <Text style={styles.toastText}>{message}</Text>
+        <View style={[styles.toast, { backgroundColor: C.background }]}>
+          <MaterialIcons name="check-circle" size={32} color={C.primary} />
+          <Text style={[styles.toastText, { color: C.text }]}>{message}</Text>
         </View>
       </View>
     </Modal>
@@ -101,7 +104,6 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   container: {
-    backgroundColor: COLORS.background,
     borderRadius: 24,
     padding: 28,
     width: "100%",
@@ -118,13 +120,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "800",
-    color: COLORS.text,
     textAlign: "center",
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: COLORS.textSecondary,
     textAlign: "center",
     lineHeight: 21,
     marginBottom: 24,
@@ -138,13 +138,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: COLORS.surface,
     alignItems: "center",
   },
   cancelText: {
     fontSize: 15,
     fontWeight: "600",
-    color: COLORS.textSecondary,
   },
   confirmBtn: {
     flex: 1,
@@ -157,15 +155,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#fff",
   },
-
-  // 토스트
   toastOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   toast: {
-    backgroundColor: COLORS.background,
     borderRadius: 20,
     paddingHorizontal: 32,
     paddingVertical: 24,
@@ -180,6 +175,5 @@ const styles = StyleSheet.create({
   toastText: {
     fontSize: 15,
     fontWeight: "600",
-    color: COLORS.text,
   },
 });

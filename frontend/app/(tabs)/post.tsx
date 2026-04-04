@@ -15,7 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { postApi } from "../../src/api";
 import { uploadImage } from "../../src/api/upload";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 const MOOD_TAGS = [
   "일상", "취미", "맛집", "여행", "운동", "독서", "음악", "반려동물", "요리",
@@ -23,6 +23,7 @@ const MOOD_TAGS = [
 
 export default function PostScreen() {
   const router = useRouter();
+  const C = useThemeColors();
   const [content, setContent] = useState("");
   const [moodTag, setMoodTag] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -63,7 +64,6 @@ export default function PostScreen() {
 
     setLoading(true);
     try {
-      // 이미지 업로드
       const uploadedImages: { image_url: string; position: number }[] = [];
       if (images.length > 0) {
         setUploading(true);
@@ -96,11 +96,11 @@ export default function PostScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView style={[styles.container, { backgroundColor: C.background }]} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
-        <Text style={styles.title}>새 게시글</Text>
+        <Text style={[styles.title, { color: C.text }]}>새 게시글</Text>
         <TouchableOpacity
-          style={[styles.postBtn, (!content.trim() && images.length === 0) && styles.postBtnDisabled]}
+          style={[styles.postBtn, { backgroundColor: C.primary }, (!content.trim() && images.length === 0) && { backgroundColor: C.textLight }]}
           onPress={handlePost}
           disabled={loading || (!content.trim() && images.length === 0)}
         >
@@ -112,7 +112,6 @@ export default function PostScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 사진 영역 */}
       <View style={styles.imageSection}>
         {images.map((uri, i) => (
           <View key={i} style={styles.imageThumb}>
@@ -123,41 +122,41 @@ export default function PostScreen() {
           </View>
         ))}
         {images.length < 4 && (
-          <TouchableOpacity style={styles.addImageBtn} onPress={pickImage}>
-            <MaterialIcons name="add-photo-alternate" size={28} color={COLORS.textLight} />
-            <Text style={styles.addImageText}>{images.length}/4</Text>
+          <TouchableOpacity style={[styles.addImageBtn, { borderColor: C.border }]} onPress={pickImage}>
+            <MaterialIcons name="add-photo-alternate" size={28} color={C.textLight} />
+            <Text style={[styles.addImageText, { color: C.textLight }]}>{images.length}/4</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {uploading && (
         <View style={styles.uploadingBar}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
-          <Text style={styles.uploadingText}>사진 업로드 중...</Text>
+          <ActivityIndicator size="small" color={C.primary} />
+          <Text style={[styles.uploadingText, { color: C.primary }]}>사진 업로드 중...</Text>
         </View>
       )}
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: C.text }]}
         placeholder="일상을 공유해주세요..."
-        placeholderTextColor={COLORS.textLight}
+        placeholderTextColor={C.textLight}
         multiline
         maxLength={1000}
         value={content}
         onChangeText={setContent}
       />
 
-      <Text style={styles.charCount}>{content.length}/1000</Text>
+      <Text style={[styles.charCount, { color: C.textLight }]}>{content.length}/1000</Text>
 
-      <Text style={styles.label}>기분/상황 태그</Text>
+      <Text style={[styles.label, { color: C.text }]}>기분/상황 태그</Text>
       <View style={styles.tagRow}>
         {MOOD_TAGS.map((tag) => (
           <TouchableOpacity
             key={tag}
-            style={[styles.tag, moodTag === tag && styles.tagActive]}
+            style={[styles.tag, { backgroundColor: C.surface, borderColor: C.border }, moodTag === tag && { backgroundColor: C.primary, borderColor: C.primary }]}
             onPress={() => setMoodTag(moodTag === tag ? "" : tag)}
           >
-            <Text style={[styles.tagText, moodTag === tag && styles.tagTextActive]}>
+            <Text style={[styles.tagText, { color: C.textSecondary }, moodTag === tag && styles.tagTextActive]}>
               #{tag}
             </Text>
           </TouchableOpacity>
@@ -170,26 +169,22 @@ export default function PostScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: 16 },
+  container: { flex: 1, padding: 16 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
-  title: { fontSize: 20, fontWeight: "700", color: COLORS.text },
+  title: { fontSize: 20, fontWeight: "700" },
   postBtn: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 12,
     minWidth: 60,
     alignItems: "center",
   },
-  postBtnDisabled: { backgroundColor: COLORS.textLight },
   postBtnText: { color: "#fff", fontSize: 14, fontWeight: "600" },
-
-  // Images
   imageSection: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -197,35 +192,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   imageThumb: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    overflow: "hidden",
-    position: "relative",
+    width: 80, height: 80, borderRadius: 12,
+    overflow: "hidden", position: "relative",
   },
   thumbImage: { width: 80, height: 80 },
   removeBtn: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    position: "absolute", top: 4, right: 4,
+    width: 20, height: 20, borderRadius: 10,
     backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "center", alignItems: "center",
   },
   addImageBtn: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    borderStyle: "dashed",
-    justifyContent: "center",
-    alignItems: "center",
+    width: 80, height: 80, borderRadius: 12,
+    borderWidth: 1.5, borderStyle: "dashed",
+    justifyContent: "center", alignItems: "center",
   },
-  addImageText: { fontSize: 11, color: COLORS.textLight, marginTop: 2 },
+  addImageText: { fontSize: 11, marginTop: 2 },
   uploadingBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -233,25 +215,21 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 8,
   },
-  uploadingText: { fontSize: 13, color: COLORS.primary },
-
+  uploadingText: { fontSize: 13 },
   input: {
     fontSize: 16,
-    color: COLORS.text,
     lineHeight: 24,
     minHeight: 120,
     textAlignVertical: "top",
   },
   charCount: {
     fontSize: 12,
-    color: COLORS.textLight,
     textAlign: "right",
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.text,
     marginBottom: 10,
   },
   tagRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
@@ -259,14 +237,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
-  tagActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  tagText: { fontSize: 13, color: COLORS.textSecondary },
+  tagText: { fontSize: 13 },
   tagTextActive: { color: "#fff", fontWeight: "600" },
 });

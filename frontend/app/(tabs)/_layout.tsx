@@ -3,17 +3,18 @@ import { Tabs, useRouter } from "expo-router";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { notificationApi } from "../../src/api";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function TabsLayout() {
   const router = useRouter();
+  const C = useThemeColors();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchUnread = () => {
       notificationApi.unreadCount()
         .then((res) => setUnreadCount(res.data?.unread_count || 0))
-        .catch(() => setUnreadCount(3)); // 더미
+        .catch(() => setUnreadCount(3));
     };
     fetchUnread();
     const interval = setInterval(fetchUnread, 30000);
@@ -23,19 +24,19 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textLight,
+        tabBarActiveTintColor: C.primary,
+        tabBarInactiveTintColor: C.textLight,
         tabBarShowLabel: false,
         headerStyle: {
-          backgroundColor: COLORS.background,
+          backgroundColor: C.background,
           shadowColor: "transparent",
           elevation: 0,
         },
-        headerTitleStyle: { fontWeight: "700", fontSize: 18, color: COLORS.text },
+        headerTitleStyle: { fontWeight: "700", fontSize: 18, color: C.text },
         tabBarStyle: {
-          backgroundColor: COLORS.background,
+          backgroundColor: C.background,
           borderTopWidth: 0.5,
-          borderTopColor: COLORS.border,
+          borderTopColor: C.border,
           height: 80,
           paddingTop: 6,
           justifyContent: "center",
@@ -45,7 +46,6 @@ export default function TabsLayout() {
         },
       }}
     >
-      {/* 홈 */}
       <Tabs.Screen
         name="index"
         options={{
@@ -61,15 +61,15 @@ export default function TabsLayout() {
               style={styles.headerBtn}
               onPress={() => router.push("/(tabs)/notifications")}
             >
-              <MaterialIcons name="notifications-none" size={24} color={COLORS.text} />
+              <MaterialIcons name="notifications-none" size={24} color={C.text} />
               {unreadCount > 0 && (
-                <View style={styles.badge}>
+                <View style={[styles.badge, { backgroundColor: C.primary, borderColor: C.background }]}>
                   <Text style={styles.badgeText}>{unreadCount > 9 ? "9+" : unreadCount}</Text>
                 </View>
               )}
             </TouchableOpacity>
           ),
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name="home" size={28} color={color} />
             </View>
@@ -77,7 +77,6 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* 관심 (하트) */}
       <Tabs.Screen
         name="explore"
         options={{
@@ -90,20 +89,18 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* 작성 */}
       <Tabs.Screen
         name="post"
         options={{
           headerTitle: "새 게시글",
           tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.plusWrap, focused && styles.plusWrapActive]}>
-              <MaterialIcons name="add" size={24} color={focused ? "#fff" : COLORS.textLight} />
+            <View style={[styles.plusWrap, { backgroundColor: focused ? C.primary : C.surface }]}>
+              <MaterialIcons name="add" size={24} color={focused ? "#fff" : C.textLight} />
             </View>
           ),
         }}
       />
 
-      {/* 메시지 */}
       <Tabs.Screen
         name="messages"
         options={{
@@ -111,13 +108,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconWrap}>
               <MaterialIcons name={focused ? "chat" : "chat-bubble-outline"} size={26} color={color} />
-              {unreadCount > 0 && <View style={styles.msgDot} />}
+              {unreadCount > 0 && <View style={[styles.msgDot, { borderColor: C.background }]} />}
             </View>
           ),
         }}
       />
 
-      {/* 마이 */}
       <Tabs.Screen
         name="mypage"
         options={{
@@ -130,7 +126,6 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* 알림 (탭바에서 완전히 숨김, 헤더 벨로 접근) */}
       <Tabs.Screen
         name="notifications"
         options={{
@@ -145,7 +140,6 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabIconWrap: { alignItems: "center", gap: 3, position: "relative" },
-  tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary },
   msgDot: {
     position: "absolute",
     top: -2,
@@ -155,7 +149,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#FF3B30",
     borderWidth: 1.5,
-    borderColor: COLORS.background,
   },
   headerLogo: { width: 220, height: 59, marginTop: 8 },
   headerBtn: { marginRight: 16, padding: 4, position: "relative" },
@@ -163,7 +156,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -2,
     right: -4,
-    backgroundColor: COLORS.primary,
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -171,13 +163,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 4,
     borderWidth: 2,
-    borderColor: COLORS.background,
   },
   badgeText: { color: "#fff", fontSize: 10, fontWeight: "800" },
   plusWrap: {
     width: 36, height: 36, borderRadius: 12,
-    backgroundColor: COLORS.surface,
     justifyContent: "center", alignItems: "center",
   },
-  plusWrapActive: { backgroundColor: COLORS.primary },
 });

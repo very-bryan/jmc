@@ -14,7 +14,7 @@ import {
 import { feedApi, interestApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { FeedCard } from "../../src/components/FeedCard";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import type { Post } from "../../src/types";
 
 const DUMMY_POSTS: Post[] = [
@@ -46,6 +46,7 @@ const DUMMY_POSTS: Post[] = [
 ];
 
 export default function HomeScreen() {
+  const C = useThemeColors();
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -104,8 +105,8 @@ export default function HomeScreen() {
 
   if (loading && posts.length === 0) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View style={[styles.center, { backgroundColor: C.background }]}>
+        <ActivityIndicator size="large" color={C.primary} />
       </View>
     );
   }
@@ -118,34 +119,34 @@ export default function HomeScreen() {
         <FeedCard post={item} onInterest={() => handleInterest(item.user.id)} />
       )}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.primary} />
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       ListHeaderComponent={
-        <View style={styles.filterBar}>
-          <Text style={styles.filterLabel}>필터</Text>
+        <View style={[styles.filterBar, { backgroundColor: C.background, borderBottomColor: C.border }]}>
+          <Text style={[styles.filterLabel, { color: C.textSecondary }]}>필터</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>25-30</Text>
+            <View style={[styles.chip, { borderColor: C.primary, backgroundColor: C.accentLight }]}>
+              <Text style={[styles.chipText, { color: C.primary }]}>25-30</Text>
             </View>
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>서울</Text>
+            <View style={[styles.chip, { borderColor: C.primary, backgroundColor: C.accentLight }]}>
+              <Text style={[styles.chipText, { color: C.primary }]}>서울</Text>
             </View>
-            <View style={[styles.chip, styles.chipActive]}>
-              <Text style={[styles.chipText, styles.chipTextActive]}>인증됨</Text>
+            <View style={[styles.chip, { borderColor: C.primary, backgroundColor: C.primaryLight }]}>
+              <Text style={[styles.chipText, { color: C.primary, fontWeight: "700" }]}>인증됨</Text>
             </View>
           </ScrollView>
           <TouchableOpacity style={styles.chipAdjust}>
-            <MaterialIcons name="tune" size={18} color={COLORS.primary} />
+            <MaterialIcons name="tune" size={18} color={C.primary} />
           </TouchableOpacity>
         </View>
       }
       ListEmptyComponent={
         <View style={styles.empty}>
-          <Text style={styles.emptyIcon}>--</Text>
-          <Text style={styles.emptyText}>아직 피드가 없습니다</Text>
-          <Text style={styles.emptySubtext}>관심 조건을 넓혀보세요</Text>
+          <Text style={[styles.emptyIcon, { color: C.textLight }]}>--</Text>
+          <Text style={[styles.emptyText, { color: C.text }]}>아직 피드가 없습니다</Text>
+          <Text style={[styles.emptySubtext, { color: C.textSecondary }]}>관심 조건을 넓혀보세요</Text>
         </View>
       }
       contentContainerStyle={posts.length === 0 ? styles.emptyContainer : undefined}
@@ -158,21 +159,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.background,
   },
   filterBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.background,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
   },
   filterLabel: {
     fontSize: 13,
     fontWeight: "700",
-    color: COLORS.textSecondary,
     marginRight: 10,
   },
   filterScroll: { flexDirection: "row", alignItems: "center", flex: 1 },
@@ -181,19 +178,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.primary,
     marginRight: 6,
-    backgroundColor: COLORS.accentLight,
   },
-  chipActive: {
-    backgroundColor: COLORS.primaryLight,
-  },
-  chipText: { fontSize: 12, fontWeight: "600", color: COLORS.primary },
-  chipTextActive: { fontWeight: "700" },
+  chipText: { fontSize: 12, fontWeight: "600" },
   chipAdjust: { padding: 6 },
   empty: { alignItems: "center", padding: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 12, color: COLORS.textLight },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyContainer: { flex: 1, justifyContent: "center" },
-  emptyText: { fontSize: 16, fontWeight: "600", color: COLORS.text },
-  emptySubtext: { fontSize: 14, color: COLORS.textSecondary, marginTop: 8 },
+  emptyText: { fontSize: 16, fontWeight: "600" },
+  emptySubtext: { fontSize: 14, marginTop: 8 },
 });

@@ -19,43 +19,20 @@ import { uploadImage } from "../../src/api/upload";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors, useIsDark } from "../../src/hooks/useThemeColors";
 import type { Message } from "../../src/types";
 
-// Dummy messages for testing when chat is empty
 const DUMMY_MESSAGES: Message[] = [
-  {
-    id: 9001,
-    sender_id: 0,
-    content: "안녕하세요! 프로필 보고 관심이 갔어요 :)",
-    message_type: "text",
-    is_mine: false,
-    read: true,
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-  },
-  {
-    id: 9002,
-    sender_id: -1,
-    content: "감사합니다! 저도 프로필 인상 깊게 봤어요",
-    message_type: "text",
-    is_mine: true,
-    read: true,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 9003,
-    sender_id: 0,
-    content: "주말에 혹시 시간 되시면 커피 한잔 어떠세요?",
-    message_type: "text",
-    is_mine: false,
-    read: true,
-    created_at: new Date(Date.now() - 1800000).toISOString(),
-  },
+  { id: 9001, sender_id: 0, content: "안녕하세요! 프로필 보고 관심이 갔어요 :)", message_type: "text", is_mine: false, read: true, created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+  { id: 9002, sender_id: -1, content: "감사합니다! 저도 프로필 인상 깊게 봤어요", message_type: "text", is_mine: true, read: true, created_at: new Date(Date.now() - 3600000).toISOString() },
+  { id: 9003, sender_id: 0, content: "주말에 혹시 시간 되시면 커피 한잔 어떠세요?", message_type: "text", is_mine: false, read: true, created_at: new Date(Date.now() - 1800000).toISOString() },
 ];
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const C = useThemeColors();
+  const isDark = useIsDark();
   const { user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -71,22 +48,14 @@ export default function ChatScreen() {
   const confirmReport = async () => {
     setReportModal(false);
     try {
-      await reportApi.create({
-        reported_id: Number(id),
-        reportable_type: "Conversation",
-        reportable_id: Number(id),
-        report_type: "other",
-        reason: "대화 중 신고",
-      });
+      await reportApi.create({ reported_id: Number(id), reportable_type: "Conversation", reportable_id: Number(id), report_type: "other", reason: "대화 중 신고" });
     } catch {}
     setToastMsg("신고가 접수되었습니다");
   };
 
   const confirmBlock = async () => {
     setBlockModal(false);
-    try {
-      await blockApi.create(Number(id));
-    } catch {}
+    try { await blockApi.create(Number(id)); } catch {}
     setToastMsg("차단되었습니다");
   };
 
@@ -99,11 +68,9 @@ export default function ChatScreen() {
 
   const checkMilestones = (msgs: Message[]) => {
     if (!user) return;
-
     const myMessages = msgs.filter((m) => m.sender_id === user.id);
     const otherMessages = msgs.filter((m) => m.sender_id !== user.id);
     const turns = Math.min(myMessages.length, otherMessages.length);
-
     if (turns >= 5 && !trackedMilestones.current.has("5turns")) {
       trackedMilestones.current.add("5turns");
       trackEvent(EVENTS.DM_5_TURNS, { conversation_id: Number(id), total_messages: msgs.length });
@@ -112,7 +79,6 @@ export default function ChatScreen() {
       trackedMilestones.current.add("10turns");
       trackEvent(EVENTS.DM_10_TURNS, { conversation_id: Number(id), total_messages: msgs.length });
     }
-
     if (msgs.length >= 2 && !trackedMilestones.current.has("multiday")) {
       const first = new Date(msgs[0].created_at);
       const last = new Date(msgs[msgs.length - 1].created_at);
@@ -128,59 +94,30 @@ export default function ChatScreen() {
     try {
       const res = await conversationApi.messages(Number(id));
       const reversed = res.data.messages.reverse();
-      if (reversed.length === 0) {
-        setUseDummy(true);
-      } else {
-        setUseDummy(false);
-        setMessages(reversed);
-        checkMilestones(reversed);
-      }
-    } catch {
-      setUseDummy(true);
-    }
+      if (reversed.length === 0) { setUseDummy(true); } else { setUseDummy(false); setMessages(reversed); checkMilestones(reversed); }
+    } catch { setUseDummy(true); }
   };
 
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-
     const text = input.trim();
     setInput("");
-
     if (useDummy) {
-      // 더미 모드: 로컬에서 바로 추가
-      const newMsg: Message = {
-        id: Date.now(),
-        content: text,
-        message_type: "text",
-        sender_id: user?.id || -1,
-        is_mine: true,
-        read: false,
-        created_at: new Date().toISOString(),
-      };
+      const newMsg: Message = { id: Date.now(), content: text, message_type: "text", sender_id: user?.id || -1, is_mine: true, read: false, created_at: new Date().toISOString() };
       setLocalMessages((prev) => [...prev, newMsg]);
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       return;
     }
-
     setLoading(true);
     try {
       const isFirstMessage = messages.filter((m) => m.sender_id === user?.id).length === 0;
-
       await conversationApi.sendMessage(Number(id), text);
       trackEvent(EVENTS.DM_SEND, { conversation_id: Number(id) });
-
-      if (isFirstMessage) {
-        trackEvent(EVENTS.DM_START, { conversation_id: Number(id) });
-      }
-
+      if (isFirstMessage) trackEvent(EVENTS.DM_START, { conversation_id: Number(id) });
       fetchMessages();
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
+    } catch {} finally { setLoading(false); }
   };
 
   const displayMessages = useDummy ? [...DUMMY_MESSAGES, ...localMessages] : messages;
@@ -195,51 +132,39 @@ export default function ChatScreen() {
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
     const showSub = Keyboard.addListener(showEvent, (e) => {
-      Animated.timing(keyboardHeight, {
-        toValue: e.endCoordinates.height,
-        duration: Platform.OS === "ios" ? 250 : 100,
-        useNativeDriver: false,
-      }).start();
+      Animated.timing(keyboardHeight, { toValue: e.endCoordinates.height, duration: Platform.OS === "ios" ? 250 : 100, useNativeDriver: false }).start();
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 150);
     });
-
     const hideSub = Keyboard.addListener(hideEvent, () => {
-      Animated.timing(keyboardHeight, {
-        toValue: 0,
-        duration: Platform.OS === "ios" ? 200 : 100,
-        useNativeDriver: false,
-      }).start();
+      Animated.timing(keyboardHeight, { toValue: 0, duration: Platform.OS === "ios" ? 200 : 100, useNativeDriver: false }).start();
     });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
+    return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
+  const chatBg = isDark ? "#18181F" : "#FAF9FE";
+  const mineBubbleBg = isDark ? C.surface : "#fff";
+
   return (
-    <View style={styles.container}>
-      {/* 헤더 */}
-      <View style={styles.chatHeader}>
+    <View style={[styles.container, { backgroundColor: chatBg }]}>
+      <View style={[styles.chatHeader, { backgroundColor: C.background, borderBottomColor: C.border }]}>
         <TouchableOpacity style={styles.headerBackBtn} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={22} color={COLORS.text} />
+          <MaterialIcons name="arrow-back" size={22} color={C.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>대화</Text>
+        <Text style={[styles.headerTitle, { color: C.text }]}>대화</Text>
         <View>
           <TouchableOpacity style={styles.headerMoreBtn} onPress={() => setShowMore(!showMore)}>
-            <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
+            <MaterialIcons name="more-horiz" size={22} color={C.textLight} />
           </TouchableOpacity>
           {showMore && (
-            <View style={styles.chatPopover}>
+            <View style={[styles.chatPopover, { backgroundColor: C.background }]}>
               <TouchableOpacity style={styles.chatPopItem} onPress={() => { setShowMore(false); setReportModal(true); }}>
-                <MaterialIcons name="flag" size={16} color={COLORS.error} />
-                <Text style={[styles.chatPopText, { color: COLORS.error }]}>신고</Text>
+                <MaterialIcons name="flag" size={16} color={C.error} />
+                <Text style={[styles.chatPopText, { color: C.error }]}>��고</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.chatPopItem} onPress={() => { setShowMore(false); setBlockModal(true); }}>
-                <MaterialIcons name="block" size={16} color={COLORS.text} />
-                <Text style={styles.chatPopText}>차단</Text>
+                <MaterialIcons name="block" size={16} color={C.text} />
+                <Text style={[styles.chatPopText, { color: C.text }]}>차단</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -256,54 +181,38 @@ export default function ChatScreen() {
           return (
             <View style={[styles.msgRow, mine && styles.msgRowMine]}>
               {!mine && (
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?img=3" }}
-                  style={styles.msgAvatar}
-                />
+                <Image source={{ uri: "https://i.pravatar.cc/150?img=3" }} style={[styles.msgAvatar, { backgroundColor: C.surface }]} />
               )}
               <View>
-                <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-                  {item.content.startsWith("[사진]") ? (
-                    <Image
-                      source={{ uri: item.content.replace("[사진] ", "") }}
-                      style={{ width: 200, height: 200, borderRadius: 12 }}
-                      resizeMode="cover"
-                    />
+                <View style={[styles.bubble, mine ? [styles.mine, { backgroundColor: mineBubbleBg }] : [styles.theirs, { backgroundColor: C.primary }]]}>
+                  {item.content.startsWith("[사��]") ? (
+                    <Image source={{ uri: item.content.replace("[사진] ", "") }} style={{ width: 200, height: 200, borderRadius: 12 }} resizeMode="cover" />
                   ) : (
-                  <Text style={[styles.bubbleText, mine && styles.mineText]}>
-                    {item.content}
-                  </Text>
+                    <Text style={[styles.bubbleText, mine && { color: C.text }]}>
+                      {item.content}
+                    </Text>
                   )}
                 </View>
-                <Text style={[styles.time, mine && styles.timeMine]}>
-                  {new Date(item.created_at).toLocaleTimeString("ko-KR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                <Text style={[styles.time, { color: C.textLight }, mine && styles.timeMine]}>
+                  {new Date(item.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
                 </Text>
               </View>
             </View>
           );
         }}
         contentContainerStyle={styles.list}
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: false })
-        }
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
       />
 
-      {/* Progress bar accent */}
-      <View style={styles.progressBar} />
-      <View style={styles.inputRow}>
-        <TouchableOpacity style={styles.attachBtn} onPress={async () => {
+      <View style={[styles.progressBar, { backgroundColor: C.primary }]} />
+      <View style={[styles.inputRow, { backgroundColor: C.background }]}>
+        <TouchableOpacity style={[styles.attachBtn, { borderColor: C.border }]} onPress={async () => {
           const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.8 });
           if (!result.canceled && result.assets[0]) {
             const uploaded = await uploadImage(result.assets[0].uri, "chat");
             if (uploaded?.url) {
               if (useDummy) {
-                setLocalMessages((prev) => [...prev, {
-                  id: Date.now(), content: `[사진] ${uploaded.url}`, message_type: "image",
-                  sender_id: user?.id || -1, is_mine: true, read: false, created_at: new Date().toISOString(),
-                }]);
+                setLocalMessages((prev) => [...prev, { id: Date.now(), content: `[사진] ${uploaded.url}`, message_type: "image", sender_id: user?.id || -1, is_mine: true, read: false, created_at: new Date().toISOString() }]);
               } else {
                 await conversationApi.sendMessage(Number(id), `[사진] ${uploaded.url}`);
                 fetchMessages();
@@ -311,13 +220,13 @@ export default function ChatScreen() {
             }
           }
         }}>
-          <MaterialIcons name="image" size={22} color={COLORS.textSecondary} />
+          <MaterialIcons name="image" size={22} color={C.textSecondary} />
         </TouchableOpacity>
-        <View style={styles.inputWrap}>
+        <View style={[styles.inputWrap, { backgroundColor: C.surface }]}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: C.text }]}
             placeholder="메시지 입력..."
-            placeholderTextColor={COLORS.textLight}
+            placeholderTextColor={C.textLight}
             value={input}
             onChangeText={setInput}
             multiline
@@ -325,7 +234,7 @@ export default function ChatScreen() {
           />
         </View>
         <TouchableOpacity
-          style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
+          style={[styles.sendBtn, { backgroundColor: C.primary }, !input.trim() && { backgroundColor: C.textLight }]}
           onPress={sendMessage}
           disabled={loading || !input.trim()}
         >
@@ -334,177 +243,45 @@ export default function ChatScreen() {
       </View>
       </Animated.View>
 
-      <ConfirmModal
-        visible={reportModal}
-        icon="flag"
-        iconColor={COLORS.error}
-        title="이 사용자를 신고하시겠습니까?"
-        message="허위 신고 시 제재를 받을 수 있습니다"
-        confirmText="신고"
-        confirmColor={COLORS.error}
-        onConfirm={confirmReport}
-        onCancel={() => setReportModal(false)}
-      />
-      <ConfirmModal
-        visible={blockModal}
-        icon="block"
-        iconColor={COLORS.textSecondary}
-        title="이 사용자를 차단하시겠습니까?"
-        message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
-        confirmText="차단"
-        confirmColor={COLORS.error}
-        onConfirm={confirmBlock}
-        onCancel={() => setBlockModal(false)}
-      />
-      <ResultToast
-        visible={!!toastMsg}
-        message={toastMsg}
-        onDone={() => setToastMsg("")}
-      />
+      <ConfirmModal visible={reportModal} icon="flag" iconColor={C.error} title="이 사용자를 신고하시겠습니까?" message="허위 신고 시 제재를 받을 수 있습니다" confirmText="신고" confirmColor={C.error} onConfirm={confirmReport} onCancel={() => setReportModal(false)} />
+      <ConfirmModal visible={blockModal} icon="block" iconColor={C.textSecondary} title="이 사용자를 차단하시겠습니까?" message="차단하면 서로의 게시글과 프로필��� 볼 수 없습니다" confirmText="차단" confirmColor={C.error} onConfirm={confirmBlock} onCancel={() => setBlockModal(false)} />
+      <ResultToast visible={!!toastMsg} message={toastMsg} onDone={() => setToastMsg("")} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FAF9FE" },
+  container: { flex: 1 },
   chatHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 54,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
-    zIndex: 100,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingTop: 54, paddingBottom: 12, paddingHorizontal: 16,
+    borderBottomWidth: 0.5, zIndex: 100,
   },
   headerBackBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: "center", alignItems: "center" },
-  headerTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
+  headerTitle: { fontSize: 17, fontWeight: "700" },
   headerMoreBtn: { padding: 10 },
   chatPopover: {
-    position: "absolute",
-    top: 36,
-    right: 0,
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    paddingVertical: 4,
-    minWidth: 100,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 100,
+    position: "absolute", top: 36, right: 0,
+    borderRadius: 12, paddingVertical: 4, minWidth: 100,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 8, zIndex: 100,
   },
-  chatPopItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  chatPopText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.text,
-  },
+  chatPopItem: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 14, paddingVertical: 12 },
+  chatPopText: { fontSize: 14, fontWeight: "600" },
   innerContainer: { flex: 1 },
   list: { padding: 14, paddingBottom: 4 },
-  msgRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 12,
-  },
-  msgRowMine: {
-    flexDirection: "row-reverse",
-  },
-  msgAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
-    backgroundColor: COLORS.surface,
-  },
-  bubble: {
-    maxWidth: 260,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  mine: {
-    alignSelf: "flex-end",
-    backgroundColor: "#fff",
-    borderBottomRightRadius: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  theirs: {
-    alignSelf: "flex-start",
-    backgroundColor: COLORS.primary,
-    borderBottomLeftRadius: 6,
-  },
+  msgRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 12 },
+  msgRowMine: { flexDirection: "row-reverse" },
+  msgAvatar: { width: 32, height: 32, borderRadius: 16, marginRight: 8 },
+  bubble: { maxWidth: 260, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20 },
+  mine: { alignSelf: "flex-end", borderBottomRightRadius: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  theirs: { alignSelf: "flex-start", borderBottomLeftRadius: 6 },
   bubbleText: { fontSize: 15, color: "#fff", lineHeight: 22 },
-  mineText: { color: COLORS.text },
-  time: {
-    fontSize: 10,
-    color: COLORS.textLight,
-    marginTop: 4,
-    marginLeft: 4,
-  },
-  timeMine: {
-    textAlign: "right",
-    marginRight: 4,
-    marginLeft: 0,
-  },
-  inputRow: {
-    flexDirection: "row",
-    padding: 10,
-    paddingBottom: 14,
-    backgroundColor: COLORS.background,
-    alignItems: "center",
-    gap: 6,
-  },
-  progressBar: {
-    height: 2,
-    backgroundColor: COLORS.primary,
-    marginHorizontal: 20,
-    borderRadius: 1,
-    opacity: 0.3,
-  },
-  attachBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  attachIcon: { fontSize: 16, color: COLORS.textSecondary },
-  inputWrap: {
-    flex: 1,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: 14,
-  },
-  input: {
-    fontSize: 14,
-    color: COLORS.text,
-    maxHeight: 80,
-    paddingVertical: 8,
-  },
-  sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sendIcon: { fontSize: 18, color: "#fff", fontWeight: "700" },
-  sendBtnDisabled: { backgroundColor: COLORS.textLight },
+  time: { fontSize: 10, marginTop: 4, marginLeft: 4 },
+  timeMine: { textAlign: "right", marginRight: 4, marginLeft: 0 },
+  inputRow: { flexDirection: "row", padding: 10, paddingBottom: 14, alignItems: "center", gap: 6 },
+  progressBar: { height: 2, marginHorizontal: 20, borderRadius: 1, opacity: 0.3 },
+  attachBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, justifyContent: "center", alignItems: "center" },
+  inputWrap: { flex: 1, borderRadius: 20, paddingHorizontal: 14 },
+  input: { fontSize: 14, maxHeight: 80, paddingVertical: 8 },
+  sendBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: "center", alignItems: "center" },
 });

@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { notificationApi } from "../../src/api";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 interface NotificationItem {
   id: number;
@@ -74,6 +74,7 @@ function formatTimeAgo(dateStr: string) {
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const C = useThemeColors();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -112,8 +113,8 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View style={[styles.center, { backgroundColor: C.background }]}>
+        <ActivityIndicator size="large" color={C.primary} />
       </View>
     );
   }
@@ -121,12 +122,12 @@ export default function NotificationsScreen() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: C.background }]} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>알림</Text>
+        <Text style={[styles.headerTitle, { color: C.text }]}>알림</Text>
         {unreadCount > 0 && (
           <TouchableOpacity onPress={handleReadAll}>
-            <Text style={styles.readAllText}>모두 읽음</Text>
+            <Text style={[styles.readAllText, { color: C.primary }]}>모두 읽음</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -137,39 +138,39 @@ export default function NotificationsScreen() {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.card, !item.read && styles.cardUnread]}
+            style={[styles.card, { borderBottomColor: C.border }, !item.read && { backgroundColor: C.primaryLight, marginHorizontal: -16, paddingHorizontal: 16, borderRadius: 14, borderBottomWidth: 0, marginBottom: 4 }]}
             onPress={() => handlePress(item)}
             activeOpacity={0.7}
           >
-            <View style={[styles.iconWrap, item.type === "mutual_interest" && styles.iconWrapMutual]}>
+            <View style={[styles.iconWrap, { backgroundColor: C.primaryLight }, item.type === "mutual_interest" && { backgroundColor: C.primary }]}>
               <MaterialIcons
                 name={(ICON_MAP[item.type] || "notifications") as any}
                 size={20}
-                color={item.type === "mutual_interest" ? "#fff" : COLORS.primary}
+                color={item.type === "mutual_interest" ? "#fff" : C.primary}
               />
             </View>
             {item.actor && (
               <Image
                 source={{ uri: `https://i.pravatar.cc/150?img=${(item.actor.id % 10) + 1}` }}
-                style={styles.avatar}
+                style={[styles.avatar, { backgroundColor: C.surface }]}
               />
             )}
             <View style={styles.info}>
-              <Text style={[styles.title, !item.read && styles.titleUnread]} numberOfLines={1}>
+              <Text style={[styles.title, { color: C.text }, !item.read && styles.titleUnread]} numberOfLines={1}>
                 {item.title}
               </Text>
               {item.body && (
-                <Text style={styles.body} numberOfLines={1}>{item.body}</Text>
+                <Text style={[styles.body, { color: C.textSecondary }]} numberOfLines={1}>{item.body}</Text>
               )}
-              <Text style={styles.time}>{formatTimeAgo(item.created_at)}</Text>
+              <Text style={[styles.time, { color: C.textLight }]}>{formatTimeAgo(item.created_at)}</Text>
             </View>
-            {!item.read && <View style={styles.unreadDot} />}
+            {!item.read && <View style={[styles.unreadDot, { backgroundColor: C.primary }]} />}
           </TouchableOpacity>
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <MaterialIcons name="notifications-none" size={48} color={COLORS.textLight} />
-            <Text style={styles.emptyTitle}>알림이 없습니다</Text>
+            <MaterialIcons name="notifications-none" size={48} color={C.textLight} />
+            <Text style={[styles.emptyTitle, { color: C.text }]}>알림이 없습니다</Text>
           </View>
         }
       />
@@ -178,9 +179,8 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -188,56 +188,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
-  headerTitle: { fontSize: 22, fontWeight: "800", color: COLORS.text },
-  readAllText: { fontSize: 14, fontWeight: "600", color: COLORS.primary },
-
+  headerTitle: { fontSize: 22, fontWeight: "800" },
+  readAllText: { fontSize: 14, fontWeight: "600" },
   list: { paddingHorizontal: 16 },
   card: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
-  },
-  cardUnread: {
-    backgroundColor: COLORS.primaryLight,
-    marginHorizontal: -16,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    borderBottomWidth: 0,
-    marginBottom: 4,
   },
   iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.primaryLight,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconWrapMutual: {
-    backgroundColor: COLORS.primary,
+    width: 36, height: 36, borderRadius: 18,
+    justifyContent: "center", alignItems: "center",
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginLeft: 10,
-    backgroundColor: COLORS.surface,
+    width: 44, height: 44, borderRadius: 22, marginLeft: 10,
   },
   info: { flex: 1, marginLeft: 12 },
-  title: { fontSize: 15, fontWeight: "600", color: COLORS.text },
+  title: { fontSize: 15, fontWeight: "600" },
   titleUnread: { fontWeight: "800" },
-  body: { fontSize: 13, color: COLORS.textSecondary, marginTop: 2 },
-  time: { fontSize: 12, color: COLORS.textLight, marginTop: 3 },
+  body: { fontSize: 13, marginTop: 2 },
+  time: { fontSize: 12, marginTop: 3 },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.primary,
-    marginLeft: 8,
+    width: 8, height: 8, borderRadius: 4, marginLeft: 8,
   },
-
   empty: { alignItems: "center", paddingTop: 80, gap: 8 },
-  emptyTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
+  emptyTitle: { fontSize: 17, fontWeight: "700" },
 });

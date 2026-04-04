@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { VerificationBadge } from "./VerificationBadge";
 import { ConfirmModal, ResultToast } from "./ConfirmModal";
-import { COLORS } from "../constants/config";
+import { useThemeColors } from "../hooks/useThemeColors";
 import client from "../api/client";
 import type { Post } from "../types";
 
@@ -25,6 +25,7 @@ interface Props {
 
 export function FeedCard({ post, onInterest }: Props) {
   const router = useRouter();
+  const C = useThemeColors();
   const [liked, setLiked] = useState((post as any).liked || false);
   const [likesCount, setLikesCount] = useState(
     (post as any).likes_count ?? Math.floor(Math.random() * 50 + 5)
@@ -50,7 +51,7 @@ export function FeedCard({ post, onInterest }: Props) {
     setLiked(!wasLiked);
     setLikesCount((prev: number) => prev + (wasLiked ? -1 : 1));
 
-    if (isDummy) return; // 더미 포스트는 API 호출 안 함
+    if (isDummy) return;
 
     try {
       if (wasLiked) {
@@ -95,41 +96,41 @@ export function FeedCard({ post, onInterest }: Props) {
   };
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: C.background, borderBottomColor: C.border }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.profileArea} onPress={() => router.push(`/profile/${post.user.id}` as any)}>
-          <View style={styles.avatarRing}>
-            <View style={styles.avatarInner}>
+          <View style={[styles.avatarRing, { borderColor: C.primary }]}>
+            <View style={[styles.avatarInner, { backgroundColor: C.surface }]}>
               <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
             </View>
           </View>
           <View style={styles.userInfo}>
             <View style={styles.nameRow}>
-              <Text style={styles.nickname}>{post.user.nickname}</Text>
+              <Text style={[styles.nickname, { color: C.text }]}>{post.user.nickname}</Text>
               {post.user.verification_level !== "basic" && (
-                <View style={styles.verifiedBadge} />
+                <View style={[styles.verifiedBadge, { backgroundColor: C.badgeBlue }]} />
               )}
               <VerificationBadge level={post.user.verification_level} />
             </View>
-            <Text style={styles.meta}>
+            <Text style={[styles.meta, { color: C.textSecondary }]}>
               {post.user.region} · {post.user.age}세
             </Text>
           </View>
         </TouchableOpacity>
         <View>
           <TouchableOpacity style={styles.moreBtn} onPress={() => setShowMore(!showMore)}>
-            <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
+            <MaterialIcons name="more-horiz" size={22} color={C.textLight} />
           </TouchableOpacity>
           {showMore && (
-            <View style={styles.popover}>
+            <View style={[styles.popover, { backgroundColor: C.background }]}>
               <TouchableOpacity style={styles.popItem} onPress={handleReport}>
-                <MaterialIcons name="flag" size={16} color={COLORS.error} />
-                <Text style={[styles.popText, { color: COLORS.error }]}>신고</Text>
+                <MaterialIcons name="flag" size={16} color={C.error} />
+                <Text style={[styles.popText, { color: C.error }]}>신고</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.popItem} onPress={handleBlock}>
-                <MaterialIcons name="block" size={16} color={COLORS.text} />
-                <Text style={styles.popText}>차단</Text>
+                <MaterialIcons name="block" size={16} color={C.text} />
+                <Text style={[styles.popText, { color: C.text }]}>차단</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -146,48 +147,48 @@ export function FeedCard({ post, onInterest }: Props) {
             <MaterialIcons
               name={liked ? "favorite" : "favorite-border"}
               size={26}
-              color={liked ? COLORS.primary : COLORS.text}
+              color={liked ? C.primary : C.text}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare}>
-            <MaterialIcons name="send" size={24} color={COLORS.text} />
+            <MaterialIcons name="send" size={24} color={C.text} />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.connectBtn} onPress={onInterest}>
+        <TouchableOpacity style={[styles.connectBtn, { backgroundColor: C.primary }]} onPress={onInterest}>
           <Text style={styles.connectText}>관심 보내기</Text>
         </TouchableOpacity>
       </View>
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.likesText}>좋아요 {likesCount}개</Text>
-        <Text style={styles.contentText}>
-          <Text style={styles.contentNickname}>{post.user.nickname}</Text>
+        <Text style={[styles.likesText, { color: C.text }]}>좋아요 {likesCount}개</Text>
+        <Text style={[styles.contentText, { color: C.text }]}>
+          <Text style={[styles.contentNickname, { color: C.text }]}>{post.user.nickname}</Text>
           {"  "}{post.content}
         </Text>
-        {post.mood_tag && <Text style={styles.moodTag}>#{post.mood_tag}</Text>}
-        <Text style={styles.timeAgo}>{formatTimeAgo(post.created_at)}</Text>
+        {post.mood_tag && <Text style={[styles.moodTag, { color: C.primary }]}>#{post.mood_tag}</Text>}
+        <Text style={[styles.timeAgo, { color: C.textLight }]}>{formatTimeAgo(post.created_at)}</Text>
       </View>
 
       <ConfirmModal
         visible={reportModal}
         icon="flag"
-        iconColor={COLORS.error}
+        iconColor={C.error}
         title="게시글을 신고하시겠습니까?"
         message="허위 신고 시 제재를 받을 수 있습니다"
         confirmText="신고"
-        confirmColor={COLORS.error}
+        confirmColor={C.error}
         onConfirm={confirmReport}
         onCancel={() => setReportModal(false)}
       />
       <ConfirmModal
         visible={blockModal}
         icon="block"
-        iconColor={COLORS.textSecondary}
+        iconColor={C.textSecondary}
         title="이 사용자를 차단하시겠습니까?"
         message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
         confirmText="차단"
-        confirmColor={COLORS.error}
+        confirmColor={C.error}
         onConfirm={confirmBlock}
         onCancel={() => setBlockModal(false)}
       />
@@ -210,9 +211,7 @@ function formatTimeAgo(dateStr: string) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.background,
     borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
     zIndex: 1,
     overflow: "visible",
   },
@@ -225,24 +224,24 @@ const styles = StyleSheet.create({
   },
   avatarRing: {
     width: 44, height: 44, borderRadius: 22,
-    borderWidth: 2, borderColor: COLORS.primary,
+    borderWidth: 2,
     justifyContent: "center", alignItems: "center", padding: 2,
   },
   avatarInner: {
     width: 36, height: 36, borderRadius: 18,
-    overflow: "hidden", backgroundColor: COLORS.surface,
+    overflow: "hidden",
   },
   avatarImage: { width: 36, height: 36 },
   verifiedBadge: {
     width: 8, height: 8, borderRadius: 4,
-    backgroundColor: COLORS.badgeBlue, marginLeft: -2,
+    marginLeft: -2,
   },
   profileArea: { flexDirection: "row", alignItems: "center", flex: 1 },
   userInfo: { marginLeft: 10, flex: 1 },
   moreBtn: { padding: 10 },
   nameRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  nickname: { fontSize: 14, fontWeight: "700", color: COLORS.text },
-  meta: { fontSize: 12, color: COLORS.textSecondary, marginTop: 1 },
+  nickname: { fontSize: 14, fontWeight: "700" },
+  meta: { fontSize: 12, marginTop: 1 },
   postImage: { width: width, height: width },
   actionsRow: {
     flexDirection: "row",
@@ -253,23 +252,20 @@ const styles = StyleSheet.create({
   },
   leftActions: { flexDirection: "row", gap: 16 },
   connectBtn: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 20, paddingVertical: 8, borderRadius: 12,
   },
   connectText: { color: "#fff", fontSize: 13, fontWeight: "700" },
   content: { paddingHorizontal: 14, paddingBottom: 14 },
-  likesText: { fontSize: 13, fontWeight: "700", color: COLORS.text, marginBottom: 4 },
-  contentNickname: { fontWeight: "700", fontSize: 13, color: COLORS.text },
-  contentText: { fontSize: 13, color: COLORS.text, lineHeight: 19 },
-  moodTag: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
-  timeAgo: { fontSize: 11, color: COLORS.textLight, marginTop: 4, textTransform: "uppercase" },
+  likesText: { fontSize: 13, fontWeight: "700", marginBottom: 4 },
+  contentNickname: { fontWeight: "700", fontSize: 13 },
+  contentText: { fontSize: 13, lineHeight: 19 },
+  moodTag: { fontSize: 12, marginTop: 4 },
+  timeAgo: { fontSize: 11, marginTop: 4, textTransform: "uppercase" },
 
-  // 팝오버
   popover: {
     position: "absolute",
     top: 28,
     right: 0,
-    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingVertical: 4,
     minWidth: 100,
@@ -290,6 +286,5 @@ const styles = StyleSheet.create({
   popText: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.text,
   },
 });
