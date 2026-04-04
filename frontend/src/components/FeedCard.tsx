@@ -8,8 +8,6 @@ import {
   Dimensions,
   Share,
   Alert,
-  Modal,
-  Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -113,9 +111,23 @@ export function FeedCard({ post, onInterest }: Props) {
             {post.user.region} · {post.user.age}세
           </Text>
         </View>
-        <TouchableOpacity onPress={() => setShowMore(true)}>
-          <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity onPress={() => setShowMore(!showMore)}>
+            <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
+          </TouchableOpacity>
+          {showMore && (
+            <View style={styles.popover}>
+              <TouchableOpacity style={styles.popItem} onPress={handleReport}>
+                <MaterialIcons name="flag" size={16} color={COLORS.error} />
+                <Text style={[styles.popText, { color: COLORS.error }]}>신고</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.popItem} onPress={handleBlock}>
+                <MaterialIcons name="block" size={16} color={COLORS.text} />
+                <Text style={styles.popText}>차단</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
 
       {/* Square Image */}
@@ -151,25 +163,6 @@ export function FeedCard({ post, onInterest }: Props) {
         <Text style={styles.timeAgo}>{formatTimeAgo(post.created_at)}</Text>
       </View>
 
-      {/* 바텀시트 더보기 메뉴 */}
-      <Modal visible={showMore} transparent animationType="fade" onRequestClose={() => setShowMore(false)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowMore(false)}>
-          <Pressable style={styles.bottomSheet}>
-            <View style={styles.sheetHandle} />
-            <TouchableOpacity style={styles.sheetItem} onPress={handleReport}>
-              <MaterialIcons name="flag" size={22} color={COLORS.error} />
-              <Text style={[styles.sheetText, { color: COLORS.error }]}>신고</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.sheetItem} onPress={handleBlock}>
-              <MaterialIcons name="block" size={22} color={COLORS.text} />
-              <Text style={styles.sheetText}>차단</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.sheetItem, styles.sheetCancel]} onPress={() => setShowMore(false)}>
-              <Text style={styles.sheetCancelText}>취소</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </View>
   );
 }
@@ -233,50 +226,32 @@ const styles = StyleSheet.create({
   moodTag: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
   timeAgo: { fontSize: 11, color: COLORS.textLight, marginTop: 4, textTransform: "uppercase" },
 
-  // 바텀시트
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "flex-end",
-  },
-  bottomSheet: {
+  // 팝오버
+  popover: {
+    position: "absolute",
+    top: 28,
+    right: 0,
     backgroundColor: COLORS.background,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 40,
+    borderRadius: 12,
+    paddingVertical: 4,
+    minWidth: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 100,
   },
-  sheetHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.border,
-    alignSelf: "center",
-    marginBottom: 16,
-  },
-  sheetItem: {
+  popItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingVertical: 16,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
-  sheetText: {
-    fontSize: 16,
+  popText: {
+    fontSize: 14,
     fontWeight: "600",
     color: COLORS.text,
-  },
-  sheetCancel: {
-    justifyContent: "center",
-    borderBottomWidth: 0,
-  },
-  sheetCancelText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.textSecondary,
-    textAlign: "center",
-    width: "100%",
   },
 });
