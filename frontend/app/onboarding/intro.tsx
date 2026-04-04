@@ -18,10 +18,15 @@ const { width } = Dimensions.get("window");
 
 function GlassCard({ children, style }: { children: React.ReactNode; style?: any }) {
   return (
-    <BlurView intensity={35} tint="light" style={[styles.glassOuter, style]}>
-      <View style={styles.glassInner}>
+    <BlurView intensity={40} tint="light" style={[styles.glassOuter, style]}>
+      <LinearGradient
+        colors={["rgba(255,255,255,0.5)", "rgba(255,255,255,0.15)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.glassInner}
+      >
         {children}
-      </View>
+      </LinearGradient>
     </BlurView>
   );
 }
@@ -45,7 +50,6 @@ export default function IntroScreen() {
             style={styles.heroImage}
             resizeMode="cover"
           />
-          <View style={styles.heroOverlay} />
           {/* 히어로 텍스트: 글래스 오버레이 */}
           <BlurView intensity={25} tint="dark" style={styles.heroGlass}>
             <View style={styles.heroGlassInner}>
@@ -79,19 +83,29 @@ export default function IntroScreen() {
 
           {/* 3 & 4 그리드 */}
           <View style={styles.cardGrid}>
-            <BlurView intensity={30} tint="light" style={styles.cardHalfOuter}>
-              <View style={styles.cardHalfInner}>
+            <BlurView intensity={40} tint="light" style={styles.cardHalfOuter}>
+              <LinearGradient
+                colors={["rgba(255,255,255,0.5)", "rgba(255,255,255,0.15)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.cardHalfInner}
+              >
                 <MaterialIcons name="forum" size={28} color={COLORS.primary} />
                 <Text style={styles.cardTitleSmall}>대화는 언제나 무료</Text>
                 <Text style={styles.cardDescSmall}>서로의 호감이 확인되면 대화는 언제나 무료로 가능합니다.</Text>
-              </View>
+              </LinearGradient>
             </BlurView>
-            <BlurView intensity={30} tint="light" style={styles.cardHalfOuter}>
-              <View style={styles.cardHalfInner}>
+            <BlurView intensity={40} tint="light" style={styles.cardHalfOuter}>
+              <LinearGradient
+                colors={["rgba(255,255,255,0.5)", "rgba(255,255,255,0.15)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.cardHalfInner}
+              >
                 <MaterialIcons name="gesture" size={28} color={COLORS.primary} />
                 <Text style={styles.cardTitleSmall}>상호 관심 기반</Text>
                 <Text style={styles.cardDescSmall}>두 사람 모두 호감을 표시했을 때만 대화의 문이 열립니다.</Text>
-              </View>
+              </LinearGradient>
             </BlurView>
           </View>
 
@@ -170,25 +184,15 @@ const styles = StyleSheet.create({
   // 히어로
   heroWrap: {
     width: width - 48,
-    aspectRatio: 4 / 5,
+    aspectRatio: 1,
     borderRadius: 32,
     overflow: "hidden",
     marginHorizontal: 24,
     marginTop: 50,
     marginBottom: 24,
     position: "relative",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
   },
   heroImage: { width: "100%", height: "100%" },
-  heroOverlay: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
-    height: "40%",
-    backgroundColor: "rgba(0,0,0,0.25)",
-  },
   heroGlass: {
     position: "absolute", bottom: 16, left: 16, right: 16,
     borderRadius: 20, overflow: "hidden",
@@ -208,17 +212,17 @@ const styles = StyleSheet.create({
   // 글래스 카드 공통
   glassOuter: {
     borderRadius: 24, overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
   },
   glassInner: {
     padding: 28,
-    backgroundColor: "rgba(255,255,255,0.45)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.7)",
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.5)",
+    borderLeftColor: "rgba(255,255,255,0.3)",
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderRightColor: "rgba(255,255,255,0.08)",
     borderRadius: 24,
   },
   cardAccentOuter: {
@@ -252,17 +256,17 @@ const styles = StyleSheet.create({
   cardGrid: { flexDirection: "row", gap: 12 },
   cardHalfOuter: {
     flex: 1, borderRadius: 24, overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
   },
   cardHalfInner: {
     padding: 22, gap: 10,
-    backgroundColor: "rgba(255,255,255,0.45)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.7)",
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.5)",
+    borderLeftColor: "rgba(255,255,255,0.3)",
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderRightColor: "rgba(255,255,255,0.08)",
     borderRadius: 24,
   },
   cardTitleSmall: {
@@ -275,11 +279,6 @@ const styles = StyleSheet.create({
   // 졸업 카드
   gradCard: {
     padding: 32, borderRadius: 32, overflow: "hidden", position: "relative",
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.2,
-    shadowRadius: 32,
-    elevation: 8,
   },
   gradGlow: {
     position: "absolute", top: -48, right: -48,
@@ -292,8 +291,7 @@ const styles = StyleSheet.create({
   gradGlassStripInner: {
     paddingVertical: 8, paddingHorizontal: 16,
     backgroundColor: "rgba(255,255,255,0.15)",
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
-    borderRadius: 14, alignItems: "center",
+    alignItems: "center",
   },
   gradGlassText: {
     fontSize: 13, fontWeight: "600", color: "rgba(255,255,255,0.9)",
@@ -326,8 +324,7 @@ const styles = StyleSheet.create({
   },
   bottomBarInner: {
     padding: 24, paddingBottom: 40,
-    backgroundColor: "rgba(255,255,255,0.45)",
-    borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
   ctaButton: {
     backgroundColor: COLORS.primary,
