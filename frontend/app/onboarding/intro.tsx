@@ -9,6 +9,8 @@ import {
   Image,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../../src/constants/config";
 
@@ -18,7 +20,7 @@ export default function IntroScreen() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={["#E8E0F0", "#F5F1EA", "#F0E8E0", "#EDE8F5"]} locations={[0, 0.3, 0.7, 1]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* 히어로 이미지 */}
         <View style={styles.heroWrap}>
@@ -89,21 +91,23 @@ export default function IntroScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* 하단 고정 버튼 */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.ctaButton}
-          onPress={() => router.push("/onboarding/phone")}
-        >
-          <Text style={styles.ctaText}>함께 시작하기</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      {/* 하단 글래스 버튼 */}
+      <BlurView intensity={50} tint="light" style={styles.bottomBar}>
+        <View style={styles.bottomBarInner}>
+          <TouchableOpacity
+            style={styles.ctaButton}
+            onPress={() => router.push("/onboarding/phone")}
+          >
+            <Text style={styles.ctaText}>함께 시작하기</Text>
+          </TouchableOpacity>
+        </View>
+      </BlurView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#faf9fe" },
+  container: { flex: 1 },
   scroll: { paddingBottom: 20 },
 
   // 히어로
@@ -157,14 +161,15 @@ const styles = StyleSheet.create({
   cards: { paddingHorizontal: 24, gap: 14 },
 
   cardFull: {
-    backgroundColor: "#f4f3f8",
+    backgroundColor: "rgba(255,255,255,0.55)",
     padding: 28,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.6)",
   },
   cardAccent: {
-    backgroundColor: "rgba(156, 134, 255, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(156, 134, 255, 0.05)",
+    backgroundColor: "rgba(156, 134, 255, 0.1)",
+    borderColor: "rgba(156, 134, 255, 0.15)",
   },
   cardHeader: {
     flexDirection: "row",
@@ -197,10 +202,12 @@ const styles = StyleSheet.create({
   },
   cardHalf: {
     flex: 1,
-    backgroundColor: "#f4f3f8",
+    backgroundColor: "rgba(255,255,255,0.5)",
     padding: 22,
     borderRadius: 24,
     gap: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.6)",
   },
   cardTitleSmall: {
     fontSize: 17,
@@ -274,9 +281,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: "hidden",
+  },
+  bottomBarInner: {
     padding: 24,
     paddingBottom: 40,
-    backgroundColor: "rgba(250, 249, 254, 0.9)",
+    backgroundColor: "rgba(255,255,255,0.4)",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.6)",
   },
   ctaButton: {
     backgroundColor: COLORS.primary,

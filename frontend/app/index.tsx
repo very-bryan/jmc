@@ -9,12 +9,14 @@ import {
   Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuthStore } from "../src/store/authStore";
 import { loginWithKakao } from "../src/services/kakaoAuth";
 import { trackEvent, EVENTS } from "../src/api/analytics";
 import { COLORS } from "../src/constants/config";
 
-const { width } = Dimensions.get("window");
+const { width, height: screenHeight } = Dimensions.get("window");
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -32,30 +34,45 @@ export default function SplashScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <LinearGradient colors={["#E8E0F0", "#F5F1EA", "#F0E8E0"]} style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* 배경 장식 원 */}
-      <View style={styles.decoCircleTopLeft} />
-      <View style={styles.decoCircleTopRight} />
+    <LinearGradient
+      colors={["#E8E0F0", "#F5F1EA", "#F0E8E0", "#EDE8F5"]}
+      locations={[0, 0.3, 0.7, 1]}
+      style={styles.container}
+    >
+      {/* 배경 장식 */}
+      <View style={styles.decoCircle1} />
+      <View style={styles.decoCircle2} />
+      <View style={styles.decoCircle3} />
 
-      {/* 콘텐츠 */}
+      {/* 글래스 타이틀 카드 */}
       <View style={styles.content}>
-        <Text style={styles.brandLabel}>JINMANCHU</Text>
-        <Text style={styles.title}>진만추</Text>
+        <BlurView intensity={40} tint="light" style={styles.glassTitle}>
+          <View style={styles.glassTitleInner}>
+            <Text style={styles.brandLabel}>JINMANCHU</Text>
+            <Text style={styles.title}>진만추</Text>
+          </View>
+        </BlurView>
 
         <Text style={styles.headline}>
           소개팅앱보다 진지하게{"\n"}일상으로 알아가는 진짜 관계
         </Text>
-        <Text style={styles.description}>
-          서로의 일상을 공유하며, 자연스럽고 신뢰할 수 있는 만남{"\n"}
-          을 추구하는 MZ 세대를 위한 프리미엄 소셜 커뮤니티.
-        </Text>
+
+        {/* 글래스 설명 카드 */}
+        <BlurView intensity={30} tint="light" style={styles.glassDesc}>
+          <View style={styles.glassDescInner}>
+            <Text style={styles.description}>
+              서로의 일상을 공유하며, 자연스럽고 신뢰할 수 있는{"\n"}
+              만남을 추구하는 MZ 세대를 위한 프리미엄 커뮤니티.
+            </Text>
+          </View>
+        </BlurView>
 
         {/* 메인 이미지 */}
         <View style={styles.imageWrap}>
@@ -64,88 +81,104 @@ export default function SplashScreen() {
             style={styles.heroImage}
             resizeMode="cover"
           />
+          {/* 이미지 위 글래스 오버레이 */}
+          <BlurView intensity={60} tint="light" style={styles.imageGlassOverlay}>
+            <View style={styles.imageGlassInner}>
+              <Text style={styles.imageOverlayText}>검증된 사람과 안전하게</Text>
+            </View>
+          </BlurView>
         </View>
       </View>
 
-      {/* 하단 버튼 */}
-      <View style={styles.bottom}>
-        <Text style={styles.ctaLabel}>지금, 새로운 일상을 시작하세요.</Text>
-        <TouchableOpacity
-          style={styles.kakaoButton}
-          onPress={async () => {
-            trackEvent(EVENTS.ONBOARDING_START);
-            try {
-              const result = await loginWithKakao();
-              if (result.success) {
-                if (result.isNewUser) {
-                  router.push({
-                    pathname: "/onboarding/invite",
-                    params: {
-                      kakao_id: result.kakaoInfo?.kakao_id,
-                      kakao_nickname: result.kakaoInfo?.nickname,
-                      kakao_email: result.kakaoInfo?.email,
-                    },
-                  });
-                } else {
-                  await setToken(result.token!);
-                  setUser(result.user!);
-                  router.replace("/(tabs)");
+      {/* 하단 글래스 버튼 영역 */}
+      <BlurView intensity={50} tint="light" style={styles.bottomGlass}>
+        <View style={styles.bottomInner}>
+          <Text style={styles.ctaLabel}>지금, 새로운 일상을 시작하세요.</Text>
+
+          <TouchableOpacity
+            style={styles.kakaoButton}
+            onPress={async () => {
+              trackEvent(EVENTS.ONBOARDING_START);
+              try {
+                const result = await loginWithKakao();
+                if (result.success) {
+                  if (result.isNewUser) {
+                    router.push({
+                      pathname: "/onboarding/invite",
+                      params: {
+                        kakao_id: result.kakaoInfo?.kakao_id,
+                        kakao_nickname: result.kakaoInfo?.nickname,
+                        kakao_email: result.kakaoInfo?.email,
+                      },
+                    });
+                  } else {
+                    await setToken(result.token!);
+                    setUser(result.user!);
+                    router.replace("/(tabs)");
+                  }
+                } else if (result.error) {
+                  router.push("/onboarding/intro");
                 }
-              } else if (result.error) {
+              } catch {
                 router.push("/onboarding/intro");
               }
-            } catch {
-              router.push("/onboarding/intro");
-            }
-          }}
-        >
-          <Text style={styles.kakaoButtonText}>카카오톡으로 시작하기</Text>
-        </TouchableOpacity>
+            }}
+          >
+            <Text style={styles.kakaoButtonText}>카카오톡으로 시작하기</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => router.push("/onboarding/phone")}
-        >
-          <Text style={styles.loginButtonText}>휴대폰 번호로 로그인</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.push("/onboarding/phone")}
+          >
+            <Text style={styles.loginButtonText}>휴대폰 번호로 로그인</Text>
+          </TouchableOpacity>
+        </View>
+      </BlurView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
   container: {
     flex: 1,
-    backgroundColor: "#FAF8F5",
-    paddingHorizontal: 24,
   },
 
-  // 장식 원
-  decoCircleTopLeft: {
+  // 배경 장식 원 (글래스 뒤에서 비치는 용도)
+  decoCircle1: {
     position: "absolute",
-    top: -30,
-    left: -30,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    top: -40,
+    left: -40,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
     backgroundColor: "#C9BFFF",
+    opacity: 0.5,
+  },
+  decoCircle2: {
+    position: "absolute",
+    top: screenHeight * 0.35,
+    right: -50,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "#E5C0B0",
     opacity: 0.4,
   },
-  decoCircleTopRight: {
+  decoCircle3: {
     position: "absolute",
-    top: 200,
-    right: -30,
+    bottom: 100,
+    left: -30,
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: "#B8A5FF",
-    opacity: 0.25,
+    opacity: 0.3,
   },
 
   // 콘텐츠
@@ -153,35 +186,67 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingTop: 50,
+  },
+
+  // 글래스 타이틀 카드
+  glassTitle: {
+    borderRadius: 24,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  glassTitleInner: {
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.3)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.5)",
+    borderRadius: 24,
   },
   brandLabel: {
     fontSize: 13,
-    fontWeight: "600",
-    color: COLORS.textSecondary,
-    letterSpacing: 3,
-    marginBottom: 8,
+    fontWeight: "700",
+    color: COLORS.primary,
+    letterSpacing: 4,
+    marginBottom: 2,
   },
   title: {
     fontSize: 64,
     fontWeight: "900",
-    color: "#9C86FF",
-    marginBottom: 20,
+    color: COLORS.primary,
+    letterSpacing: -1,
   },
+
   headline: {
     fontSize: 20,
     fontWeight: "800",
-    color: COLORS.text,
+    color: "#2c2c2c",
     textAlign: "center",
     lineHeight: 30,
     marginBottom: 12,
   },
+
+  // 글래스 설명 카드
+  glassDesc: {
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  glassDescInner: {
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    backgroundColor: "rgba(255,255,255,0.35)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+    borderRadius: 16,
+  },
   description: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: "#5c5c5c",
     textAlign: "center",
     lineHeight: 20,
-    marginBottom: 24,
   },
 
   // 이미지
@@ -190,50 +255,89 @@ const styles = StyleSheet.create({
     aspectRatio: 1024 / 858,
     borderRadius: 20,
     overflow: "hidden",
-    marginBottom: 24,
+    position: "relative",
   },
   heroImage: {
     width: "100%",
     height: "100%",
   },
-
-  ctaLabel: {
-    fontSize: 17,
+  imageGlassOverlay: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    right: 12,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+  imageGlassInner: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  imageOverlayText: {
+    fontSize: 14,
     fontWeight: "700",
-    color: COLORS.text,
-    textAlign: "center",
-    marginVertical: 16,
+    color: "#fff",
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
 
-  // 하단 버튼
-  bottom: {
-    width: "100%",
+  // 하단 글래스 영역
+  bottomGlass: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: "hidden",
+  },
+  bottomInner: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
     paddingBottom: 40,
     gap: 10,
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.4)",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.6)",
+  },
+  ctaLabel: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#2c2c2c",
+    textAlign: "center",
+    marginBottom: 6,
   },
   kakaoButton: {
     backgroundColor: "#FEE500",
-    paddingVertical: 16,
-    borderRadius: 14,
+    paddingVertical: 18,
+    borderRadius: 16,
     alignItems: "center",
     width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   kakaoButtonText: {
     color: "#191919",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "700",
   },
   loginButton: {
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 16,
     width: "100%",
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.5)",
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "rgba(255,255,255,0.7)",
   },
   loginButtonText: {
-    color: COLORS.textSecondary,
+    color: "#5c5c5c",
     fontSize: 16,
     fontWeight: "600",
   },
