@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Dimensions,
   Share,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { VerificationBadge } from "./VerificationBadge";
+import { ConfirmModal, ResultToast } from "./ConfirmModal";
 import { COLORS } from "../constants/config";
 import client from "../api/client";
 import type { Post } from "../types";
@@ -30,6 +30,9 @@ export function FeedCard({ post, onInterest }: Props) {
     (post as any).likes_count ?? Math.floor(Math.random() * 50 + 5)
   );
   const [showMore, setShowMore] = useState(false);
+  const [reportModal, setReportModal] = useState(false);
+  const [blockModal, setBlockModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
 
   const avatarUri =
     post.user.profile_image_url ||
@@ -73,46 +76,49 @@ export function FeedCard({ post, onInterest }: Props) {
 
   const handleReport = () => {
     setShowMore(false);
-    Alert.alert("신고", "이 게시글을 신고하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      { text: "신고", style: "destructive", onPress: () => Alert.alert("완료", "신고가 접수되었습니다") },
-    ]);
+    setReportModal(true);
   };
 
   const handleBlock = () => {
     setShowMore(false);
-    Alert.alert("차단", "이 사용자를 차단하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      { text: "차단", style: "destructive", onPress: () => Alert.alert("완료", "차단되었습니다") },
-    ]);
+    setBlockModal(true);
+  };
+
+  const confirmReport = () => {
+    setReportModal(false);
+    setToastMsg("신고가 접수되었습니다");
+  };
+
+  const confirmBlock = () => {
+    setBlockModal(false);
+    setToastMsg("차단되었습니다");
   };
 
   return (
     <View style={styles.card}>
       {/* Header */}
-      <TouchableOpacity
-        style={styles.header}
-        onPress={() => router.push(`/profile/${post.user.id}` as any)}
-      >
-        <View style={styles.avatarRing}>
-          <View style={styles.avatarInner}>
-            <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.profileArea} onPress={() => router.push(`/profile/${post.user.id}` as any)}>
+          <View style={styles.avatarRing}>
+            <View style={styles.avatarInner}>
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            </View>
           </View>
-        </View>
-        <View style={styles.userInfo}>
-          <View style={styles.nameRow}>
-            <Text style={styles.nickname}>{post.user.nickname}</Text>
-            {post.user.verification_level !== "basic" && (
-              <View style={styles.verifiedBadge} />
-            )}
-            <VerificationBadge level={post.user.verification_level} />
+          <View style={styles.userInfo}>
+            <View style={styles.nameRow}>
+              <Text style={styles.nickname}>{post.user.nickname}</Text>
+              {post.user.verification_level !== "basic" && (
+                <View style={styles.verifiedBadge} />
+              )}
+              <VerificationBadge level={post.user.verification_level} />
+            </View>
+            <Text style={styles.meta}>
+              {post.user.region} · {post.user.age}세
+            </Text>
           </View>
-          <Text style={styles.meta}>
-            {post.user.region} · {post.user.age}세
-          </Text>
-        </View>
+        </TouchableOpacity>
         <View>
-          <TouchableOpacity onPress={() => setShowMore(!showMore)}>
+          <TouchableOpacity style={styles.moreBtn} onPress={() => setShowMore(!showMore)}>
             <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
           </TouchableOpacity>
           {showMore && (
@@ -128,7 +134,7 @@ export function FeedCard({ post, onInterest }: Props) {
             </View>
           )}
         </View>
-      </TouchableOpacity>
+      </View>
 
       {/* Square Image */}
       <Image source={{ uri: postImageUri }} style={styles.postImage} resizeMode="cover" />
@@ -163,6 +169,33 @@ export function FeedCard({ post, onInterest }: Props) {
         <Text style={styles.timeAgo}>{formatTimeAgo(post.created_at)}</Text>
       </View>
 
+      <ConfirmModal
+        visible={reportModal}
+        icon="flag"
+        iconColor={COLORS.error}
+        title="게시글을 신고하시겠습니까?"
+        message="허위 신고 시 제재를 받을 수 있습니다"
+        confirmText="신고"
+        confirmColor={COLORS.error}
+        onConfirm={confirmReport}
+        onCancel={() => setReportModal(false)}
+      />
+      <ConfirmModal
+        visible={blockModal}
+        icon="block"
+        iconColor={COLORS.textSecondary}
+        title="이 사용자를 차단하시겠습니까?"
+        message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
+        confirmText="차단"
+        confirmColor={COLORS.error}
+        onConfirm={confirmBlock}
+        onCancel={() => setBlockModal(false)}
+      />
+      <ResultToast
+        visible={!!toastMsg}
+        message={toastMsg}
+        onDone={() => setToastMsg("")}
+      />
     </View>
   );
 }
@@ -180,12 +213,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderBottomWidth: 0.5,
     borderBottomColor: COLORS.border,
+    zIndex: 1,
+    overflow: "visible",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 14,
     paddingVertical: 10,
+    zIndex: 100,
   },
   avatarRing: {
     width: 44, height: 44, borderRadius: 22,
@@ -201,7 +237,9 @@ const styles = StyleSheet.create({
     width: 8, height: 8, borderRadius: 4,
     backgroundColor: COLORS.badgeBlue, marginLeft: -2,
   },
+  profileArea: { flexDirection: "row", alignItems: "center", flex: 1 },
   userInfo: { marginLeft: 10, flex: 1 },
+  moreBtn: { padding: 10 },
   nameRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   nickname: { fontSize: 14, fontWeight: "700", color: COLORS.text },
   meta: { fontSize: 12, color: COLORS.textSecondary, marginTop: 1 },

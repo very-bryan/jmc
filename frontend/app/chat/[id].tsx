@@ -11,13 +11,14 @@ import {
   Keyboard,
   Animated,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { conversationApi } from "../../src/api";
+import { conversationApi, blockApi, reportApi } from "../../src/api";
 import { uploadImage } from "../../src/api/upload";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
 import { COLORS } from "../../src/constants/config";
 import type { Message } from "../../src/types";
 
@@ -54,6 +55,7 @@ const DUMMY_MESSAGES: Message[] = [
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -61,6 +63,32 @@ export default function ChatScreen() {
   const [useDummy, setUseDummy] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const trackedMilestones = useRef<Set<string>>(new Set());
+  const [showMore, setShowMore] = useState(false);
+  const [reportModal, setReportModal] = useState(false);
+  const [blockModal, setBlockModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const confirmReport = async () => {
+    setReportModal(false);
+    try {
+      await reportApi.create({
+        reported_id: Number(id),
+        reportable_type: "Conversation",
+        reportable_id: Number(id),
+        report_type: "other",
+        reason: "대화 중 신고",
+      });
+    } catch {}
+    setToastMsg("신고가 접수되었습니다");
+  };
+
+  const confirmBlock = async () => {
+    setBlockModal(false);
+    try {
+      await blockApi.create(Number(id));
+    } catch {}
+    setToastMsg("차단되었습니다");
+  };
 
   useEffect(() => {
     trackEvent(EVENTS.DM_CONVERSATION_OPEN, { conversation_id: Number(id) });
@@ -193,6 +221,31 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
+      {/* 헤더 */}
+      <View style={styles.chatHeader}>
+        <TouchableOpacity style={styles.headerBackBtn} onPress={() => router.back()}>
+          <MaterialIcons name="arrow-back" size={22} color={COLORS.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>대화</Text>
+        <View>
+          <TouchableOpacity style={styles.headerMoreBtn} onPress={() => setShowMore(!showMore)}>
+            <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
+          </TouchableOpacity>
+          {showMore && (
+            <View style={styles.chatPopover}>
+              <TouchableOpacity style={styles.chatPopItem} onPress={() => { setShowMore(false); setReportModal(true); }}>
+                <MaterialIcons name="flag" size={16} color={COLORS.error} />
+                <Text style={[styles.chatPopText, { color: COLORS.error }]}>신고</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.chatPopItem} onPress={() => { setShowMore(false); setBlockModal(true); }}>
+                <MaterialIcons name="block" size={16} color={COLORS.text} />
+                <Text style={styles.chatPopText}>차단</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
+
       <Animated.View style={[styles.innerContainer, { paddingBottom: keyboardHeight }]}>
       <FlatList
         ref={flatListRef}
@@ -280,12 +333,82 @@ export default function ChatScreen() {
         </TouchableOpacity>
       </View>
       </Animated.View>
+
+      <ConfirmModal
+        visible={reportModal}
+        icon="flag"
+        iconColor={COLORS.error}
+        title="이 사용자를 신고하시겠습니까?"
+        message="허위 신고 시 제재를 받을 수 있습니다"
+        confirmText="신고"
+        confirmColor={COLORS.error}
+        onConfirm={confirmReport}
+        onCancel={() => setReportModal(false)}
+      />
+      <ConfirmModal
+        visible={blockModal}
+        icon="block"
+        iconColor={COLORS.textSecondary}
+        title="이 사용자를 차단하시겠습니까?"
+        message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
+        confirmText="차단"
+        confirmColor={COLORS.error}
+        onConfirm={confirmBlock}
+        onCancel={() => setBlockModal(false)}
+      />
+      <ResultToast
+        visible={!!toastMsg}
+        message={toastMsg}
+        onDone={() => setToastMsg("")}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF9FE" },
+  chatHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 54,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.background,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.border,
+    zIndex: 100,
+  },
+  headerBackBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: "center", alignItems: "center" },
+  headerTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
+  headerMoreBtn: { padding: 10 },
+  chatPopover: {
+    position: "absolute",
+    top: 36,
+    right: 0,
+    backgroundColor: COLORS.background,
+    borderRadius: 12,
+    paddingVertical: 4,
+    minWidth: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 100,
+  },
+  chatPopItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  chatPopText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.text,
+  },
   innerContainer: { flex: 1 },
   list: { padding: 14, paddingBottom: 4 },
   msgRow: {
@@ -311,21 +434,21 @@ const styles = StyleSheet.create({
   },
   mine: {
     alignSelf: "flex-end",
-    backgroundColor: COLORS.primary,
-    borderBottomRightRadius: 6,
-  },
-  theirs: {
-    alignSelf: "flex-start",
     backgroundColor: "#fff",
-    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
   },
-  bubbleText: { fontSize: 15, color: COLORS.text, lineHeight: 22 },
-  mineText: { color: "#fff" },
+  theirs: {
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.primary,
+    borderBottomLeftRadius: 6,
+  },
+  bubbleText: { fontSize: 15, color: "#fff", lineHeight: 22 },
+  mineText: { color: COLORS.text },
   time: {
     fontSize: 10,
     color: COLORS.textLight,

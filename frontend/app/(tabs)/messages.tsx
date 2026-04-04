@@ -126,7 +126,9 @@ export default function MessagesScreen() {
                     style={[styles.preview, isUnread && styles.previewUnread]}
                     numberOfLines={1}
                   >
-                    {item.last_message?.content || "대화를 시작해보세요"}
+                    {item.last_message?.content?.startsWith("[사진]")
+                    ? "사진을 보냈습니다."
+                    : item.last_message?.content || "대화를 시작해보세요"}
                   </Text>
                   {isUnread && <View style={styles.unreadDot} />}
                 </View>

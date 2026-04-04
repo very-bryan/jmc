@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { userApi, interestApi, blockApi, reportApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
 import { COLORS } from "../../src/constants/config";
 
 const { width } = Dimensions.get("window");
@@ -44,6 +45,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [reportModal, setReportModal] = useState(false);
+  const [blockModal, setBlockModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -71,44 +75,31 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleBlock = () => {
-    Alert.alert("차단", "이 사용자를 차단하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "차단",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await blockApi.create(Number(id));
-            trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
-            Alert.alert("완료", "차단되었습니다");
-          } catch {}
-        },
-      },
-    ]);
+  const handleBlock = () => setBlockModal(true);
+  const handleReport = () => setReportModal(true);
+
+  const confirmBlock = async () => {
+    setBlockModal(false);
+    try {
+      await blockApi.create(Number(id));
+      trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
+    } catch {}
+    setToastMsg("차단되었습니다");
   };
 
-  const handleReport = () => {
-    Alert.alert("신고", "이 사용자를 신고하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "신고",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await reportApi.create({
-              reported_id: Number(id),
-              reportable_type: "User",
-              reportable_id: Number(id),
-              report_type: "other",
-              reason: "사용자 신고",
-            });
-            trackEvent(EVENTS.REPORT_SUBMIT, { target_user_id: Number(id), report_type: "other" });
-            Alert.alert("완료", "신고가 접수되었습니다");
-          } catch {}
-        },
-      },
-    ]);
+  const confirmReport = async () => {
+    setReportModal(false);
+    try {
+      await reportApi.create({
+        reported_id: Number(id),
+        reportable_type: "User",
+        reportable_id: Number(id),
+        report_type: "other",
+        reason: "사용자 신고",
+      });
+      trackEvent(EVENTS.REPORT_SUBMIT, { target_user_id: Number(id), report_type: "other" });
+    } catch {}
+    setToastMsg("신고가 접수되었습니다");
   };
 
   if (loading) {
@@ -261,6 +252,34 @@ export default function ProfileScreen() {
           <Text style={styles.connectText}>관심 보내기</Text>
         </TouchableOpacity>
       </View>
+
+      <ConfirmModal
+        visible={reportModal}
+        icon="flag"
+        iconColor={COLORS.error}
+        title="이 사용자를 신고하시겠습니까?"
+        message="허위 신고 시 제재를 받을 수 있습니다"
+        confirmText="신고"
+        confirmColor={COLORS.error}
+        onConfirm={confirmReport}
+        onCancel={() => setReportModal(false)}
+      />
+      <ConfirmModal
+        visible={blockModal}
+        icon="block"
+        iconColor={COLORS.textSecondary}
+        title="이 사용자를 차단하시겠습니까?"
+        message="차단하면 서로의 게시글과 프로필을 볼 수 없습니다"
+        confirmText="차단"
+        confirmColor={COLORS.error}
+        onConfirm={confirmBlock}
+        onCancel={() => setBlockModal(false)}
+      />
+      <ResultToast
+        visible={!!toastMsg}
+        message={toastMsg}
+        onDone={() => setToastMsg("")}
+      />
     </View>
   );
 }
