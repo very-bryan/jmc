@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
+import { useThemeStore, ThemeMode } from "../../src/store/themeStore";
 import { inviteCodeApi } from "../../src/api";
 import client from "../../src/api/client";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
@@ -23,6 +24,7 @@ export default function MypageScreen() {
   const router = useRouter();
   const C = useThemeColors();
   const { user, logout, fetchMe } = useAuthStore();
+  const { mode: themeMode, setMode: setThemeMode } = useThemeStore();
   const [inviteCodes, setInviteCodes] = useState<
     { id: number; code: string; status: string; used_by: any }[]
   >([]);
@@ -95,6 +97,31 @@ export default function MypageScreen() {
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} C={C} />
         <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} isLast C={C} />
+      </View>
+
+      <Text style={[styles.sectionLabel, { color: C.textLight }]}>화면</Text>
+      <View style={[styles.card, { backgroundColor: C.background }]}>
+        <View style={[styles.themeRow, { borderBottomColor: C.borderLight }]}>
+          <MaterialIcons name="dark-mode" size={20} color={C.textSecondary} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: C.text }]}>화면 모드</Text>
+        </View>
+        <View style={[styles.themeOptions, { borderBottomColor: C.borderLight }]}>
+          {([
+            { key: "system" as ThemeMode, label: "시스템 설정" },
+            { key: "light" as ThemeMode, label: "라이트" },
+            { key: "dark" as ThemeMode, label: "다크" },
+          ]).map((opt) => (
+            <TouchableOpacity
+              key={opt.key}
+              style={[styles.themeOption, { backgroundColor: themeMode === opt.key ? C.primary : C.surface }]}
+              onPress={() => setThemeMode(opt.key)}
+            >
+              <Text style={[styles.themeOptionText, { color: themeMode === opt.key ? "#fff" : C.textSecondary }]}>
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>알림</Text>
@@ -217,6 +244,28 @@ const styles = StyleSheet.create({
   settingsRowLast: { borderBottomWidth: 0 },
   rowLabel: { flex: 1, fontSize: 15, marginLeft: 8 },
   notImplBadge: { fontSize: 11, marginRight: 4 },
+  themeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+  },
+  themeOptions: {
+    flexDirection: "row",
+    gap: 8,
+    padding: 16,
+  },
+  themeOption: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 12,
+  },
+  themeOptionText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
   signOutBtn: { marginTop: 30, alignItems: "center", paddingVertical: 14 },
   signOutText: { fontSize: 14, fontWeight: "700", letterSpacing: 1 },
   versionText: { textAlign: "center", fontSize: 12, marginTop: 8 },

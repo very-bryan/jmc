@@ -1,4 +1,5 @@
 import { useColorScheme } from "react-native";
+import { useThemeStore } from "../store/themeStore";
 
 const LIGHT = {
   primary: "#9C86FF",
@@ -58,12 +59,19 @@ const DARK = {
 
 export type ThemeColors = typeof LIGHT;
 
+function useResolvedDark(): boolean {
+  const systemScheme = useColorScheme();
+  const mode = useThemeStore((s) => s.mode);
+  if (mode === "light") return false;
+  if (mode === "dark") return true;
+  return systemScheme === "dark";
+}
+
 export function useThemeColors(): ThemeColors {
-  const scheme = useColorScheme();
-  return scheme === "dark" ? DARK : LIGHT;
+  const isDark = useResolvedDark();
+  return isDark ? DARK : LIGHT;
 }
 
 export function useIsDark(): boolean {
-  const scheme = useColorScheme();
-  return scheme === "dark";
+  return useResolvedDark();
 }
