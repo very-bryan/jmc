@@ -25,6 +25,7 @@
 - 유저에게 보이는 모든 텍스트는 한국어 (영어 금지)
 - 이미지: WebP 변환, 최대 2048px, 품질 85
 - 글래스모피즘: BlurView + LinearGradient 하이라이트 (DESIGN_SYSTEM.md 참고)
+- **상태바 안전 영역**: 모든 화면에서 배터리/시계 영역(상태바)과 콘텐츠가 겹치지 않도록 `SafeAreaView` 또는 충분한 `marginTop`을 반드시 적용. 헤더 없는 화면은 `SafeAreaView edges={["top"]}` 사용 필수.
 
 ## 개발 서버
 

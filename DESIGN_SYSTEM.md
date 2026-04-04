@@ -149,3 +149,12 @@ BlurView (intensity: 60, tint: "light")
 - 히어로 상단 마진: 50px (상태바 겹침 방지)
 - 하단 스크롤 여백: 120px (고정 버튼 겹침 방지)
 - 이미지 비율: 원본 비율 유지 (`aspectRatio` 사용)
+
+### 상태바 안전 영역 (필수)
+
+- **모든 화면**에서 배터리, 시계, 노치 등 상태바 영역과 콘텐츠가 절대 겹치면 안 됨
+- Tabs 헤더가 있는 화면: Expo Router가 자동 처리 → 별도 작업 불필요
+- 헤더 없는 화면 (`headerShown: false`): 반드시 `SafeAreaView edges={["top"]}` 사용
+- `import { SafeAreaView } from "react-native-safe-area-context"`
+- 온보딩 화면: `OnboardingLayout` 컴포넌트가 내부에서 패딩으로 처리
+- 절대로 `marginTop`으로 하드코딩하지 말고 SafeAreaView 사용 권장
