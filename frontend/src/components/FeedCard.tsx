@@ -8,8 +8,8 @@ import {
   Dimensions,
   Share,
   Alert,
-  ActionSheetIOS,
-  Platform,
+  Modal,
+  Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -31,6 +31,7 @@ export function FeedCard({ post, onInterest }: Props) {
   const [likesCount, setLikesCount] = useState(
     (post as any).likes_count ?? Math.floor(Math.random() * 50 + 5)
   );
+  const [showMore, setShowMore] = useState(false);
 
   const avatarUri =
     post.user.profile_image_url ||
@@ -41,10 +42,14 @@ export function FeedCard({ post, onInterest }: Props) {
       ? post.images[0].url
       : `https://picsum.photos/400/400?random=${post.id}`;
 
+  const isDummy = post.id >= 800 && post.id < 900;
+
   const handleLike = async () => {
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikesCount((prev: number) => prev + (wasLiked ? -1 : 1));
+
+    if (isDummy) return; // 더미 포스트는 API 호출 안 함
 
     try {
       if (wasLiked) {
@@ -53,7 +58,6 @@ export function FeedCard({ post, onInterest }: Props) {
         await client.post(`/posts/${post.id}/like`);
       }
     } catch {
-      // 롤백
       setLiked(wasLiked);
       setLikesCount((prev: number) => prev + (wasLiked ? 1 : -1));
     }
@@ -69,35 +73,20 @@ export function FeedCard({ post, onInterest }: Props) {
     }
   };
 
-  const handleMore = () => {
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["신고", "차단", "취소"],
-          destructiveButtonIndex: 0,
-          cancelButtonIndex: 2,
-        },
-        (index) => {
-          if (index === 0) {
-            Alert.alert("신고", "이 게시글을 신고하시겠습니까?", [
-              { text: "취소", style: "cancel" },
-              { text: "신고", style: "destructive", onPress: () => Alert.alert("완료", "신고가 접수되었습니다") },
-            ]);
-          } else if (index === 1) {
-            Alert.alert("차단", "이 사용자를 차단하시겠습니까?", [
-              { text: "취소", style: "cancel" },
-              { text: "차단", style: "destructive", onPress: () => Alert.alert("완료", "차단되었습니다") },
-            ]);
-          }
-        }
-      );
-    } else {
-      Alert.alert("더보기", "", [
-        { text: "신고", onPress: () => Alert.alert("완료", "신고가 접수되었습니다") },
-        { text: "차단", style: "destructive", onPress: () => Alert.alert("완료", "차단되었습니다") },
-        { text: "취소", style: "cancel" },
-      ]);
-    }
+  const handleReport = () => {
+    setShowMore(false);
+    Alert.alert("신고", "이 게시글을 신고하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      { text: "신고", style: "destructive", onPress: () => Alert.alert("완료", "신고가 접수되었습니다") },
+    ]);
+  };
+
+  const handleBlock = () => {
+    setShowMore(false);
+    Alert.alert("차단", "이 사용자를 차단하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      { text: "차단", style: "destructive", onPress: () => Alert.alert("완료", "차단되었습니다") },
+    ]);
   };
 
   return (
@@ -124,17 +113,13 @@ export function FeedCard({ post, onInterest }: Props) {
             {post.user.region} · {post.user.age}세
           </Text>
         </View>
-        <TouchableOpacity onPress={handleMore}>
+        <TouchableOpacity onPress={() => setShowMore(true)}>
           <MaterialIcons name="more-horiz" size={22} color={COLORS.textLight} />
         </TouchableOpacity>
       </TouchableOpacity>
 
       {/* Square Image */}
-      <Image
-        source={{ uri: postImageUri }}
-        style={styles.postImage}
-        resizeMode="cover"
-      />
+      <Image source={{ uri: postImageUri }} style={styles.postImage} resizeMode="cover" />
 
       {/* Actions */}
       <View style={styles.actionsRow}>
@@ -162,11 +147,29 @@ export function FeedCard({ post, onInterest }: Props) {
           <Text style={styles.contentNickname}>{post.user.nickname}</Text>
           {"  "}{post.content}
         </Text>
-        {post.mood_tag && (
-          <Text style={styles.moodTag}>#{post.mood_tag}</Text>
-        )}
+        {post.mood_tag && <Text style={styles.moodTag}>#{post.mood_tag}</Text>}
         <Text style={styles.timeAgo}>{formatTimeAgo(post.created_at)}</Text>
       </View>
+
+      {/* 바텀시트 더보기 메뉴 */}
+      <Modal visible={showMore} transparent animationType="fade" onRequestClose={() => setShowMore(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowMore(false)}>
+          <Pressable style={styles.bottomSheet}>
+            <View style={styles.sheetHandle} />
+            <TouchableOpacity style={styles.sheetItem} onPress={handleReport}>
+              <MaterialIcons name="flag" size={22} color={COLORS.error} />
+              <Text style={[styles.sheetText, { color: COLORS.error }]}>신고</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.sheetItem} onPress={handleBlock}>
+              <MaterialIcons name="block" size={22} color={COLORS.text} />
+              <Text style={styles.sheetText}>차단</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.sheetItem, styles.sheetCancel]} onPress={() => setShowMore(false)}>
+              <Text style={styles.sheetCancelText}>취소</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -229,4 +232,51 @@ const styles = StyleSheet.create({
   contentText: { fontSize: 13, color: COLORS.text, lineHeight: 19 },
   moodTag: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
   timeAgo: { fontSize: 11, color: COLORS.textLight, marginTop: 4, textTransform: "uppercase" },
+
+  // 바텀시트
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  bottomSheet: {
+    backgroundColor: COLORS.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 40,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.border,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  sheetItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.border,
+  },
+  sheetText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.text,
+  },
+  sheetCancel: {
+    justifyContent: "center",
+    borderBottomWidth: 0,
+  },
+  sheetCancelText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    width: "100%",
+  },
 });
