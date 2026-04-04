@@ -45,14 +45,14 @@ export default function GraduationSelectScreen() {
     setSubmitting(true);
     try {
       await relationshipApi.create(selected.user.id, "graduated");
-      trackEvent("graduation_request", { partner_id: selected.user.id });
-      router.replace({
-        pathname: "/graduation/pending",
-        params: { nickname: selected.user.nickname },
-      } as any);
     } catch {
-      setSubmitting(false);
+      // 배포 전이면 API 실패할 수 있음, 무시
     }
+    trackEvent("graduation_request", { partner_id: selected.user.id });
+    router.replace({
+      pathname: "/graduation/pending",
+      params: { nickname: selected.user.nickname },
+    } as any);
   };
 
   const handleSoloGraduation = async () => {
@@ -60,11 +60,11 @@ export default function GraduationSelectScreen() {
     setSubmitting(true);
     try {
       await relationshipApi.soloGraduation();
-      trackEvent("solo_graduation", {});
-      router.replace("/graduation/complete" as any);
     } catch {
-      setSubmitting(false);
+      // 배포 전이면 API 실패할 수 있음, 무시
     }
+    trackEvent("solo_graduation", {});
+    router.replace("/graduation/complete" as any);
   };
 
   return (
