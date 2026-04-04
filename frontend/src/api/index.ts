@@ -89,6 +89,7 @@ export const relationshipApi = {
     client.post("/relationships", { partner_id: partnerId, relationship_type: type }),
   confirm: (id: number) => client.post(`/relationships/${id}/confirm`),
   end: (id: number) => client.post(`/relationships/${id}/end_relationship`),
+  soloGraduation: () => client.post("/relationships/solo_graduation"),
 };
 
 export const inviteCodeApi = {

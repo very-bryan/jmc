@@ -81,7 +81,7 @@ export default function MypageScreen() {
       <View style={[styles.gradCard, { backgroundColor: C.primary }]}>
         <Text style={styles.gradTitle}>좋은 사람을 만나셨나요?</Text>
         <Text style={styles.gradSubtitle}>졸업은 진만추의 축하입니다</Text>
-        <TouchableOpacity style={styles.gradBtn} onPress={() => Alert.alert("준비 중입니다")}>
+        <TouchableOpacity style={styles.gradBtn} onPress={() => router.push("/graduation" as any)}>
           <Text style={[styles.gradBtnText, { color: C.primary }]}>졸업 신청</Text>
         </TouchableOpacity>
       </View>

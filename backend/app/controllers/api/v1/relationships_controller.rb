@@ -45,6 +45,13 @@ module Api
         render json: { error: "관계를 찾을 수 없습니다" }, status: :not_found
       end
 
+      # POST /api/v1/relationships/solo_graduation
+      def solo_graduation
+        current_user.update!(status: :graduated)
+        AnalyticsService.track("solo_graduation", { user_id: current_user.id })
+        render json: { message: "졸업을 축하합니다!" }
+      end
+
       private
 
       def relationship_response(rel)

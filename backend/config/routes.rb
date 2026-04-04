@@ -107,6 +107,9 @@ Rails.application.routes.draw do
           post :confirm
           post :end_relationship
         end
+        collection do
+          post :solo_graduation
+        end
       end
 
       # Notifications

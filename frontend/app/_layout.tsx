@@ -24,6 +24,9 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="profile/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="graduation/index" options={{ headerShown: false }} />
+        <Stack.Screen name="graduation/pending" options={{ headerShown: false }} />
+        <Stack.Screen name="graduation/complete" options={{ headerShown: false }} />
       </Stack>
     </>
   );

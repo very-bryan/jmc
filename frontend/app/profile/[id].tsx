@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { userApi, interestApi, blockApi, reportApi } from "../../src/api";
+import { userApi, interestApi, blockApi, reportApi, relationshipApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeColors, useIsDark } from "../../src/hooks/useThemeColors";
@@ -49,7 +49,9 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [reportModal, setReportModal] = useState(false);
   const [blockModal, setBlockModal] = useState(false);
+  const [gradModal, setGradModal] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
+  const [gradSubmitting, setGradSubmitting] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -87,6 +89,22 @@ export default function ProfileScreen() {
       trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
     } catch {}
     setToastMsg("차단되었습니다");
+  };
+
+  const handleGraduation = async () => {
+    setGradModal(false);
+    setGradSubmitting(true);
+    try {
+      await relationshipApi.create(Number(id), "graduated");
+      trackEvent(EVENTS.GRADUATION_REQUEST, { partner_id: Number(id) });
+      router.replace({
+        pathname: "/graduation/pending",
+        params: { nickname: profile?.nickname },
+      } as any);
+    } catch {
+      setGradSubmitting(false);
+      Alert.alert("오류", "졸업 신청에 실패했습니다");
+    }
   };
 
   const confirmReport = async () => {
@@ -144,7 +162,7 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
               <MaterialIcons name="arrow-back" size={22} color={C.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.graduateBtn} onPress={() => Alert.alert("준비 중", "졸업 기능은 준비 중입니다")}>
+            <TouchableOpacity style={styles.graduateBtn} onPress={() => setGradModal(true)}>
               <Text style={styles.graduateBtnText}>{profile.nickname}님과 졸업</Text>
             </TouchableOpacity>
           </View>
@@ -281,6 +299,16 @@ export default function ProfileScreen() {
         visible={!!toastMsg}
         message={toastMsg}
         onDone={() => setToastMsg("")}
+      />
+      <ConfirmModal
+        visible={gradModal}
+        icon="school"
+        iconColor={C.primary}
+        title={`${profile?.nickname}님에게\n졸업을 신청하시겠습니까?`}
+        message={"상대방이 수락하면 졸업이 완료됩니다.\n졸업 시 계정이 비활성화되며\n다른 회원에게 프로필이 표시되지 않습니다.\n다시 활성화하려면 휴면해제가 필요합니다."}
+        confirmText="졸업 신청"
+        onConfirm={handleGraduation}
+        onCancel={() => setGradModal(false)}
       />
     </View>
   );
