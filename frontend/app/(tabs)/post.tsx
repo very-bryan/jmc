@@ -98,7 +98,6 @@ export default function PostScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: C.background }]} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
-        <Text style={[styles.title, { color: C.text }]}>새 게시글</Text>
         <TouchableOpacity
           style={[styles.postBtn, { backgroundColor: C.primary }, (!content.trim() && images.length === 0) && { backgroundColor: C.textLight }]}
           onPress={handlePost}
@@ -172,11 +171,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     marginBottom: 16,
   },
-  title: { fontSize: 20, fontWeight: "700" },
   postBtn: {
     paddingHorizontal: 20,
     paddingVertical: 8,
