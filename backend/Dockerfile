@@ -34,7 +34,11 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config imagemagick libmagickwand-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install application gems (cache bust: v2)
+# Cache bust on every deploy
+ARG CACHE_BUST=1
+RUN echo "cache bust: $CACHE_BUST"
+
+# Install application gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
