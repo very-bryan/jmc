@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Switch,
   Share,
   Image,
@@ -13,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
+import { ConfirmModal } from "../../src/components/ConfirmModal";
 import { useThemeStore, ThemeMode } from "../../src/store/themeStore";
 import { inviteCodeApi } from "../../src/api";
 import client from "../../src/api/client";
@@ -28,6 +28,7 @@ export default function MypageScreen() {
   const [inviteCodes, setInviteCodes] = useState<
     { id: number; code: string; status: string; used_by: any }[]
   >([]);
+  const [logoutModal, setLogoutModal] = useState(false);
 
   useEffect(() => {
     inviteCodeApi.list().then((res) => setInviteCodes(res.data.codes)).catch(() => {});
@@ -42,22 +43,15 @@ export default function MypageScreen() {
     } catch {}
   };
 
-  const handleLogout = () => {
-    Alert.alert("로그아웃", "정말 로그아웃하시겠습니까?", [
-      { text: "취소", style: "cancel" },
-      {
-        text: "로그아웃",
-        style: "destructive",
-        onPress: async () => {
-          await logout();
-          // 탭 네비게이션 스택을 완전히 리셋하고 스플래시로 이동
-          while (router.canGoBack()) {
-            router.back();
-          }
-          router.replace("/");
-        },
-      },
-    ]);
+  const handleLogout = () => setLogoutModal(true);
+
+  const confirmLogout = async () => {
+    setLogoutModal(false);
+    await logout();
+    while (router.canGoBack()) {
+      router.back();
+    }
+    router.replace("/");
   };
 
   if (!user) return null;
@@ -160,6 +154,17 @@ export default function MypageScreen() {
 
       <Text style={[styles.versionText, { color: C.textLight }]}>버전 1.0.0</Text>
       <View style={{ height: 40 }} />
+
+      <ConfirmModal
+        visible={logoutModal}
+        icon="logout"
+        iconColor={C.error}
+        title="정말 로그아웃하시겠습니까?"
+        confirmText="로그아웃"
+        confirmColor={C.error}
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutModal(false)}
+      />
     </ScrollView>
   );
 }

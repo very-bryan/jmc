@@ -67,27 +67,32 @@ export function ResultToast({
   visible,
   message,
   onDone,
+  type = "success",
 }: {
   visible: boolean;
   message: string;
   onDone: () => void;
+  type?: "success" | "error" | "info";
 }) {
   const C = useThemeColors();
 
   React.useEffect(() => {
     if (visible) {
-      const timer = setTimeout(onDone, 1500);
+      const timer = setTimeout(onDone, type === "error" ? 2500 : 1500);
       return () => clearTimeout(timer);
     }
   }, [visible]);
 
   if (!visible) return null;
 
+  const iconMap = { success: "check-circle", error: "error", info: "info" } as const;
+  const colorMap = { success: C.primary, error: C.error, info: C.textSecondary };
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.toastOverlay}>
         <View style={[styles.toast, { backgroundColor: C.background }]}>
-          <MaterialIcons name="check-circle" size={32} color={C.primary} />
+          <MaterialIcons name={iconMap[type]} size={32} color={colorMap[type]} />
           <Text style={[styles.toastText, { color: C.text }]}>{message}</Text>
         </View>
       </View>

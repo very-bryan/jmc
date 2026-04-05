@@ -7,7 +7,6 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -15,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { interestApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
 import type { Interest } from "../../src/types";
 
@@ -41,6 +41,8 @@ export default function ExploreScreen() {
   const [tab, setTab] = useState<Tab>("received");
   const [interests, setInterests] = useState<Interest[]>([]);
   const [loading, setLoading] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   const fetchInterests = async (t: Tab) => {
     setLoading(true);
@@ -67,7 +69,8 @@ export default function ExploreScreen() {
       trackEvent(EVENTS.MUTUAL_INTEREST);
       fetchInterests(tab);
     } catch {
-      Alert.alert("오류", "수락에 실패했습니다. 다시 시도해주세요.");
+      setToastType("error");
+      setToastMsg("수락에 실패했습니다");
     }
   };
 
@@ -150,6 +153,12 @@ export default function ExploreScreen() {
           }
         />
       )}
+      <ResultToast
+        visible={!!toastMsg}
+        message={toastMsg}
+        type={toastType}
+        onDone={() => setToastMsg("")}
+      />
     </SafeAreaView>
   );
 }

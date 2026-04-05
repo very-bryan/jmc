@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   Image,
   Dimensions,
@@ -74,9 +73,9 @@ export default function ProfileScreen() {
     try {
       await interestApi.create(Number(id));
       trackEvent(EVENTS.INTEREST_SEND, { target_user_id: Number(id), source: "profile" });
-      Alert.alert("완료", "관심을 보냈습니다!");
+      setToastMsg("관심을 보냈습니다!");
     } catch (err: any) {
-      Alert.alert("알림", err.response?.data?.errors?.[0] || "관심 보내기에 실패했습니다");
+      setToastMsg(err.response?.data?.errors?.[0] || "관심 보내기에 실패했습니다");
     }
   };
 
@@ -90,7 +89,7 @@ export default function ProfileScreen() {
       trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
       setToastMsg("차단되었습니다");
     } catch {
-      Alert.alert("오류", "차단에 실패했습니다. 다시 시도해주세요.");
+      setToastMsg("차단에 실패했습니다");
     }
   };
 
@@ -106,7 +105,7 @@ export default function ProfileScreen() {
       } as any);
     } catch {
       setGradSubmitting(false);
-      Alert.alert("오류", "졸업 신청에 실패했습니다");
+      setToastMsg("졸업 신청에 실패했습니다");
     }
   };
 
@@ -123,7 +122,7 @@ export default function ProfileScreen() {
       trackEvent(EVENTS.REPORT_SUBMIT, { target_user_id: Number(id), report_type: "other" });
       setToastMsg("신고가 접수되었습니다");
     } catch {
-      Alert.alert("오류", "신고 접수에 실패했습니다. 다시 시도해주세요.");
+      setToastMsg("신고 접수에 실패했습니다");
     }
   };
 

@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { profileApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
 import { MBTI_GROUPS, MbtiType } from "../../src/constants/mbti";
 import { COLORS } from "../../src/constants/config";
@@ -23,6 +23,7 @@ export default function MbtiScreen() {
   const [selected, setSelected] = useState<string | null>(user?.mbti || null);
   const [showMbti, setShowMbti] = useState(user?.show_mbti !== false);
   const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSave = async () => {
     setSaving(true);
@@ -31,7 +32,7 @@ export default function MbtiScreen() {
       await fetchMe();
       router.back();
     } catch {
-      Alert.alert("오류", "저장에 실패했습니다");
+      setErrorMsg("저장에 실패했습니다");
     } finally {
       setSaving(false);
     }
@@ -108,6 +109,13 @@ export default function MbtiScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
+
+      <ResultToast
+        visible={!!errorMsg}
+        message={errorMsg}
+        type="error"
+        onDone={() => setErrorMsg("")}
+      />
     </ScrollView>
   );
 }

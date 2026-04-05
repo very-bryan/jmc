@@ -7,14 +7,13 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { conversationApi, relationshipApi } from "../../src/api";
 import { trackEvent } from "../../src/api/analytics";
-import { ConfirmModal } from "../../src/components/ConfirmModal";
+import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
 import type { Conversation } from "../../src/types";
 
@@ -27,6 +26,7 @@ export default function GraduationSelectScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSoloConfirm, setShowSoloConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     conversationApi.list()
@@ -53,7 +53,7 @@ export default function GraduationSelectScreen() {
       } as any);
     } catch (err: any) {
       setSubmitting(false);
-      Alert.alert("오류", err.response?.data?.error || "졸업 신청에 실패했습니다");
+      setErrorMsg(err.response?.data?.error || "졸업 신청에 실패했습니다");
     }
   };
 
@@ -66,7 +66,7 @@ export default function GraduationSelectScreen() {
       router.replace("/graduation/complete" as any);
     } catch (err: any) {
       setSubmitting(false);
-      Alert.alert("오류", err.response?.data?.error || "졸업 처리에 실패했습니다");
+      setErrorMsg(err.response?.data?.error || "졸업 처리에 실패했습니다");
     }
   };
 
@@ -166,6 +166,13 @@ export default function GraduationSelectScreen() {
         confirmText="졸업하기"
         onConfirm={handleSoloGraduation}
         onCancel={() => setShowSoloConfirm(false)}
+      />
+
+      <ResultToast
+        visible={!!errorMsg}
+        message={errorMsg}
+        type="error"
+        onDone={() => setErrorMsg("")}
       />
 
       {submitting && (
