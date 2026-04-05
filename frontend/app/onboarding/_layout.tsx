@@ -12,7 +12,6 @@ export default function OnboardingLayout() {
         headerTitleStyle: { fontWeight: "600", color: C.text },
         headerStyle: { backgroundColor: C.background },
         headerTintColor: C.text,
-        contentStyle: { backgroundColor: C.background },
       }}
     >
       <Stack.Screen name="intro" options={{ title: "서비스 소개", headerShown: false }} />
