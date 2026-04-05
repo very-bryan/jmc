@@ -13,7 +13,7 @@ export default function OnboardingLayout() {
         headerStyle: { backgroundColor: C.background },
         headerTintColor: C.text,
         contentStyle: { backgroundColor: C.background },
-        animation: "none",
+        animation: "fade",
       }}
     >
       <Stack.Screen name="intro" options={{ title: "서비스 소개", headerShown: false }} />

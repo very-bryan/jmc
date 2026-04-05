@@ -35,7 +35,7 @@ export default function RootLayout() {
       <Stack screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: C.background },
-        animation: "none",
+        animation: "fade",
       }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
