@@ -12,10 +12,12 @@ import { purchaseSignup } from "../../src/services/iap";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { ResultToast } from "../../src/components/ConfirmModal";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function InviteScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ export default function InviteScreen() {
           <TextInput
             style={styles.codeInput}
             placeholder="ABC123"
-            placeholderTextColor={COLORS.textLight}
+            placeholderTextColor={C.textLight}
             value={code}
             onChangeText={(t) => setCode(t.toUpperCase())}
             maxLength={6}
@@ -128,30 +130,30 @@ export default function InviteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (C: any) => StyleSheet.create({
   content: { flex: 1, justifyContent: "center" },
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28, lineHeight: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 10 },
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 28, lineHeight: 20 },
+  sectionTitle: { fontSize: 14, fontWeight: "600", color: C.text, marginBottom: 10 },
   codeInput: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 24,
-    color: COLORS.text,
+    color: C.text,
     textAlign: "center",
     letterSpacing: 8,
     fontWeight: "700",
     marginBottom: 12,
   },
   primaryBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
   },
-  btnDisabled: { backgroundColor: COLORS.textLight },
+  btnDisabled: { backgroundColor: C.textLight },
   primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   divider: {
     flexDirection: "row",
@@ -159,8 +161,8 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.4)" },
-  dividerText: { marginHorizontal: 16, fontSize: 13, color: COLORS.textLight },
+  dividerText: { marginHorizontal: 16, fontSize: 13, color: C.textLight },
   payBtn: { alignItems: "center" },
-  payBtnText: { fontSize: 16, fontWeight: "700", color: COLORS.text },
-  payBtnSub: { fontSize: 12, color: COLORS.textSecondary, marginTop: 4 },
+  payBtnText: { fontSize: 16, fontWeight: "700", color: C.text },
+  payBtnSub: { fontSize: 12, color: C.textSecondary, marginTop: 4 },
 });

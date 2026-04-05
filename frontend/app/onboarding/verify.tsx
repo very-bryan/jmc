@@ -14,10 +14,12 @@ import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { ResultToast } from "../../src/components/ConfirmModal";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function VerifyScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +64,7 @@ export default function VerifyScreen() {
           <TextInput
             style={styles.input}
             placeholder="123456"
-            placeholderTextColor={COLORS.textLight}
+            placeholderTextColor={C.textLight}
             keyboardType="number-pad"
             maxLength={6}
             value={code}
@@ -86,27 +88,27 @@ export default function VerifyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (C: any) => StyleSheet.create({
   content: { flex: 1, justifyContent: "flex-start", paddingTop: 60 },
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28 },
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 28 },
   input: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 24,
-    color: COLORS.text,
+    color: C.text,
     textAlign: "center",
     letterSpacing: 8,
     marginBottom: 20,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
   },
-  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonDisabled: { backgroundColor: C.textLight },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });
