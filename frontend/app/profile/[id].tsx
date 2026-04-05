@@ -57,13 +57,24 @@ export default function ProfileScreen() {
     fetchProfile();
   }, []);
 
+  const [errorMsg, setErrorMsg] = useState("");
+
   const fetchProfile = async () => {
     try {
       const res = await userApi.get(Number(id));
       setProfile(res.data.user);
       trackEvent(EVENTS.PROFILE_VIEW, { target_user_id: Number(id) });
-    } catch {
-      // ignore
+    } catch (err: any) {
+      const status = err.response?.status;
+      if (status === 401) {
+        setErrorMsg("로그인이 만료되었습니다. 다시 로그인해주세요.");
+      } else if (status === 403) {
+        setErrorMsg("접근할 수 없는 프로필입니다.");
+      } else if (status === 404) {
+        setErrorMsg("프로필을 찾을 수 없습니다.");
+      } else {
+        setErrorMsg("프로필을 불러오는데 실패했습니다.");
+      }
     } finally {
       setLoading(false);
     }
@@ -137,7 +148,7 @@ export default function ProfileScreen() {
   if (!profile) {
     return (
       <View style={styles.center}>
-        <Text style={[styles.errorText, { color: C.textSecondary }]}>프로필을 찾을 수 없습니다</Text>
+        <Text style={[styles.errorText, { color: C.textSecondary }]}>{errorMsg || "프로필을 찾을 수 없습니다"}</Text>
       </View>
     );
   }
