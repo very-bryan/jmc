@@ -50,9 +50,11 @@ export function ConfirmModal({
           <Text style={[styles.title, { color: C.text }]}>{title}</Text>
           {message && <Text style={[styles.message, { color: C.textSecondary }]}>{message}</Text>}
           <View style={styles.buttons}>
-            <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: C.surface }]} onPress={onCancel}>
-              <Text style={[styles.cancelText, { color: C.textSecondary }]}>{cancelText}</Text>
-            </TouchableOpacity>
+            {cancelText !== "" && (
+              <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: C.surface }]} onPress={onCancel}>
+                <Text style={[styles.cancelText, { color: C.textSecondary }]}>{cancelText}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: btnColor }]} onPress={onConfirm}>
               <Text style={styles.confirmText}>{confirmText}</Text>
             </TouchableOpacity>

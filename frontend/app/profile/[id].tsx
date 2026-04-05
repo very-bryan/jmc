@@ -147,8 +147,17 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View style={styles.center}>
-        <Text style={[styles.errorText, { color: C.textSecondary }]}>{errorMsg || "프로필을 찾을 수 없습니다"}</Text>
+      <View style={[styles.center, { backgroundColor: C.background }]}>
+        <ConfirmModal
+          visible={true}
+          icon="error-outline"
+          iconColor={C.textSecondary}
+          title={errorMsg || "프로필을 찾을 수 없습니다"}
+          confirmText="돌아가기"
+          cancelText=""
+          onConfirm={() => router.back()}
+          onCancel={() => router.back()}
+        />
       </View>
     );
   }
