@@ -7,6 +7,7 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -65,7 +66,9 @@ export default function ExploreScreen() {
       trackEvent(EVENTS.INTEREST_ACCEPT);
       trackEvent(EVENTS.MUTUAL_INTEREST);
       fetchInterests(tab);
-    } catch {}
+    } catch {
+      Alert.alert("오류", "수락에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (

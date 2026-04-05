@@ -123,7 +123,9 @@ export default function ChatScreen() {
       trackEvent(EVENTS.DM_SEND, { conversation_id: Number(id) });
       if (isFirstMessage) trackEvent(EVENTS.DM_START, { conversation_id: Number(id) });
       fetchMessages();
-    } catch {} finally { setLoading(false); }
+    } catch {
+      setToastMsg("메시지 전송에 실패했습니다");
+    } finally { setLoading(false); }
   };
 
   const displayMessages = useDummy ? [...DUMMY_MESSAGES, ...localMessages] : messages;
