@@ -1,12 +1,19 @@
 module Admin
   class UsersController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin) }
+
     def index
       @users = User.all
 
       # Filters
       if params[:q].present?
         q = ActiveRecord::Base.sanitize_sql_like(params[:q])
-        @users = @users.where("nickname ILIKE ? OR phone ILIKE ?", "%#{q}%", "%#{q}%")
+        if current_admin.super_admin?
+          @users = @users.where("nickname ILIKE ? OR phone ILIKE ?", "%#{q}%", "%#{q}%")
+        else
+          # super_admin 외에는 닉네임 검색만 허용 (전화번호 열거 방지)
+          @users = @users.where("nickname ILIKE ?", "%#{q}%")
+        end
       end
       @users = @users.where(gender: params[:gender]) if params[:gender].present?
       @users = @users.where(status: params[:status]) if params[:status].present?

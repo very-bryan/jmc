@@ -1,5 +1,7 @@
 module Admin
   class AnnouncementsController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin) }
+
     def index
       @announcements = Announcement.includes(:admin_user).recent.page(params[:page]).per(20)
     end

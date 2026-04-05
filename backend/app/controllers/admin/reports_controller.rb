@@ -1,5 +1,7 @@
 module Admin
   class ReportsController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin) }
+
     def index
       @reports = Report.includes(:reporter, :reported).order(created_at: :desc)
 

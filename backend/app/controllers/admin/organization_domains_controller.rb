@@ -1,5 +1,7 @@
 module Admin
   class OrganizationDomainsController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin) }
+
     def index
       @tab = params[:tab] || "pending"
 

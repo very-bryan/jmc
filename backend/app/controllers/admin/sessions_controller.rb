@@ -10,7 +10,9 @@ module Admin
       admin = AdminUser.active_admins.find_by(email: params[:email])
 
       if admin&.authenticate(params[:password])
+        reset_session  # 세션 고정 공격 방어
         session[:admin_user_id] = admin.id
+        session[:admin_last_active] = Time.current
         admin.update!(last_login_at: Time.current)
         AdminActionLog.log!(
           admin_user: admin,

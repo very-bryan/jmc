@@ -1,5 +1,7 @@
 module Admin
   class PostsController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin) }
+
     def index
       @posts = Post.includes(:user, :post_images).order(created_at: :desc)
 

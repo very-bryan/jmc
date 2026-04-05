@@ -1,5 +1,7 @@
 module Admin
   class PreRegistrationsController < BaseController
+    before_action -> { require_role!(:super_admin, :ops_admin, :data_admin) }
+
     def index
       @registrations = PreRegistration.order(created_at: :desc).page(params[:page]).per(50)
       @stats = {

@@ -9,6 +9,7 @@ class AdminUser < ApplicationRecord
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
+  validates :password, length: { minimum: 8, message: "비밀번호는 최소 8자 이상이어야 합니다" }, if: :password_digest_changed?
 
   scope :active_admins, -> { where(active: true) }
 

@@ -4,10 +4,11 @@ puts "Seeding development data..."
 [ AdminActionLog, Sanction, Announcement, AdminUser, Message, Conversation, Match, Interest, Block, Report, Relationship, Post, PostImage, ValueSurvey, PreferenceFilter, User ].each(&:delete_all)
 
 # Admin Users
-AdminUser.create!(email: "admin@jmc.com", password: "admin123", name: "슈퍼관리자", role: :super_admin)
-AdminUser.create!(email: "ops@jmc.com", password: "admin123", name: "운영관리자", role: :ops_admin)
-AdminUser.create!(email: "cs@jmc.com", password: "admin123", name: "CS관리자", role: :cs_admin)
-AdminUser.create!(email: "data@jmc.com", password: "admin123", name: "데이터관리자", role: :data_admin)
+admin_pw = ENV.fetch("ADMIN_PASSWORD", "admin123")
+AdminUser.create!(email: "admin@jmc.com", password: admin_pw, name: "슈퍼관리자", role: :super_admin)
+AdminUser.create!(email: "ops@jmc.com", password: admin_pw, name: "운영관리자", role: :ops_admin)
+AdminUser.create!(email: "cs@jmc.com", password: admin_pw, name: "CS관리자", role: :cs_admin)
+AdminUser.create!(email: "data@jmc.com", password: admin_pw, name: "데이터관리자", role: :data_admin)
 puts "Created admin users"
 
 users_data = [

@@ -1,5 +1,7 @@
 module Admin
   class StatisticsController < BaseController
+    before_action -> { require_role!(:super_admin, :data_admin) }
+
     def index
       # 가입/인증 통계
       @signup_stats = {
