@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -45,14 +46,15 @@ export default function GraduationSelectScreen() {
     setSubmitting(true);
     try {
       await relationshipApi.create(selected.user.id, "graduated");
-    } catch {
-      // 배포 전이면 API 실패할 수 있음, 무시
+      trackEvent("graduation_request", { partner_id: selected.user.id });
+      router.replace({
+        pathname: "/graduation/pending",
+        params: { nickname: selected.user.nickname },
+      } as any);
+    } catch (err: any) {
+      setSubmitting(false);
+      Alert.alert("오류", err.response?.data?.error || "졸업 신청에 실패했습니다");
     }
-    trackEvent("graduation_request", { partner_id: selected.user.id });
-    router.replace({
-      pathname: "/graduation/pending",
-      params: { nickname: selected.user.nickname },
-    } as any);
   };
 
   const handleSoloGraduation = async () => {
@@ -60,11 +62,12 @@ export default function GraduationSelectScreen() {
     setSubmitting(true);
     try {
       await relationshipApi.soloGraduation();
-    } catch {
-      // 배포 전이면 API 실패할 수 있음, 무시
+      trackEvent("solo_graduation", {});
+      router.replace("/graduation/complete" as any);
+    } catch (err: any) {
+      setSubmitting(false);
+      Alert.alert("오류", err.response?.data?.error || "졸업 처리에 실패했습니다");
     }
-    trackEvent("solo_graduation", {});
-    router.replace("/graduation/complete" as any);
   };
 
   return (

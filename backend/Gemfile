@@ -18,6 +18,9 @@ gem "jwt"
 # CORS
 gem "rack-cors"
 
+# Rate limiting
+gem "rack-attack"
+
 # S3-compatible storage (RustFS)
 gem "aws-sdk-s3", require: false
 
@@ -55,4 +58,8 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Testing
+  gem "rspec-rails"
+  gem "factory_bot_rails"
 end

@@ -87,8 +87,10 @@ export default function ProfileScreen() {
     try {
       await blockApi.create(Number(id));
       trackEvent(EVENTS.BLOCK_USER, { target_user_id: Number(id) });
-    } catch {}
-    setToastMsg("차단되었습니다");
+      setToastMsg("차단되었습니다");
+    } catch {
+      Alert.alert("오류", "차단에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const handleGraduation = async () => {
@@ -118,8 +120,10 @@ export default function ProfileScreen() {
         reason: "사용자 신고",
       });
       trackEvent(EVENTS.REPORT_SUBMIT, { target_user_id: Number(id), report_type: "other" });
-    } catch {}
-    setToastMsg("신고가 접수되었습니다");
+      setToastMsg("신고가 접수되었습니다");
+    } catch {
+      Alert.alert("오류", "신고 접수에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   if (loading) {

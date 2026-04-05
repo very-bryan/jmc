@@ -47,6 +47,10 @@ module Api
 
       # POST /api/v1/relationships/solo_graduation
       def solo_graduation
+        unless current_user.active?
+          return render json: { error: "현재 상태에서는 졸업할 수 없습니다" }, status: :unprocessable_entity
+        end
+
         current_user.update!(status: :graduated)
         AnalyticsService.track("solo_graduation", { user_id: current_user.id })
         render json: { message: "졸업을 축하합니다!" }

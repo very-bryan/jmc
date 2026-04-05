@@ -49,14 +49,20 @@ export default function ChatScreen() {
     setReportModal(false);
     try {
       await reportApi.create({ reported_id: Number(id), reportable_type: "Conversation", reportable_id: Number(id), report_type: "other", reason: "대화 중 신고" });
-    } catch {}
-    setToastMsg("신고가 접수되었습니다");
+      setToastMsg("신고가 접수되었습니다");
+    } catch {
+      setToastMsg("신고 접수에 실패했습니다");
+    }
   };
 
   const confirmBlock = async () => {
     setBlockModal(false);
-    try { await blockApi.create(Number(id)); } catch {}
-    setToastMsg("차단되었습니다");
+    try {
+      await blockApi.create(Number(id));
+      setToastMsg("차단되었습니다");
+    } catch {
+      setToastMsg("차단에 실패했습니다");
+    }
   };
 
   useEffect(() => {

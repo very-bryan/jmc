@@ -13,6 +13,8 @@ module Api
           .recent
           .page(params[:page]).per(20)
 
+        @liked_post_ids = current_user.likes.where(post_id: posts.map(&:id)).pluck(:post_id).to_set
+
         render json: {
           posts: posts.map { |p| feed_post(p) },
           meta: {
@@ -62,7 +64,7 @@ module Api
           content: post.content,
           mood_tag: post.mood_tag,
           likes_count: post.likes_count || 0,
-          liked: current_user.present? && post.likes.exists?(user: current_user),
+          liked: @liked_post_ids.include?(post.id),
           images: post.post_images.order(:position).map { |i| { url: i.image_url, position: i.position } },
           user: {
             id: post.user.id,
