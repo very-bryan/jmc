@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ScrollView,
   Image,
   ActivityIndicator,
@@ -15,6 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { postApi } from "../../src/api";
 import { uploadImage } from "../../src/api/upload";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
 import { postSubmitRef } from "../../src/store/postSubmitRef";
 
@@ -30,16 +30,18 @@ export default function PostScreen() {
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">("success");
 
   const pickImage = async () => {
     if (images.length >= 4) {
-      Alert.alert("알림", "사진은 최대 4장까지 첨부할 수 있습니다");
+      setToastType("info"); setToastMsg("사진은 최대 4장까지 첨부할 수 있습니다");
       return;
     }
 
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("권한 필요", "사진 라이브러리 접근 권한이 필요합니다");
+      setToastType("error"); setToastMsg("사진 라이브러리 접근 권한이 필요합니다");
       return;
     }
 
@@ -83,13 +85,13 @@ export default function PostScreen() {
         post_images_attributes: uploadedImages.length > 0 ? uploadedImages : undefined,
       });
 
-      Alert.alert("완료", "게시글이 작성되었습니다");
+      setToastType("success"); setToastMsg("게시글이 작성되었습니다");
       setContent("");
       setMoodTag("");
       setImages([]);
       router.replace("/(tabs)");
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.errors?.join("\n") || "작성에 실패했습니다");
+      setToastType("error"); setToastMsg(err.response?.data?.errors?.join("\n") || "작성에 실패했습니다");
     } finally {
       setLoading(false);
       setUploading(false);
@@ -155,6 +157,7 @@ export default function PostScreen() {
       </View>
 
       <View style={{ height: 40 }} />
+      <ResultToast visible={!!toastMsg} message={toastMsg} type={toastType} onDone={() => setToastMsg("")} />
     </ScrollView>
   );
 }

@@ -4,13 +4,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+
 } from "react-native";
 import { useRouter } from "expo-router";
 import { valueSurveyApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
+import { ResultToast } from "../../src/components/ConfirmModal";
 
 const QUESTIONS = [
   {
@@ -76,6 +77,7 @@ export default function SurveyScreen() {
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const isValid = answers.marriage_intention && answers.children_plan;
 
@@ -86,7 +88,7 @@ export default function SurveyScreen() {
       trackEvent(EVENTS.SURVEY_COMPLETE);
       router.push("/onboarding/preference");
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.errors?.join("\n") || "저장에 실패했습니다");
+      setErrorMsg(err.response?.data?.errors?.join("\n") || "저장에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -129,6 +131,7 @@ export default function SurveyScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }

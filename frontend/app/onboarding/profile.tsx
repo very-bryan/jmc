@@ -5,7 +5,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
@@ -13,6 +13,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
+import { ResultToast } from "../../src/components/ConfirmModal";
 
 const GENDERS = [
   { value: "male", label: "남성" },
@@ -52,6 +53,7 @@ export default function ProfileScreen() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const updateField = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -100,7 +102,7 @@ export default function ProfileScreen() {
       router.push("/onboarding/survey");
     } catch (err: any) {
       const msg = err.response?.data?.errors?.join("\n") || err.response?.data?.error || err.message || "가입에 실패했습니다";
-      Alert.alert("오류", msg);
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -220,6 +222,7 @@ export default function ProfileScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }

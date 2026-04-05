@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -13,6 +12,7 @@ import { useRouter } from "expo-router";
 import client from "../../src/api/client";
 import { trackEvent } from "../../src/api/analytics";
 import { useAuthStore } from "../../src/store/authStore";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
@@ -25,10 +25,12 @@ export default function EmailVerifyScreen() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [orgResult, setOrgResult] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("error");
 
   const handleSendCode = async () => {
     if (!email.includes("@")) {
-      Alert.alert("오류", "올바른 이메일을 입력해주세요");
+      setToastType("error"); setToastMsg("올바른 이메일을 입력해주세요");
       return;
     }
     setLoading(true);
@@ -41,7 +43,7 @@ export default function EmailVerifyScreen() {
       trackEvent("work_email_submit", { domain: email.split("@")[1] });
       setStep("code");
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.error || "인증 요청에 실패했습니다");
+      setToastType("error"); setToastMsg(err.response?.data?.error || "인증 요청에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -53,11 +55,10 @@ export default function EmailVerifyScreen() {
       await client.post("/auth/confirm_work_email", { token: code });
       trackEvent("work_email_verified");
       await fetchMe();
-      Alert.alert("인증 완료!", `${orgResult || email.split("@")[1]} 인증이 완료되었습니다`, [
-        { text: "확인", onPress: () => router.replace("/(tabs)") },
-      ]);
+      setToastType("success"); setToastMsg(`${orgResult || email.split("@")[1]} 인증이 완료되었습니다`);
+      setTimeout(() => router.replace("/(tabs)"), 1500);
     } catch {
-      Alert.alert("오류", "인증코드가 일치하지 않습니다");
+      setToastType("error"); setToastMsg("인증코드가 일치하지 않습니다");
     } finally {
       setLoading(false);
     }
@@ -169,6 +170,7 @@ export default function EmailVerifyScreen() {
           <Text style={styles.skipText}>나중에 할게요</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
+      <ResultToast visible={!!toastMsg} message={toastMsg} type={toastType} onDone={() => setToastMsg("")} />
     </OnboardingLayout>
   );
 }

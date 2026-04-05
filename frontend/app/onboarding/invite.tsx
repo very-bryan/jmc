@@ -5,13 +5,13 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { inviteCodeApi } from "../../src/api";
 import { purchaseSignup } from "../../src/services/iap";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { COLORS } from "../../src/constants/config";
 
 export default function InviteScreen() {
@@ -19,6 +19,7 @@ export default function InviteScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleValidate = async () => {
     setLoading(true);
@@ -31,10 +32,10 @@ export default function InviteScreen() {
           params: { phone, invite_code: code.trim().toUpperCase() },
         });
       } else {
-        Alert.alert("오류", res.data.error || "유효하지 않은 초대코드입니다");
+        setErrorMsg(res.data.error || "유효하지 않은 초대코드입니다");
       }
     } catch {
-      Alert.alert("오류", "확인에 실패했습니다");
+      setErrorMsg("확인에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -52,11 +53,11 @@ export default function InviteScreen() {
         });
       } else {
         if (result.error !== "결제가 취소되었습니다") {
-          Alert.alert("결제 실패", result.error);
+          setErrorMsg(result.error || "결제에 실패했습니다");
         }
       }
     } catch {
-      Alert.alert("오류", "결제 처리 중 문제가 발생했습니다");
+      setErrorMsg("결제 처리 중 문제가 발생했습니다");
     } finally {
       setLoading(false);
     }
@@ -122,6 +123,7 @@ export default function InviteScreen() {
           </GlassCard>
         )}
       </View>
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }

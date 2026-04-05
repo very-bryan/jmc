@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -13,6 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
 
@@ -22,6 +22,7 @@ export default function VerifyScreen() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const { setToken, setUser } = useAuthStore();
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleVerify = async () => {
     setLoading(true);
@@ -43,7 +44,7 @@ export default function VerifyScreen() {
         }
       }
     } catch (err: any) {
-      Alert.alert("오류", err.response?.data?.error || "인증에 실패했습니다");
+      setErrorMsg(err.response?.data?.error || "인증에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -80,6 +81,7 @@ export default function VerifyScreen() {
           </TouchableOpacity>
         </GlassCard>
       </KeyboardAvoidingView>
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }

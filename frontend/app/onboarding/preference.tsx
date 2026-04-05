@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+
 } from "react-native";
 import { useRouter } from "expo-router";
 import { preferenceFilterApi, profileApi } from "../../src/api";
@@ -12,6 +12,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
 import { COLORS } from "../../src/constants/config";
+import { ResultToast } from "../../src/components/ConfirmModal";
 
 const GENDERS = [
   { value: "prefer_female", label: "여성" },
@@ -38,6 +39,7 @@ export default function PreferenceScreen() {
   const [ageRange, setAgeRange] = useState({ min: 26, max: 35 });
   const [regions, setRegions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const toggleRegion = (r: string) => {
     setRegions((prev) =>
@@ -64,7 +66,7 @@ export default function PreferenceScreen() {
       trackEvent(EVENTS.REGISTRATION_COMPLETE);
       router.replace("/onboarding/email-verify");
     } catch (err: any) {
-      Alert.alert("오류", "저장에 실패했습니다");
+      setErrorMsg("저장에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -147,6 +149,7 @@ export default function PreferenceScreen() {
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }

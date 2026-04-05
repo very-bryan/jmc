@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -13,16 +12,18 @@ import { useRouter } from "expo-router";
 import { authApi } from "../../src/api/auth";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
+import { ResultToast } from "../../src/components/ConfirmModal";
 import { COLORS } from "../../src/constants/config";
 
 export default function PhoneScreen() {
   const router = useRouter();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleRequestCode = async () => {
     if (phone.length < 10) {
-      Alert.alert("오류", "유효한 전화번호를 입력해주세요");
+      setErrorMsg("유효한 전화번호를 입력해주세요");
       return;
     }
     setLoading(true);
@@ -32,7 +33,7 @@ export default function PhoneScreen() {
       router.push({ pathname: "/onboarding/verify", params: { phone } });
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || "인증코드 발송에 실패했습니다";
-      Alert.alert("오류", `${msg} (${err.response?.status || "network"})`);
+      setErrorMsg(`${msg} (${err.response?.status || "network"})`);
     } finally {
       setLoading(false);
     }
@@ -64,6 +65,7 @@ export default function PhoneScreen() {
           </TouchableOpacity>
         </GlassCard>
       </KeyboardAvoidingView>
+      <ResultToast visible={!!errorMsg} message={errorMsg} type="error" onDone={() => setErrorMsg("")} />
     </OnboardingLayout>
   );
 }
