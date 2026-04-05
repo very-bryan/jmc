@@ -65,11 +65,12 @@ export default function ProfileScreen() {
       setProfile(res.data.user);
       trackEvent(EVENTS.PROFILE_VIEW, { target_user_id: Number(id) });
     } catch (err: any) {
+      const serverMsg = err.response?.data?.error;
       const status = err.response?.status;
-      if (status === 401) {
+      if (serverMsg) {
+        setErrorMsg(serverMsg);
+      } else if (status === 401) {
         setErrorMsg("로그인이 만료되었습니다. 다시 로그인해주세요.");
-      } else if (status === 403) {
-        setErrorMsg("접근할 수 없는 프로필입니다.");
       } else if (status === 404) {
         setErrorMsg("프로필을 찾을 수 없습니다.");
       } else {
@@ -147,11 +148,11 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View style={[styles.center, { backgroundColor: C.background }]}>
+      <View style={[styles.wrapper, { backgroundColor: C.background }]}>
         <ConfirmModal
           visible={true}
           icon="error-outline"
-          iconColor={C.textSecondary}
+          iconColor={C.error}
           title={errorMsg || "프로필을 찾을 수 없습니다"}
           confirmText="돌아가기"
           cancelText=""
