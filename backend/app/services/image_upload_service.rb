@@ -42,7 +42,7 @@ class ImageUploadService
     result
   rescue StandardError => e
     Rails.logger.error("Image upload failed: #{e.message}")
-    { error: e.message }
+    { error: "이미지 업로��에 실���했습니다" }
   end
 
   def self.valid_image_magic?(path)
@@ -74,7 +74,7 @@ class ImageUploadService
     result
   rescue StandardError => e
     Rails.logger.error("Base64 image upload failed: #{e.message}")
-    { error: e.message }
+    { error: "이미지 업로��에 실���했습니다" }
   end
 
   def self.ensure_bucket!
@@ -120,7 +120,9 @@ class ImageUploadService
       acl: "public-read"
     )
 
-    url = "#{ENV.fetch('S3_ENDPOINT', 'http://221.143.48.200:9000')}/#{BUCKET}/#{key}"
+    # 외부 공개 URL 사용 (내부 IP 노출 방지)
+    public_base = ENV.fetch("S3_PUBLIC_URL", "#{ENV.fetch('S3_ENDPOINT', 'http://localhost:9000')}/#{BUCKET}")
+    url = "#{public_base}/#{key}"
 
     # 임시 파일 정리
     File.delete(output_path) if output_path != input_path && File.exist?(output_path)

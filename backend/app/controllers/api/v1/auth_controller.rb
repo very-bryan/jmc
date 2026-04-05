@@ -22,7 +22,7 @@ module Api
 
         # MVP: 고정 코드 123456
         unless code == "123456"
-          Rails.logger.warn "[AUTH] 인증 실패 phone=#{phone} ip=#{request.remote_ip}"
+          Rails.logger.warn "[AUTH] 인증 실패 phone=***#{phone&.last(4)} ip=#{request.remote_ip}"
           return render json: { error: "인증코드가 일치하지 않습니다" }, status: :unprocessable_entity
         end
 
@@ -32,7 +32,7 @@ module Api
         user = User.find_by(phone: phone)
 
         if user
-          Rails.logger.info "[AUTH] 로그인 성공 user_id=#{user.id} ip=#{request.remote_ip}"
+          Rails.logger.info "[AUTH] 로그인 성공 user_id=#{user.id} phone=***#{phone&.last(4)} ip=#{request.remote_ip}"
           user.update_columns(phone_verified: true)
           token = JwtService.encode(user_id: user.id)
           render json: { token: token, user: user_response(user), is_new_user: false }
@@ -88,7 +88,7 @@ module Api
         end
 
         if user.save
-          Rails.logger.info "[AUTH] 회원가입 user_id=#{user.id} method=#{is_seed ? 'seed' : invite_code_str.present? ? 'invite' : 'paid'} ip=#{request.remote_ip}"
+          Rails.logger.info "[AUTH] 회원가입 user_id=#{user.id} method=#{is_seed ? 'seed' : invite_code_str.present? ? 'invite' : 'paid'} phone=***#{user.phone&.last(4)} ip=#{request.remote_ip}"
           # 초대코드 사용 처리
           invite_code&.redeem!(user)
 
@@ -219,8 +219,6 @@ module Api
           status: user.status,
           verification_level: user.verification_level,
           invite_code_count: user.invite_code_count,
-          is_seed_user: user.is_seed_user,
-          paid: user.paid,
           kakao_connected: user.kakao_id.present?,
           company_verified: user.company_verified,
           company_name: user.show_company? ? user.company_name : nil,

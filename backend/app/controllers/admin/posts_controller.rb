@@ -3,7 +3,10 @@ module Admin
     def index
       @posts = Post.includes(:user, :post_images).order(created_at: :desc)
 
-      @posts = @posts.where(user_id: User.where("nickname ILIKE ?", "%#{params[:q]}%")) if params[:q].present?
+      if params[:q].present?
+        q = ActiveRecord::Base.sanitize_sql_like(params[:q])
+        @posts = @posts.where(user_id: User.where("nickname ILIKE ?", "%#{q}%"))
+      end
       @posts = @posts.where(status: params[:status]) if params[:status].present?
 
       @tab = params[:tab] || "all"

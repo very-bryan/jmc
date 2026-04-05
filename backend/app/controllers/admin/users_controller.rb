@@ -4,7 +4,10 @@ module Admin
       @users = User.all
 
       # Filters
-      @users = @users.where("nickname ILIKE ? OR phone ILIKE ?", "%#{params[:q]}%", "%#{params[:q]}%") if params[:q].present?
+      if params[:q].present?
+        q = ActiveRecord::Base.sanitize_sql_like(params[:q])
+        @users = @users.where("nickname ILIKE ? OR phone ILIKE ?", "%#{q}%", "%#{q}%")
+      end
       @users = @users.where(gender: params[:gender]) if params[:gender].present?
       @users = @users.where(status: params[:status]) if params[:status].present?
       @users = @users.where(verification_level: params[:verification_level]) if params[:verification_level].present?
