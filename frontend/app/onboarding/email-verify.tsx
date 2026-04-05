@@ -14,10 +14,12 @@ import { trackEvent } from "../../src/api/analytics";
 import { useAuthStore } from "../../src/store/authStore";
 import { ResultToast } from "../../src/components/ConfirmModal";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function EmailVerifyScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const { fetchMe } = useAuthStore();
   const [step, setStep] = useState<"input" | "code">("input");
   const [email, setEmail] = useState("");
@@ -98,7 +100,7 @@ export default function EmailVerifyScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="name@company.com"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={C.textLight}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
@@ -112,7 +114,7 @@ export default function EmailVerifyScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="예: 삼성전자, 서울대학교"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={C.textLight}
                 value={orgName}
                 onChangeText={setOrgName}
               />
@@ -146,7 +148,7 @@ export default function EmailVerifyScreen() {
             <TextInput
               style={styles.codeInput}
               placeholder="ABC123"
-              placeholderTextColor={COLORS.textLight}
+              placeholderTextColor={C.textLight}
               value={code}
               onChangeText={(t) => setCode(t.toUpperCase())}
               maxLength={6}
@@ -175,7 +177,7 @@ export default function EmailVerifyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (C: any) => StyleSheet.create({
   content: { flex: 1 },
   badge: {
     alignSelf: "flex-start",
@@ -186,37 +188,37 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
   },
-  badgeText: { fontSize: 12, color: COLORS.textSecondary, fontWeight: "600" },
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 16 },
-  promoTitle: { fontSize: 15, fontWeight: "700", color: COLORS.primary, marginBottom: 6 },
-  promoDesc: { fontSize: 13, color: COLORS.textSecondary, lineHeight: 20 },
-  label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 8 },
+  badgeText: { fontSize: 12, color: C.textSecondary, fontWeight: "600" },
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 16 },
+  promoTitle: { fontSize: 15, fontWeight: "700", color: C.primary, marginBottom: 6 },
+  promoDesc: { fontSize: 13, color: C.textSecondary, lineHeight: 20 },
+  label: { fontSize: 14, fontWeight: "600", color: C.text, marginBottom: 8 },
   input: {
     backgroundColor: "rgba(255,255,255,0.6)",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: COLORS.text,
+    color: C.text,
   },
-  hint: { fontSize: 12, color: COLORS.textLight, marginTop: 4 },
+  hint: { fontSize: 12, color: C.textLight, marginTop: 4 },
   primaryBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 24,
   },
-  btnDisabled: { backgroundColor: COLORS.textLight },
+  btnDisabled: { backgroundColor: C.textLight },
   primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  desc: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 20, textAlign: "center" },
+  desc: { fontSize: 14, color: C.textSecondary, marginBottom: 20, textAlign: "center" },
   codeInput: {
     backgroundColor: "rgba(255,255,255,0.6)",
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 24,
-    color: COLORS.text,
+    color: C.text,
     textAlign: "center",
     letterSpacing: 8,
     fontWeight: "700",
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     marginBottom: 20,
   },
-  orgBadgeText: { fontSize: 14, fontWeight: "700", color: COLORS.primary },
+  orgBadgeText: { fontSize: 14, fontWeight: "700", color: C.primary },
   skipBtn: { marginTop: 16, alignItems: "center", paddingVertical: 12 },
-  skipText: { fontSize: 14, color: COLORS.textLight },
+  skipText: { fontSize: 14, color: C.textLight },
 });

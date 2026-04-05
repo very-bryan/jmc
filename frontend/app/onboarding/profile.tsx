@@ -12,7 +12,7 @@ import { authApi } from "../../src/api/auth";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import { ResultToast } from "../../src/components/ConfirmModal";
 
 const GENDERS = [
@@ -34,6 +34,8 @@ const MARRIAGE_TIMINGS = [
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const { phone, invite_code, payment_token, is_seed } = useLocalSearchParams<{
     phone: string;
     invite_code?: string;
@@ -118,7 +120,7 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="2~20자"
-          placeholderTextColor={COLORS.textLight}
+          placeholderTextColor={C.textLight}
           value={form.nickname}
           onChangeText={(v) => updateField("nickname", v)}
           maxLength={20}
@@ -128,7 +130,7 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
-          placeholderTextColor={COLORS.textLight}
+          placeholderTextColor={C.textLight}
           secureTextEntry
           value={form.password}
           onChangeText={(v) => updateField("password", v)}
@@ -155,7 +157,7 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="1995"
-          placeholderTextColor={COLORS.textLight}
+          placeholderTextColor={C.textLight}
           keyboardType="number-pad"
           maxLength={4}
           value={form.birth_year}
@@ -185,7 +187,7 @@ export default function ProfileScreen() {
         <TextInput
           style={styles.input}
           placeholder="예: IT/개발, 금융, 의료 등"
-          placeholderTextColor={COLORS.textLight}
+          placeholderTextColor={C.textLight}
           value={form.occupation}
           onChangeText={(v) => updateField("occupation", v)}
         />
@@ -227,17 +229,17 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
-  label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 8 },
+const getStyles = (C: any) => StyleSheet.create({
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 24 },
+  label: { fontSize: 14, fontWeight: "600", color: C.text, marginBottom: 8 },
   input: {
     backgroundColor: "rgba(255,255,255,0.6)",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: COLORS.text,
+    color: C.text,
   },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
@@ -247,18 +249,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: C.primary,
+    borderColor: C.primary,
   },
-  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipText: { fontSize: 13, color: C.textSecondary },
   chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 12,
   },
-  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonDisabled: { backgroundColor: C.textLight },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });

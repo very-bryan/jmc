@@ -11,7 +11,7 @@ import { preferenceFilterApi, profileApi } from "../../src/api";
 import { useAuthStore } from "../../src/store/authStore";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import { ResultToast } from "../../src/components/ConfirmModal";
 
 const GENDERS = [
@@ -33,6 +33,8 @@ const REGIONS = [
 
 export default function PreferenceScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const { fetchMe } = useAuthStore();
 
   const [gender, setGender] = useState("prefer_female");
@@ -154,10 +156,10 @@ export default function PreferenceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
-  label: { fontSize: 16, fontWeight: "700", color: COLORS.text, marginBottom: 10 },
+const getStyles = (C: any) => StyleSheet.create({
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 24 },
+  label: { fontSize: 16, fontWeight: "700", color: C.text, marginBottom: 10 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 14,
@@ -166,13 +168,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: C.primary,
+    borderColor: C.primary,
   },
-  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipText: { fontSize: 13, color: C.textSecondary },
   chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",

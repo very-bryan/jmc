@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 import { valueSurveyApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { OnboardingLayout, GlassCard } from "../../src/components/OnboardingLayout";
-import { COLORS } from "../../src/constants/config";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 import { ResultToast } from "../../src/components/ConfirmModal";
 
 const QUESTIONS = [
@@ -75,6 +75,8 @@ const QUESTIONS = [
 
 export default function SurveyScreen() {
   const router = useRouter();
+  const C = useThemeColors();
+  const styles = getStyles(C);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -136,10 +138,10 @@ export default function SurveyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
-  questionTitle: { fontSize: 16, fontWeight: "700", color: COLORS.text, marginBottom: 10 },
+const getStyles = (C: any) => StyleSheet.create({
+  title: { fontSize: 28, fontWeight: "800", color: C.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 24 },
+  questionTitle: { fontSize: 16, fontWeight: "700", color: C.text, marginBottom: 10 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 14,
@@ -148,18 +150,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.6)",
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: C.primary,
+    borderColor: C.primary,
   },
-  chipText: { fontSize: 13, color: COLORS.textSecondary },
+  chipText: { fontSize: 13, color: C.textSecondary },
   chipTextActive: { color: "#fff", fontWeight: "600" },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: C.primary,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 4,
   },
-  buttonDisabled: { backgroundColor: COLORS.textLight },
+  buttonDisabled: { backgroundColor: C.textLight },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });
