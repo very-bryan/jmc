@@ -72,7 +72,7 @@ export default function HomeScreen() {
         trackEvent(EVENTS.FEED_SCROLL, { page: pageNum });
       }
     } catch {
-      // ignore
+      if (pageNum === 1) setPosts(DUMMY_POSTS);
     } finally {
       setLoading(false);
       setRefreshing(false);
