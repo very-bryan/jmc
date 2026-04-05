@@ -23,6 +23,11 @@ module Api
 
       # POST /api/v1/posts
       def create
+        daily_count = current_user.posts.where("created_at > ?", 24.hours.ago).count
+        if daily_count >= 10
+          return render json: { error: "하루 최대 10개까지 게시할 수 있습니다" }, status: :too_many_requests
+        end
+
         post = current_user.posts.build(post_params)
         post.status = :published
 

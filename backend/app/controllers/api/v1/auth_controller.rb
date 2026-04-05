@@ -22,12 +22,14 @@ module Api
 
         # MVP: 고정 코드 123456
         unless code == "123456"
+          Rails.logger.warn "[AUTH] 인증 실패 phone=#{phone} ip=#{request.remote_ip}"
           return render json: { error: "인증코드가 일치하지 않습니다" }, status: :unprocessable_entity
         end
 
         user = User.find_by(phone: phone)
 
         if user
+          Rails.logger.info "[AUTH] 로그인 성공 user_id=#{user.id} phone=#{phone} ip=#{request.remote_ip}"
           user.update!(phone_verified: true)
           token = JwtService.encode(user_id: user.id)
           render json: { token: token, user: user_response(user), is_new_user: false }
@@ -45,9 +47,10 @@ module Api
       def register
         invite_code_str = params[:invite_code]
         payment_token = params[:payment_token]
-        is_seed = params[:is_seed] == true
 
-        # 시드 유저가 아니면 초대코드 or 결제 필요
+        # 시드 유저 여부는 서버에서 마스터 코드로만 판별 (클라이언트 파라미터 무시)
+        is_seed = invite_code_str == "ABC123"
+
         unless is_seed
           if invite_code_str.present?
             invite_code = InviteCode.validate_code(invite_code_str)
@@ -79,6 +82,7 @@ module Api
         end
 
         if user.save
+          Rails.logger.info "[AUTH] 회원가입 user_id=#{user.id} method=#{is_seed ? 'seed' : invite_code_str.present? ? 'invite' : 'paid'} ip=#{request.remote_ip}"
           # 초대코드 사용 처리
           invite_code&.redeem!(user)
 
