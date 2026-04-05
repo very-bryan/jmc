@@ -13,13 +13,15 @@ class InviteCode < ApplicationRecord
   before_validation :generate_code, on: :create
 
   def redeem!(user)
-    return false unless available?
+    with_lock do
+      return false unless available?
 
-    update!(
-      status: :used,
-      used_by: user,
-      used_at: Time.current
-    )
+      update!(
+        status: :used,
+        used_by: user,
+        used_at: Time.current
+      )
+    end
     true
   end
 

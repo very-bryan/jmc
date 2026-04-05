@@ -65,12 +65,13 @@ class Interest < ApplicationRecord
 
   def create_match!
     user_ids = [ sender_id, receiver_id ].sort
-    match = Match.create!(
-      user1_id: user_ids.first,
-      user2_id: user_ids.last,
-      status: :active,
-      matched_at: Time.current
-    )
-    Conversation.create!(match: match, status: :active, last_message_at: Time.current)
+    match = Match.find_or_create_by!(user1_id: user_ids.first, user2_id: user_ids.last) do |m|
+      m.status = :active
+      m.matched_at = Time.current
+    end
+    Conversation.find_or_create_by!(match: match) do |c|
+      c.status = :active
+      c.last_message_at = Time.current
+    end
   end
 end

@@ -5,6 +5,17 @@ module Api
       def create
         partner = User.find(params[:partner_id])
 
+        # 이미 활성 관계가 있으면 거부
+        existing = Relationship.where(
+          "(initiator_id = ? OR partner_id = ?) AND status IN (?)",
+          current_user.id, current_user.id,
+          [ Relationship.statuses[:requested], Relationship.statuses[:confirmed] ]
+        ).exists?
+
+        if existing
+          return render json: { error: "이미 진행 중인 관계가 있습니다" }, status: :unprocessable_entity
+        end
+
         relationship = current_user.initiated_relationships.build(
           partner: partner,
           relationship_type: params[:relationship_type] || :dating,
@@ -23,7 +34,13 @@ module Api
       # POST /api/v1/relationships/:id/confirm
       def confirm
         relationship = current_user.received_relationships.find_by!(id: params[:id], status: :requested)
-        relationship.update!(status: :confirmed, confirmed_at: Time.current)
+
+        ActiveRecord::Base.transaction do
+          relationship.lock!
+          return render json: { error: "이미 처리되었습니다" }, status: :unprocessable_entity unless relationship.rel_requested?
+
+          relationship.update!(status: :confirmed, confirmed_at: Time.current)
+        end
 
         render json: { message: "확인되었습니다", relationship: relationship_response(relationship) }
       rescue ActiveRecord::RecordNotFound
@@ -37,8 +54,12 @@ module Api
           current_user.id, current_user.id, Relationship.statuses[:confirmed]
         ).find(params[:id])
 
-        relationship.update!(status: :ended)
-        current_user.update!(status: :active)
+        ActiveRecord::Base.transaction do
+          relationship.update!(status: :ended)
+          # 양쪽 모두 active로 복귀
+          relationship.initiator.update!(status: :active)
+          relationship.partner.update!(status: :active)
+        end
 
         render json: { message: "재활성화되었습니다" }
       rescue ActiveRecord::RecordNotFound

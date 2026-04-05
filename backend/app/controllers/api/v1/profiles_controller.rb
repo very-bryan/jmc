@@ -13,9 +13,11 @@ module Api
           current_user.update!(profile_completed: profile_complete?) unless current_user.profile_completed?
           current_user.update_verification_level!
 
-          # 프로필 완성 시 초대코드 발급
-          if was_incomplete && current_user.profile_completed? && current_user.owned_invite_codes.empty?
-            InviteCode.generate_for_user!(current_user)
+          # 프로필 완성 시 초대코드 발급 (중복 발급 방지)
+          if was_incomplete && current_user.profile_completed?
+            current_user.with_lock do
+              InviteCode.generate_for_user!(current_user) if current_user.owned_invite_codes.empty?
+            end
           end
 
           render json: { user: full_profile(current_user) }

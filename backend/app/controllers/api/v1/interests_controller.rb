@@ -37,19 +37,26 @@ module Api
       # POST /api/v1/interests/:id/accept
       def accept
         interest = current_user.received_interests.pending.find(params[:id])
-        interest.update!(status: :accepted)
 
-        # Create match and conversation
-        user_ids = [ interest.sender_id, interest.receiver_id ].sort
-        match = Match.create!(
-          user1_id: user_ids.first,
-          user2_id: user_ids.last,
-          status: :active,
-          matched_at: Time.current
-        )
-        Conversation.create!(match: match, status: :active, last_message_at: Time.current)
+        ActiveRecord::Base.transaction do
+          interest.lock!
+          return render json: { error: "이미 처리되었습니다" }, status: :unprocessable_entity unless interest.pending?
 
-        render json: { message: "상호 관심이 성립되었습니다!", match_id: match.id }
+          interest.update!(status: :accepted)
+
+          # 이미 매치가 있으면 중복 생성 방지
+          user_ids = [ interest.sender_id, interest.receiver_id ].sort
+          match = Match.find_or_create_by!(user1_id: user_ids.first, user2_id: user_ids.last) do |m|
+            m.status = :active
+            m.matched_at = Time.current
+          end
+          Conversation.find_or_create_by!(match: match) do |c|
+            c.status = :active
+            c.last_message_at = Time.current
+          end
+
+          render json: { message: "상호 관심이 성립되었습니다!", match_id: match.id }
+        end
       rescue ActiveRecord::RecordNotFound
         render json: { error: "관심을 찾을 수 없습니다" }, status: :not_found
       end
