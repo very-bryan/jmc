@@ -4,6 +4,7 @@ class ConversationChannel < ApplicationCable::Channel
     match = conversation.match
 
     if match.includes_user?(current_user)
+      @conversation_id = conversation.id
       stream_from "conversation_#{conversation.id}"
     else
       reject
@@ -15,7 +16,14 @@ class ConversationChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    conversation = Conversation.find(params[:conversation_id])
+    # 구독 시 검증된 conversation_id만 사용 (params 변조 방지)
+    return unless @conversation_id
+
+    conversation = Conversation.find(@conversation_id)
+    match = conversation.match
+
+    # 참여자 재검증
+    return unless match.includes_user?(current_user)
 
     message = conversation.messages.create!(
       sender: current_user,

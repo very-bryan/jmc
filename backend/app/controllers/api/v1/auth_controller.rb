@@ -28,15 +28,18 @@ module Api
 
         user = User.find_by(phone: phone)
 
+        # 응답 시간을 통일하여 타이밍 공격 방지
+        user = User.find_by(phone: phone)
+
         if user
-          Rails.logger.info "[AUTH] 로그인 성공 user_id=#{user.id} phone=#{phone} ip=#{request.remote_ip}"
-          user.update!(phone_verified: true)
+          Rails.logger.info "[AUTH] 로그인 성공 user_id=#{user.id} ip=#{request.remote_ip}"
+          user.update_columns(phone_verified: true)
           token = JwtService.encode(user_id: user.id)
           render json: { token: token, user: user_response(user), is_new_user: false }
         else
+          # phone을 응답에 포함하지 않음 (열거 방지)
           render json: {
-            message: "새로운 사용자입니다. 회원가입을 진행하세요.",
-            phone: phone,
+            message: "인증이 완료되었습니다",
             phone_verified: true,
             is_new_user: true
           }

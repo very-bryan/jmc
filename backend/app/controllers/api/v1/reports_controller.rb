@@ -31,7 +31,10 @@ module Api
         when "Post"
           Post.find(params[:reportable_id])
         when "Message"
-          Message.find(params[:reportable_id])
+          # 자신의 대화에 속한 메시지만 신고 가능
+          match_ids = current_user.matches.pluck(:id)
+          conversation_ids = Conversation.where(match_id: match_ids).pluck(:id)
+          Message.where(conversation_id: conversation_ids).find(params[:reportable_id])
         else
           raise ActiveRecord::RecordNotFound
         end

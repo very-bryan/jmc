@@ -6,9 +6,24 @@ class Rack::Attack
     end
   end
 
+  # 사용자별: JWT 토큰당 분당 30회 (관심/차단/신고)
+  throttle("user_actions/jwt", limit: 30, period: 1.minute) do |req|
+    if req.path.match?(%r{/api/v1/(interests|blocks|reports)}) && req.post?
+      # Authorization 헤더에서 토큰 추출
+      req.env["HTTP_AUTHORIZATION"]&.split(" ")&.last
+    end
+  end
+
   # 일반 API: IP당 분당 60회
   throttle("api/ip", limit: 60, period: 1.minute) do |req|
     if req.path.start_with?("/api/")
+      req.ip
+    end
+  end
+
+  # 관리자 로그인: IP당 분당 3회
+  throttle("admin/login", limit: 3, period: 1.minute) do |req|
+    if req.path == "/admin/login" && req.post?
       req.ip
     end
   end

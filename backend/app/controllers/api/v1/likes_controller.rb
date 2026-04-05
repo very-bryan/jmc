@@ -4,6 +4,11 @@ module Api
       # POST /api/v1/posts/:post_id/like
       def create
         post = Post.find(params[:post_id])
+
+        if current_user.blocked?(post.user) || post.user.blocked?(current_user)
+          return render json: { error: "차단된 사용자의 게시글입니다" }, status: :forbidden
+        end
+
         like = post.likes.build(user: current_user)
 
         if like.save

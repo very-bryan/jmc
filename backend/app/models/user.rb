@@ -35,6 +35,32 @@ class User < ApplicationRecord
   enum :status, { pending_verification: 0, active: 1, in_relationship: 2, graduated: 3, suspended: 4, dormant: 5 }
   enum :verification_level, { basic: 0, phone_verified: 1, selfie_verified: 2, profile_verified: 3, fully_verified: 4 }, prefix: :level
 
+  # 인증/보안 필드는 프로필 업데이트 API에서 변경 불가 (서버 내부에서만 변경)
+  # profile_params에서 이 필드들을 permit하지 않아서 보호됨
+  # 추가 방어: before_save 콜백으로 외부 변경 감지
+  before_update :protect_verification_fields
+
+  def protect_verification_fields
+    if verification_level_changed? && !@allow_verification_update
+      self.verification_level = verification_level_was
+    end
+  end
+
+  def update_verification_level!
+    @allow_verification_update = true
+    level = if value_survey.present? && profile_completed?
+              :profile_verified
+            elsif selfie_verified?
+              :selfie_verified
+            elsif phone_verified?
+              :phone_verified
+            else
+              :basic
+            end
+    update!(verification_level: level)
+    @allow_verification_update = false
+  end
+
   validates :phone, presence: true, uniqueness: true, format: { with: /\A01[016789]\d{7,8}\z/ }
   validates :nickname, uniqueness: true, length: { minimum: 2, maximum: 20 }, allow_nil: true
   validates :birth_year, numericality: { greater_than: 1960, less_than_or_equal_to: ->(_) { Date.today.year - 19 } }, allow_nil: true
@@ -61,18 +87,6 @@ class User < ApplicationRecord
       received_interests.exists?(sender: user, status: :accepted)
   end
 
-  def update_verification_level!
-    level = if value_survey.present? && profile_completed?
-              :profile_verified
-            elsif selfie_verified?
-              :selfie_verified
-            elsif phone_verified?
-              :phone_verified
-            else
-              :basic
-            end
-    update!(verification_level: level)
-  end
 
   def available_invite_codes
     owned_invite_codes.available_codes

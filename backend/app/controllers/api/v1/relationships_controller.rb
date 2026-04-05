@@ -56,9 +56,9 @@ module Api
 
         ActiveRecord::Base.transaction do
           relationship.update!(status: :ended)
-          # 양쪽 모두 active로 복귀
-          relationship.initiator.update!(status: :active)
-          relationship.partner.update!(status: :active)
+          # suspended가 아닌 유저만 active로 복귀
+          relationship.initiator.update!(status: :active) unless relationship.initiator.suspended?
+          relationship.partner.update!(status: :active) unless relationship.partner.suspended?
         end
 
         render json: { message: "재활성화되었습니다" }

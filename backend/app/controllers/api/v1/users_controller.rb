@@ -5,8 +5,9 @@ module Api
       def show
         user = User.visible.find(params[:id])
 
+        # 차단된 유저도 404로 통일 (존재 여부 노출 방지)
         if current_user.blocked?(user) || user.blocked?(current_user)
-          return render json: { error: "접근할 수 없는 프로필입니다" }, status: :forbidden
+          return render json: { error: "사용자를 찾을 수 없습니다" }, status: :not_found
         end
 
         render json: { user: public_profile(user) }

@@ -61,30 +61,32 @@ RSpec.describe "Relationships API", type: :request do
       graduated_user = create(:user, :graduated)
       post "/api/v1/relationships/solo_graduation", headers: auth_headers(graduated_user)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:forbidden)
     end
 
     it "suspended 유저 거부" do
       suspended_user = create(:user, :suspended)
       post "/api/v1/relationships/solo_graduation", headers: auth_headers(suspended_user)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
   describe "POST /api/v1/relationships/:id/end_relationship" do
-    it "졸업 취소 → active로 복귀" do
+    it "연애 종료 → active로 복귀" do
       rel = Relationship.create!(
         initiator: initiator, partner: partner,
-        relationship_type: :graduated, status: :confirmed,
+        relationship_type: :dating, status: :confirmed,
         confirmed_at: Time.current
       )
-      initiator.update!(status: :graduated)
+      initiator.update_column(:status, User.statuses[:in_relationship])
+      partner.update_column(:status, User.statuses[:in_relationship])
 
       post "/api/v1/relationships/#{rel.id}/end_relationship", headers: auth_headers(initiator)
 
       expect(response).to have_http_status(:ok)
       expect(initiator.reload.status).to eq("active")
+      expect(partner.reload.status).to eq("active")
     end
   end
 end
