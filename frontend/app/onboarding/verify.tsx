@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { authApi } from "../../src/api/auth";
@@ -49,7 +51,7 @@ export default function VerifyScreen() {
 
   return (
     <OnboardingLayout scrollable={false}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <Text style={styles.title}>인증코드 입력</Text>
         <Text style={styles.subtitle}>
           {phone}로 발송된 인증코드를 입력해주세요
@@ -77,13 +79,13 @@ export default function VerifyScreen() {
             </Text>
           </TouchableOpacity>
         </GlassCard>
-      </View>
+      </KeyboardAvoidingView>
     </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, justifyContent: "center" },
+  content: { flex: 1, justifyContent: "flex-start", paddingTop: 60 },
   title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
   subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28 },
   input: {

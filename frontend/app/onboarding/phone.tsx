@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { authApi } from "../../src/api/auth";
@@ -38,7 +40,7 @@ export default function PhoneScreen() {
 
   return (
     <OnboardingLayout scrollable={false}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <Text style={styles.title}>본인확인</Text>
         <Text style={styles.subtitle}>휴대폰 번호로 본인확인을 진행합니다</Text>
 
@@ -61,13 +63,13 @@ export default function PhoneScreen() {
             <Text style={styles.buttonText}>{loading ? "발송 중..." : "인증코드 받기"}</Text>
           </TouchableOpacity>
         </GlassCard>
-      </View>
+      </KeyboardAvoidingView>
     </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, justifyContent: "center" },
+  content: { flex: 1, justifyContent: "flex-start", paddingTop: 60 },
   title: { fontSize: 28, fontWeight: "800", color: COLORS.text, marginBottom: 8 },
   subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 28 },
   label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 10 },
