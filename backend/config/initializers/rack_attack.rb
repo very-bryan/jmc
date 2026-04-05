@@ -1,3 +1,6 @@
+# 캐시 스토어 설정 (Redis 없으면 메모리 사용)
+Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+
 class Rack::Attack
   # 인증 API: IP당 분당 5회
   throttle("auth/ip", limit: 5, period: 1.minute) do |req|
