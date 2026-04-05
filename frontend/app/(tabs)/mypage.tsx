@@ -50,6 +50,10 @@ export default function MypageScreen() {
         style: "destructive",
         onPress: async () => {
           await logout();
+          // 탭 네비게이션 스택을 완전히 리셋하고 스플래시로 이동
+          while (router.canGoBack()) {
+            router.back();
+          }
           router.replace("/");
         },
       },
