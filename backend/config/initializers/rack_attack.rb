@@ -21,6 +21,13 @@ class Rack::Attack
     end
   end
 
+  # 사전등록: IP당 시간당 5회
+  throttle("pre_registration/ip", limit: 5, period: 1.hour) do |req|
+    if req.path == "/api/v1/pre_registrations" && req.post?
+      req.ip
+    end
+  end
+
   # 관리자 로그인: IP당 분당 3회
   throttle("admin/login", limit: 3, period: 1.minute) do |req|
     if req.path == "/admin/login" && req.post?

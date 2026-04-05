@@ -15,7 +15,14 @@ module Api
 
       # GET /api/v1/posts/:id
       def show
-        post = Post.visible_posts.includes(:post_images, :user).find(params[:id])
+        blocked_ids = current_user.blocked_users.pluck(:id) +
+                      current_user.blocks_received.pluck(:blocker_id)
+
+        post = Post.visible_posts
+          .where.not(user_id: blocked_ids)
+          .includes(:post_images, :user)
+          .find(params[:id])
+
         render json: { post: post_response(post) }
       rescue ActiveRecord::RecordNotFound
         render json: { error: "게시글을 찾을 수 없습니다" }, status: :not_found
@@ -30,6 +37,11 @@ module Api
 
         post = current_user.posts.build(post_params)
         post.status = :published
+
+        # 이미지 URL이 우리 S3에서 온 건지 검증
+        if post.post_images.any? { |img| !valid_image_url?(img.image_url) }
+          return render json: { error: "허용되지 않는 이미지 URL입니다" }, status: :unprocessable_entity
+        end
 
         if post.save
           render json: { post: post_response(post) }, status: :created
@@ -48,6 +60,12 @@ module Api
       end
 
       private
+
+      def valid_image_url?(url)
+        return true if url.blank?
+        s3_endpoint = ENV.fetch("S3_ENDPOINT", "http://221.143.48.200:9000")
+        url.start_with?(s3_endpoint) || url.start_with?("https://jmc-images")
+      end
 
       def post_params
         params.require(:post).permit(

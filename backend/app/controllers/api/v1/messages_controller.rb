@@ -26,12 +26,15 @@ module Api
       end
 
       # POST /api/v1/conversations/:conversation_id/messages
+      ALLOWED_MESSAGE_TYPES = %w[text image].freeze
+
       def create
         conversation = find_conversation
+        msg_type = ALLOWED_MESSAGE_TYPES.include?(params[:message_type]) ? params[:message_type] : "text"
         message = conversation.messages.build(
           sender: current_user,
           content: params[:content],
-          message_type: params[:message_type] || :text,
+          message_type: msg_type,
           metadata: { read: false }
         )
 

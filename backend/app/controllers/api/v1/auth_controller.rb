@@ -76,12 +76,15 @@ module Api
         user.paid = payment_token.present?
         user.is_seed_user = is_seed
 
-        # 카카오 정보 매핑
-        if params[:kakao_id].present?
-          user.kakao_id = params[:kakao_id]
-          user.kakao_nickname = params[:kakao_nickname]
-          user.kakao_profile_image = params[:kakao_profile_image]
-          user.kakao_email = params[:kakao_email]
+        # 카카오 정보: 서버에서 토큰 검증 후에만 설정 (클라이언트 직접 설정 차단)
+        if params[:kakao_access_token].present?
+          kakao_info = KakaoAuthService.get_user_info(params[:kakao_access_token])
+          if kakao_info
+            user.kakao_id = kakao_info[:kakao_id]
+            user.kakao_nickname = kakao_info[:nickname]
+            user.kakao_profile_image = kakao_info[:profile_image]
+            user.kakao_email = kakao_info[:email]
+          end
         end
 
         if user.save
