@@ -1,5 +1,10 @@
-# 캐시 스토어 설정 (Redis 없으면 메모리 사용)
-Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+# 테스트 환경에서는 rate limit 비활성화
+if Rails.env.test?
+  Rack::Attack.enabled = false
+else
+  # 캐시 스토어 설정 (Redis 없으면 메모리 사용)
+  Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+end
 
 class Rack::Attack
   # 인증 API: IP당 분당 5회

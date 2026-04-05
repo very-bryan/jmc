@@ -47,9 +47,9 @@ RSpec.describe "Auth API", type: :request do
       post "/api/v1/auth/register", params: {
         invite_code: "TESTCODE",
         user: {
-          phone: "01088887777",
+          phone: "0108888#{rand(1000..9999)}",
           password: "password123",
-          nickname: "새유저",
+          nickname: "새유저#{rand(9999)}",
           gender: "male",
           birth_year: 1995,
           region: "서울"
@@ -64,9 +64,9 @@ RSpec.describe "Auth API", type: :request do
     it "초대코드/결제 없이 가입 거부" do
       post "/api/v1/auth/register", params: {
         user: {
-          phone: "01088887777",
+          phone: "0109999#{rand(1000..9999)}",
           password: "password123",
-          nickname: "새유저",
+          nickname: "거부유저#{rand(9999)}",
           gender: "male",
           birth_year: 1995,
           region: "서울"

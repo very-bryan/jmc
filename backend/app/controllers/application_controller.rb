@@ -21,12 +21,16 @@ class ApplicationController < ActionController::API
       return render json: { error: "계정이 정지되었습니다" }, status: :forbidden
     end
 
-    if @current_user.graduated? || @current_user.dormant?
+    if (@current_user.graduated? || @current_user.dormant?) && !reactivate_request?
       return render json: { error: "비활성화된 계정입니다. 휴면해제가 필요합니다" }, status: :forbidden
     end
   end
 
   def current_user
     @current_user
+  end
+
+  def reactivate_request?
+    request.path == "/api/v1/auth/reactivate" && request.put?
   end
 end

@@ -53,6 +53,8 @@ Rails.application.routes.draw do
       post "auth/verify_work_email", to: "auth#send_work_email_verification"
       post "auth/confirm_work_email", to: "auth#confirm_work_email"
       put "auth/visibility", to: "auth#update_visibility"
+      put "auth/deactivate", to: "auth#deactivate"
+      put "auth/reactivate", to: "auth#reactivate"
       get "auth/me", to: "auth#me"
 
       # Profile

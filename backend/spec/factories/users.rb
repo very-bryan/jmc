@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :user do
     sequence(:phone) { |n| "0101234#{n.to_s.rjust(4, '0')}" }
     password { "password123" }
-    nickname { "테스트유저#{rand(1000)}" }
+    sequence(:nickname) { |n| "테스트유저#{n}" }
     gender { :male }
     birth_year { 1995 }
     region { "서울" }

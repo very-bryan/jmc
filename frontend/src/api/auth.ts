@@ -30,4 +30,6 @@ export const authApi = {
   }) => client.post<{ token: string; user: User }>("/auth/register", data),
 
   me: () => client.get<{ user: User }>("/auth/me"),
+  deactivate: () => client.put("/auth/deactivate"),
+  reactivate: () => client.put("/auth/reactivate"),
 };

@@ -177,6 +177,18 @@ module Api
         render json: { user: user_response(current_user) }
       end
 
+      # PUT /api/v1/auth/deactivate
+      def deactivate
+        current_user.update!(status: :dormant)
+        render json: { message: "계정이 비활성화되었습니다" }
+      end
+
+      # PUT /api/v1/auth/reactivate
+      def reactivate
+        current_user.update!(status: :active)
+        render json: { message: "계정이 활성화되었습니다", user: user_response(current_user) }
+      end
+
       # GET /api/v1/auth/me
       def me
         render json: { user: user_response(current_user) }

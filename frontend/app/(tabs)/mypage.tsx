@@ -12,10 +12,10 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
-import { ConfirmModal } from "../../src/components/ConfirmModal";
+import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
 import { useThemeStore, ThemeMode } from "../../src/store/themeStore";
-import { inviteCodeApi } from "../../src/api";
-import client from "../../src/api/client";
+import { inviteCodeApi, profileApi } from "../../src/api";
+import { authApi } from "../../src/api/auth";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { VerificationBadge } from "../../src/components/VerificationBadge";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
@@ -29,6 +29,11 @@ export default function MypageScreen() {
     { id: number; code: string; status: string; used_by: any }[]
   >([]);
   const [logoutModal, setLogoutModal] = useState(false);
+  const [deactivateModal, setDeactivateModal] = useState(false);
+  const [dndEnabled, setDndEnabled] = useState(false);
+  const [profileVisible, setProfileVisible] = useState(true);
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   useEffect(() => {
     inviteCodeApi.list().then((res) => setInviteCodes(res.data.codes)).catch(() => {});
@@ -54,6 +59,34 @@ export default function MypageScreen() {
     router.replace("/");
   };
 
+  const handleDeactivate = async () => {
+    setDeactivateModal(false);
+    try {
+      await authApi.deactivate();
+      setToastType("success");
+      setToastMsg("계정이 비활성화되었습니다");
+      setTimeout(async () => {
+        await logout();
+        router.replace("/");
+      }, 1500);
+    } catch {
+      setToastType("error");
+      setToastMsg("비활성화에 실패했습니다");
+    }
+  };
+
+  const toggleProfileVisibility = async (value: boolean) => {
+    setProfileVisible(value);
+    try {
+      await profileApi.update({ status: value ? "active" : "dormant" } as any);
+      await fetchMe();
+    } catch {
+      setProfileVisible(!value);
+      setToastType("error");
+      setToastMsg("설정 변경에 실패했습니다");
+    }
+  };
+
   if (!user) return null;
 
   const avatarUri =
@@ -62,6 +95,7 @@ export default function MypageScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: C.surface }]}>
+      {/* Profile Section */}
       <View style={[styles.profileSection, { backgroundColor: C.background }]}>
         <View style={styles.avatarWrap}>
           <Image source={{ uri: avatarUri }} style={[styles.avatarImage, { backgroundColor: C.surface }]} />
@@ -76,6 +110,7 @@ export default function MypageScreen() {
         <Text style={[styles.premiumText, { color: C.textSecondary }]}>가입일 2023년</Text>
       </View>
 
+      {/* Graduation Card */}
       <View style={[styles.gradCard, { backgroundColor: C.primary }]}>
         <Text style={styles.gradTitle}>좋은 사람을 만나셨나요?</Text>
         <Text style={styles.gradSubtitle}>졸업은 진만추의 축하입니다</Text>
@@ -84,13 +119,15 @@ export default function MypageScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* 계정 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>계정</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <SettingsRow icon="person" label="개인정보" onPress={() => router.push("/onboarding/profile")} C={C} />
         <SettingsRow icon="mail" label="이메일 · 전화번호" onPress={() => router.push("/onboarding/email-verify")} C={C} />
-        <SettingsRow icon="credit-card" label="구독 · 결제" badge="[미구현]" isLast C={C} />
+        <SettingsRow icon="credit-card" label="구독 · 결제" badge="준비 중" isLast C={C} />
       </View>
 
+      {/* 매칭 설정 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>매칭 설정</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} C={C} />
@@ -98,6 +135,7 @@ export default function MypageScreen() {
         <SettingsRow icon="psychology" label="MBTI 설정" onPress={() => router.push("/onboarding/mbti" as any)} isLast C={C} />
       </View>
 
+      {/* 화면 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>화면</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <View style={[styles.themeRow, { borderBottomColor: C.borderLight }]}>
@@ -123,6 +161,7 @@ export default function MypageScreen() {
         </View>
       </View>
 
+      {/* 알림 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>알림</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <View style={[styles.settingsRow, { borderBottomColor: C.borderLight }]}>
@@ -133,21 +172,52 @@ export default function MypageScreen() {
             trackColor={{ true: C.primary, false: C.border }}
           />
         </View>
-        <SettingsRow icon="schedule" label="방해금지 모드" badge="[미구현]" isLast C={C} />
+        <View style={[styles.settingsRow, styles.settingsRowLast]}>
+          <MaterialIcons name="schedule" size={20} color={C.textSecondary} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: C.text }]}>방해금지 모드</Text>
+          <Switch
+            value={dndEnabled}
+            onValueChange={setDndEnabled}
+            trackColor={{ true: C.primary, false: C.border }}
+          />
+        </View>
       </View>
+      {dndEnabled && (
+        <Text style={[styles.dndHint, { color: C.textLight }]}>
+          22:00 ~ 08:00 사이 알림을 받지 않습니다
+        </Text>
+      )}
 
+      {/* 개인정보 · 계정 관리 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>개인정보 · 계정 관리</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
-        <SettingsRow icon="visibility" label="프로필 공개 설정" badge="[미구현]" C={C} />
-        <SettingsRow icon="warning" label="프로필 비활성화" badge="[미구현]" isLast C={C} />
+        <View style={[styles.settingsRow, { borderBottomColor: C.borderLight }]}>
+          <MaterialIcons name="visibility" size={20} color={C.textSecondary} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: C.text }]}>프로필 공개</Text>
+          <Switch
+            value={profileVisible}
+            onValueChange={toggleProfileVisibility}
+            trackColor={{ true: C.primary, false: C.border }}
+          />
+        </View>
+        <TouchableOpacity
+          style={[styles.settingsRow, styles.settingsRowLast]}
+          onPress={() => setDeactivateModal(true)}
+        >
+          <MaterialIcons name="warning" size={20} color={C.error} style={{ width: 28 }} />
+          <Text style={[styles.rowLabel, { color: C.error }]}>프로필 비활성화</Text>
+          <MaterialIcons name="chevron-right" size={22} color={C.textLight} />
+        </TouchableOpacity>
       </View>
 
+      {/* 고객지원 */}
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>고객지원</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
-        <SettingsRow icon="help" label="도움말 센터" badge="[미구현]" C={C} />
-        <SettingsRow icon="verified-user" label="안전 가이드라인" badge="[미구현]" isLast C={C} />
+        <SettingsRow icon="help" label="도움말 센터" onPress={() => router.push("/help" as any)} C={C} />
+        <SettingsRow icon="verified-user" label="안전 가이드라인" onPress={() => router.push("/safety" as any)} isLast C={C} />
       </View>
 
+      {/* 로그아웃 */}
       <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
         <Text style={[styles.signOutText, { color: C.error }]}>로그아웃</Text>
       </TouchableOpacity>
@@ -165,6 +235,18 @@ export default function MypageScreen() {
         onConfirm={confirmLogout}
         onCancel={() => setLogoutModal(false)}
       />
+      <ConfirmModal
+        visible={deactivateModal}
+        icon="warning"
+        iconColor={C.error}
+        title="프로필을 비활성화하시겠습니까?"
+        message={"비활성화하면 다른 회원에게 프로필이\n표시되지 않습니다.\n다시 활성화하려면 재로그인이 필요합니다."}
+        confirmText="비활성화"
+        confirmColor={C.error}
+        onConfirm={handleDeactivate}
+        onCancel={() => setDeactivateModal(false)}
+      />
+      <ResultToast visible={!!toastMsg} message={toastMsg} type={toastType} onDone={() => setToastMsg("")} />
     </ScrollView>
   );
 }
@@ -275,6 +357,11 @@ const styles = StyleSheet.create({
   themeOptionText: {
     fontSize: 13,
     fontWeight: "600",
+  },
+  dndHint: {
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 20,
   },
   signOutBtn: { marginTop: 30, alignItems: "center", paddingVertical: 14 },
   signOutText: { fontSize: 14, fontWeight: "700", letterSpacing: 1 },
