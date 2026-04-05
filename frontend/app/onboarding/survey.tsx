@@ -147,7 +147,7 @@ const getStyles = (C: any) => StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
   },
   chipActive: {
     backgroundColor: C.primary,

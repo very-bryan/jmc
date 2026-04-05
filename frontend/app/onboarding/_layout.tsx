@@ -1,12 +1,17 @@
 import { Stack } from "expo-router";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function OnboardingLayout() {
+  const C = useThemeColors();
+
   return (
     <Stack
       screenOptions={{
         headerShown: true,
         headerBackTitle: "뒤로",
-        headerTitleStyle: { fontWeight: "600" },
+        headerTitleStyle: { fontWeight: "600", color: C.text },
+        headerStyle: { backgroundColor: C.background },
+        headerTintColor: C.text,
       }}
     >
       <Stack.Screen name="intro" options={{ title: "서비스 소개", headerShown: false }} />

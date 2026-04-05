@@ -181,7 +181,7 @@ const getStyles = (C: any) => StyleSheet.create({
   content: { flex: 1 },
   badge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -194,7 +194,7 @@ const getStyles = (C: any) => StyleSheet.create({
   promoDesc: { fontSize: 13, color: C.textSecondary, lineHeight: 20 },
   label: { fontSize: 14, fontWeight: "600", color: C.text, marginBottom: 8 },
   input: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -213,7 +213,7 @@ const getStyles = (C: any) => StyleSheet.create({
   primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   desc: { fontSize: 14, color: C.textSecondary, marginBottom: 20, textAlign: "center" },
   codeInput: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -225,7 +225,7 @@ const getStyles = (C: any) => StyleSheet.create({
   },
   orgBadge: {
     alignSelf: "center",
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 6,

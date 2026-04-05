@@ -234,7 +234,7 @@ const getStyles = (C: any) => StyleSheet.create({
   subtitle: { fontSize: 14, color: C.textSecondary, marginBottom: 24 },
   label: { fontSize: 14, fontWeight: "600", color: C.text, marginBottom: 8 },
   input: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -246,7 +246,7 @@ const getStyles = (C: any) => StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: C.surface,
   },
   chipActive: {
     backgroundColor: C.primary,
