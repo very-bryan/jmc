@@ -1,6 +1,7 @@
 require "aws-sdk-s3"
 require "securerandom"
 require "open3"
+require "shellwords"
 
 class ImageUploadService
   BUCKET = ENV.fetch("S3_BUCKET", "jmc-images")
@@ -69,12 +70,14 @@ class ImageUploadService
     output_path = "/tmp/#{SecureRandom.uuid}.webp"
 
     # convert 명령어로 리사이즈 + WebP 변환
-    cmd = "convert #{input_path} -resize #{MAX_LONG_SIDE}x#{MAX_LONG_SIDE}\\> -quality 85 #{output_path}"
+    safe_input = Shellwords.escape(input_path)
+    safe_output = Shellwords.escape(output_path)
+    cmd = "convert #{safe_input} -resize #{MAX_LONG_SIDE}x#{MAX_LONG_SIDE}\\> -quality 85 #{safe_output}"
     stdout, stderr, status = Open3.capture3(cmd)
 
     unless status.success?
       # convert 실패 시 cwebp 시도
-      cmd2 = "cwebp -q 85 -resize #{MAX_LONG_SIDE} 0 #{input_path} -o #{output_path}"
+      cmd2 = "cwebp -q 85 -resize #{MAX_LONG_SIDE} 0 #{safe_input} -o #{safe_output}"
       stdout2, stderr2, status2 = Open3.capture3(cmd2)
 
       unless status2.success?
