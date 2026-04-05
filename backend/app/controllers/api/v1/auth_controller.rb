@@ -218,6 +218,8 @@ module Api
           profile_completed: user.profile_completed,
           status: user.status,
           verification_level: user.verification_level,
+          mbti: user.mbti,
+          show_mbti: user.show_mbti,
           invite_code_count: user.invite_code_count,
           kakao_connected: user.kakao_id.present?,
           company_verified: user.company_verified,

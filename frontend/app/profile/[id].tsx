@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { userApi, interestApi, blockApi, reportApi, relationshipApi } from "../../src/api";
 import { trackEvent, EVENTS } from "../../src/api/analytics";
 import { ConfirmModal, ResultToast } from "../../src/components/ConfirmModal";
+import { MbtiCompatBadge } from "../../src/components/MbtiCompatBadge";
 import { useThemeColors, useIsDark } from "../../src/hooks/useThemeColors";
 
 const { width } = Dimensions.get("window");
@@ -187,6 +188,15 @@ export default function ProfileScreen() {
             <MaterialIcons name="location-on" size={16} color={C.textSecondary} />
             <Text style={[styles.metaText, { color: C.textSecondary }]}>{profile.region}</Text>
           </View>
+          {profile.mbti && (
+            <View style={{ marginTop: 10 }}>
+              <MbtiCompatBadge
+                mbti={profile.mbti}
+                compatibility={profile.mbti_compatibility}
+                size="medium"
+              />
+            </View>
+          )}
           {profile.bio && <Text style={[styles.bioText, { color: C.text }]}>{profile.bio}</Text>}
         </View>
 

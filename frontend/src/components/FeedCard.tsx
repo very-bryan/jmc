@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { VerificationBadge } from "./VerificationBadge";
+import { MbtiCompatBadge } from "./MbtiCompatBadge";
 import { ConfirmModal, ResultToast } from "./ConfirmModal";
 import { useThemeColors } from "../hooks/useThemeColors";
 import client from "../api/client";
@@ -113,9 +114,15 @@ export function FeedCard({ post, onInterest }: Props) {
               )}
               <VerificationBadge level={post.user.verification_level} />
             </View>
-            <Text style={[styles.meta, { color: C.textSecondary }]}>
-              {post.user.region} · {post.user.age}세
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <Text style={[styles.meta, { color: C.textSecondary, marginTop: 0 }]}>
+                {post.user.region} · {post.user.age}세
+              </Text>
+              <MbtiCompatBadge
+                mbti={(post.user as any).mbti}
+                compatibility={(post.user as any).mbti_compatibility}
+              />
+            </View>
           </View>
         </TouchableOpacity>
         <View>

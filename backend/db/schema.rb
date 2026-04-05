@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_04_154414) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_05_124212) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -301,6 +301,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_04_154414) do
     t.boolean "show_company", default: false
     t.boolean "show_university", default: false
     t.string "email_verify_type"
+    t.string "mbti"
+    t.boolean "show_mbti", default: true
     t.index ["gender"], name: "index_users_on_gender"
     t.index ["kakao_id"], name: "index_users_on_kakao_id", unique: true
     t.index ["nickname"], name: "index_users_on_nickname", unique: true

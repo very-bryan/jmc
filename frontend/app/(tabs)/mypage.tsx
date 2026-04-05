@@ -96,7 +96,8 @@ export default function MypageScreen() {
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>매칭 설정</Text>
       <View style={[styles.card, { backgroundColor: C.background }]}>
         <SettingsRow icon="tune" label="검색 필터" onPress={() => router.push("/onboarding/preference")} C={C} />
-        <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} isLast C={C} />
+        <SettingsRow icon="favorite" label="관계 가치관" onPress={() => router.push("/onboarding/survey")} C={C} />
+        <SettingsRow icon="psychology" label="MBTI 설정" onPress={() => router.push("/onboarding/mbti" as any)} isLast C={C} />
       </View>
 
       <Text style={[styles.sectionLabel, { color: C.textLight }]}>화면</Text>

@@ -40,7 +40,8 @@ module Api
         params.require(:user).permit(
           :nickname, :gender, :birth_year, :region, :occupation,
           :desired_marriage_timing, :education, :height,
-          :smoking, :drinking, :bio, :profile_image_url
+          :smoking, :drinking, :bio, :profile_image_url,
+          :mbti, :show_mbti
         )
       end
 
@@ -70,6 +71,8 @@ module Api
           phone_verified: user.phone_verified,
           selfie_verified: user.selfie_verified,
           profile_completed: user.profile_completed,
+          mbti: user.mbti,
+          show_mbti: user.show_mbti,
           verification_level: user.verification_level,
           status: user.status,
           value_survey: user.value_survey,

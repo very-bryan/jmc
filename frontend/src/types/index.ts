@@ -19,6 +19,8 @@ export interface User {
   profile_completed: boolean;
   status: string;
   verification_level: string;
+  mbti: string | null;
+  show_mbti: boolean;
   created_at: string;
 }
 

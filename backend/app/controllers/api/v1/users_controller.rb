@@ -31,6 +31,9 @@ module Api
           company_name: user.show_company? ? user.company_name : nil,
           university_verified: user.university_verified,
           university_name: user.show_university? ? user.university_name : nil,
+          mbti: user.show_mbti? ? user.mbti : nil,
+          mbti_compatibility: user.show_mbti? && current_user.show_mbti? ?
+            MbtiCompatibilityService.compatibility(current_user.mbti, user.mbti) : nil,
           desired_marriage_timing: user.desired_marriage_timing,
           smoking: user.smoking,
           drinking: user.drinking,

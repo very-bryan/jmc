@@ -72,7 +72,10 @@ module Api
             age: post.user.age,
             region: post.user.region,
             profile_image_url: post.user.profile_image_url,
-            verification_level: post.user.verification_level
+            verification_level: post.user.verification_level,
+            mbti: post.user.show_mbti? ? post.user.mbti : nil,
+            mbti_compatibility: (post.user.show_mbti? && current_user.show_mbti?) ?
+              MbtiCompatibilityService.compatibility(current_user.mbti, post.user.mbti) : nil
           },
           created_at: post.created_at
         }
